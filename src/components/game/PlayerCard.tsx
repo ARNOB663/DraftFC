@@ -237,17 +237,22 @@ export function PlayerCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
           >
-            {/* Position badge with pulse effect */}
+            {/* Position badge with pulse effect and enhanced visibility */}
             <motion.div 
-              className="relative px-3 py-1 rounded-full text-white font-bold text-sm"
-              style={{ backgroundColor: config.accent }}
+              className="relative px-4 py-1.5 rounded-full text-white font-black tracking-wide"
+              style={{ 
+                backgroundColor: config.accent,
+                boxShadow: `0 4px 12px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                fontSize: size === 'lg' ? '14px' : '13px',
+              }}
               whileHover={{ scale: 1.1 }}
             >
               {player.position}
               <motion.div
-                className="absolute inset-0 rounded-full"
+                className="absolute inset-0 rounded-full pointer-events-none"
                 style={{ backgroundColor: config.accent }}
-                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
             </motion.div>
@@ -286,21 +291,30 @@ export function PlayerCard({
             </div>
           </motion.div>
 
-          {/* Player name with staggered animation */}
+          {/* Player name with staggered animation - Enhanced visibility */}
           <motion.div 
             className="mt-4 z-10"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <h3 className={cn(
-              'font-display font-black text-gray-800 leading-tight',
-              size === 'sm' && 'text-lg',
-              size === 'md' && 'text-3xl',
-              size === 'lg' && 'text-5xl',
-            )}>
+            {/* First name with text shadow and stroke effect */}
+            <h3 
+              className={cn(
+                'font-display font-black leading-tight',
+                size === 'sm' && 'text-lg',
+                size === 'md' && 'text-3xl',
+                size === 'lg' && 'text-5xl',
+              )}
+              style={{
+                color: '#1f2937',
+                textShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8)',
+                WebkitTextStroke: size === 'lg' ? '1px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
               {player.name.split(' ').slice(0, -1).join(' ')}
             </h3>
+            {/* Last name with accent color and glow */}
             <motion.h3 
               className={cn(
                 'font-display font-black leading-tight',
@@ -308,21 +322,41 @@ export function PlayerCard({
                 size === 'md' && 'text-4xl',
                 size === 'lg' && 'text-6xl',
               )}
-              style={{ color: config.accent }}
-              animate={isHovered ? { textShadow: `0 0 20px ${config.glow}` } : {}}
+              style={{ 
+                color: config.accent,
+                textShadow: `0 2px 8px ${config.glow}, 0 4px 16px rgba(0,0,0,0.15)`,
+                WebkitTextStroke: size === 'lg' ? `0.5px ${config.accent}` : 'none',
+              }}
+              animate={isHovered ? { 
+                textShadow: `0 0 30px ${config.glow}, 0 4px 20px ${config.glow}` 
+              } : {}}
             >
               {player.name.split(' ').slice(-1)[0]}
             </motion.h3>
             
             {size !== 'sm' && (
-              <motion.p 
-                className="text-gray-500 text-sm mt-1 flex items-center gap-2"
+              <motion.div 
+                className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full"
+                style={{ 
+                  backgroundColor: 'rgba(255,255,255,0.7)',
+                  backdropFilter: 'blur(4px)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                <span className="uppercase tracking-wider">{player.version}</span>
-              </motion.p>
+                <span 
+                  className="uppercase tracking-widest font-semibold"
+                  style={{ 
+                    fontSize: size === 'lg' ? '14px' : '12px',
+                    color: config.accent,
+                    textShadow: `0 1px 2px ${config.glow}`,
+                  }}
+                >
+                  {player.version}
+                </span>
+              </motion.div>
             )}
           </motion.div>
 
@@ -372,14 +406,14 @@ export function PlayerCard({
             </div>
           </motion.div>
 
-          {/* Rating display with counting animation */}
+          {/* Rating display with enhanced visibility */}
           <motion.div 
             className="mt-auto z-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
-            <div className="flex items-end gap-2 mb-3">
+            <div className="flex items-end gap-3 mb-3">
               <motion.span 
                 className={cn(
                   'font-display font-black',
@@ -387,16 +421,37 @@ export function PlayerCard({
                   size === 'md' && 'text-6xl',
                   size === 'lg' && 'text-8xl',
                 )}
-                style={{ color: config.accent }}
+                style={{ 
+                  color: config.accent,
+                  textShadow: `
+                    0 2px 4px rgba(0,0,0,0.2),
+                    0 4px 12px ${config.glow},
+                    0 0 40px ${config.glow}
+                  `,
+                  WebkitTextStroke: size === 'lg' ? `1px ${config.accent}` : 'none',
+                }}
                 animate={isHovered ? { 
-                  textShadow: `0 0 30px ${config.glow}`,
-                  scale: 1.05,
+                  textShadow: `
+                    0 2px 4px rgba(0,0,0,0.3),
+                    0 8px 24px ${config.glow},
+                    0 0 60px ${config.glow}
+                  `,
+                  scale: 1.08,
                 } : { scale: 1 }}
                 transition={{ duration: 0.3 }}
               >
                 {player.rating}
               </motion.span>
-              <span className="text-gray-400 text-sm mb-2 uppercase tracking-wider">Overall</span>
+              <span 
+                className="mb-2 uppercase tracking-widest font-bold"
+                style={{
+                  fontSize: size === 'lg' ? '14px' : '12px',
+                  color: '#374151',
+                  textShadow: '0 1px 2px rgba(255,255,255,0.8)',
+                }}
+              >
+                Overall
+              </span>
             </div>
 
             {/* Stats bar with staggered reveal */}
@@ -420,46 +475,82 @@ export function PlayerCard({
                 ].slice(0, size === 'md' ? 4 : 6).map((stat) => (
                   <motion.div 
                     key={stat.label} 
-                    className="flex-1 rounded-lg py-2 px-1 text-center text-white relative overflow-hidden"
-                    style={{ backgroundColor: stat.color }}
+                    className="flex-1 rounded-xl py-2 px-1 text-center text-white relative overflow-hidden"
+                    style={{ 
+                      backgroundColor: stat.color,
+                      boxShadow: `0 4px 12px ${stat.color}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
+                    }}
                     variants={{
                       hidden: { opacity: 0, y: 20, scale: 0.8 },
                       visible: { opacity: 1, y: 0, scale: 1 }
                     }}
                     whileHover={{ 
-                      scale: 1.1, 
+                      scale: 1.12, 
                       zIndex: 10,
-                      boxShadow: `0 5px 20px ${stat.color}80`
+                      boxShadow: `0 8px 24px ${stat.color}80, inset 0 1px 0 rgba(255,255,255,0.3)`,
                     }}
                   >
+                    {/* Shine sweep effect */}
                     <motion.div
-                      className="absolute inset-0 bg-white"
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent"
                       initial={{ x: '-100%' }}
                       animate={{ x: '100%' }}
                       transition={{ duration: 1, delay: 0.8, ease: 'easeOut' }}
-                      style={{ opacity: 0.3 }}
+                      style={{ opacity: 0.4 }}
                     />
-                    <div className={cn('font-bold relative', size === 'md' ? 'text-lg' : 'text-xl')}>
+                    {/* Stat value with enhanced visibility */}
+                    <div 
+                      className={cn('font-black relative', size === 'md' ? 'text-lg' : 'text-xl')}
+                      style={{
+                        textShadow: '0 1px 2px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.2)',
+                      }}
+                    >
                       {stat.value}
                     </div>
-                    <div className="text-[10px] opacity-80 uppercase relative">{stat.label}</div>
+                    {/* Stat label */}
+                    <div 
+                      className="text-[10px] uppercase font-semibold tracking-wide relative"
+                      style={{
+                        textShadow: '0 1px 1px rgba(0,0,0,0.2)',
+                        opacity: 0.95,
+                      }}
+                    >
+                      {stat.label}
+                    </div>
                   </motion.div>
                 ))}
               </motion.div>
             )}
 
-            {/* Price tag */}
+            {/* Price tag with enhanced visibility */}
             {size !== 'sm' && (
               <motion.div 
-                className="mt-3 flex justify-between items-center"
+                className="mt-3 flex justify-between items-center px-3 py-2 rounded-xl"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5)',
+                }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                <span className="text-gray-400 text-xs uppercase tracking-wider">Base Price</span>
+                <span 
+                  className="uppercase tracking-widest font-semibold"
+                  style={{
+                    fontSize: '11px',
+                    color: '#6b7280',
+                    textShadow: '0 1px 0 rgba(255,255,255,0.8)',
+                  }}
+                >
+                  Base Price
+                </span>
                 <motion.span 
-                  className="font-bold text-lg"
-                  style={{ color: config.accent }}
+                  className="font-black text-lg"
+                  style={{ 
+                    color: config.accent,
+                    textShadow: `0 1px 4px ${config.glow}`,
+                  }}
                   whileHover={{ scale: 1.1 }}
                 >
                   {formatCurrency(player.basePrice * 1000000)}
@@ -565,26 +656,48 @@ export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
         transition={{ duration: 0.6 }}
       />
       
-      {/* Rating badge with glow */}
+      {/* Rating badge with enhanced glow */}
       <motion.div 
-        className="absolute top-0.5 left-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold text-white"
-        style={{ backgroundColor: colors.accent }}
-        animate={isHovered ? { boxShadow: `0 0 10px ${colors.glow}` } : {}}
+        className="absolute top-1 left-1 px-2 py-0.5 rounded-md font-black text-white"
+        style={{ 
+          backgroundColor: colors.accent,
+          fontSize: '11px',
+          boxShadow: `0 2px 6px ${colors.glow}`,
+          textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+        }}
+        animate={isHovered ? { boxShadow: `0 0 12px ${colors.glow}, 0 2px 8px ${colors.glow}` } : {}}
       >
         {player.rating}
       </motion.div>
 
-      {/* Position */}
-      <div className="absolute top-0.5 right-0.5 px-1 rounded text-[8px] font-medium bg-white/90 text-gray-700">
+      {/* Position with better visibility */}
+      <div 
+        className="absolute top-1 right-1 px-1.5 py-0.5 rounded-md font-bold text-gray-800"
+        style={{
+          fontSize: '9px',
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+        }}
+      >
         {player.position}
       </div>
       
-      {/* Player name */}
+      {/* Player name with enhanced visibility */}
       <motion.div 
-        className="absolute bottom-0 left-0 right-0 p-1 text-center"
+        className="absolute bottom-0 left-0 right-0 p-1.5 text-center"
+        style={{
+          background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%)',
+        }}
         animate={isHovered ? { y: -2 } : { y: 0 }}
       >
-        <p className="text-[8px] font-bold text-white truncate drop-shadow-lg">
+        <p 
+          className="font-black text-white truncate"
+          style={{
+            fontSize: '10px',
+            textShadow: '0 1px 3px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5)',
+            letterSpacing: '0.5px',
+          }}
+        >
           {player.name.split(' ').pop()}
         </p>
       </motion.div>
@@ -687,25 +800,37 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
               visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
             }}
           >
-            {/* Position badge */}
+            {/* Position badge with enhanced visibility */}
             <motion.div 
-              className="inline-block px-4 py-1.5 rounded-full text-white font-bold text-sm mb-6"
-              style={{ backgroundColor: config.accent }}
+              className="inline-block px-5 py-2 rounded-full text-white font-black tracking-wide mb-6"
+              style={{ 
+                backgroundColor: config.accent,
+                boxShadow: `0 4px 16px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                textShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                fontSize: '15px',
+              }}
               variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
             >
               {player.position}
             </motion.div>
 
-            {/* Player name */}
+            {/* Player name with enhanced visibility */}
             <motion.h2 
-              className="text-4xl lg:text-6xl font-display font-black text-gray-800 leading-tight"
+              className="text-4xl lg:text-6xl font-display font-black leading-tight"
+              style={{
+                color: '#1f2937',
+                textShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8)',
+              }}
               variants={{ hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0 } }}
             >
               {player.name.split(' ').slice(0, -1).join(' ')}
             </motion.h2>
             <motion.h2 
               className="text-5xl lg:text-7xl font-display font-black leading-tight mb-4"
-              style={{ color: config.accent }}
+              style={{ 
+                color: config.accent,
+                textShadow: `0 2px 12px ${config.glow}, 0 4px 20px rgba(0,0,0,0.15)`,
+              }}
               variants={{ hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0 } }}
             >
               {player.name.split(' ').slice(-1)[0]}
@@ -734,36 +859,84 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
               )}
             </motion.div>
 
-            {/* Player info grid */}
+            {/* Player info grid with enhanced visibility */}
             <motion.div 
-              className="grid grid-cols-3 gap-4 mb-8"
+              className="grid grid-cols-3 gap-4 mb-8 p-4 rounded-2xl"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.5)',
+                backdropFilter: 'blur(8px)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
+              }}
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             >
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Age</p>
-                <p className="text-2xl font-bold text-gray-800">{player.age}</p>
+                <p 
+                  className="uppercase tracking-widest mb-1 font-semibold"
+                  style={{ fontSize: '11px', color: '#6b7280' }}
+                >
+                  Age
+                </p>
+                <p 
+                  className="text-2xl font-black"
+                  style={{ color: '#1f2937', textShadow: '0 1px 0 rgba(255,255,255,0.8)' }}
+                >
+                  {player.age}
+                </p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Version</p>
-                <p className="text-lg font-bold" style={{ color: config.accent }}>{player.version}</p>
+                <p 
+                  className="uppercase tracking-widest mb-1 font-semibold"
+                  style={{ fontSize: '11px', color: '#6b7280' }}
+                >
+                  Version
+                </p>
+                <p 
+                  className="text-lg font-black" 
+                  style={{ color: config.accent, textShadow: `0 1px 4px ${config.glow}` }}
+                >
+                  {player.version}
+                </p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Rarity</p>
-                <p className="text-lg font-bold uppercase" style={{ color: config.accent }}>
+                <p 
+                  className="uppercase tracking-widest mb-1 font-semibold"
+                  style={{ fontSize: '11px', color: '#6b7280' }}
+                >
+                  Rarity
+                </p>
+                <p 
+                  className="text-lg font-black uppercase" 
+                  style={{ color: config.accent, textShadow: `0 1px 4px ${config.glow}` }}
+                >
                   {player.rarity || 'Common'}
                 </p>
               </div>
             </motion.div>
 
-            {/* Rating display */}
+            {/* Rating display with enhanced visibility */}
             <motion.div 
-              className="flex items-end gap-3 mb-8"
+              className="flex items-end gap-4 mb-8"
               variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
             >
-              <span className="text-8xl font-display font-black" style={{ color: config.accent }}>
+              <span 
+                className="text-8xl font-display font-black" 
+                style={{ 
+                  color: config.accent,
+                  textShadow: `0 4px 16px ${config.glow}, 0 0 40px ${config.glow}`,
+                }}
+              >
                 {player.rating}
               </span>
-              <span className="text-gray-400 text-lg mb-4 uppercase tracking-wider">Overall Rating</span>
+              <span 
+                className="mb-4 uppercase tracking-widest font-bold"
+                style={{
+                  fontSize: '16px',
+                  color: '#4b5563',
+                  textShadow: '0 1px 2px rgba(255,255,255,0.8)',
+                }}
+              >
+                Overall Rating
+              </span>
             </motion.div>
 
             {/* Stats cards */}
@@ -783,32 +956,66 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
                   <motion.div 
                     key={stat.label}
                     className="rounded-xl py-3 px-2 text-center text-white"
-                    style={{ backgroundColor: stat.color }}
+                    style={{ 
+                      backgroundColor: stat.color,
+                      boxShadow: `0 4px 12px ${stat.color}50, inset 0 1px 0 rgba(255,255,255,0.25)`,
+                    }}
                     variants={{ hidden: { opacity: 0, y: 20, scale: 0.8 }, visible: { opacity: 1, y: 0, scale: 1 } }}
-                    whileHover={{ scale: 1.1, boxShadow: `0 5px 20px ${stat.color}80` }}
+                    whileHover={{ scale: 1.1, boxShadow: `0 8px 24px ${stat.color}80` }}
                   >
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <div className="text-[9px] opacity-80 uppercase tracking-wider">{stat.label}</div>
+                    <div 
+                      className="text-2xl font-black"
+                      style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
+                    >
+                      {stat.value}
+                    </div>
+                    <div 
+                      className="text-[9px] uppercase tracking-wider font-semibold"
+                      style={{ textShadow: '0 1px 1px rgba(0,0,0,0.2)', opacity: 0.95 }}
+                    >
+                      {stat.label}
+                    </div>
                   </motion.div>
                 ))}
               </motion.div>
             )}
 
-            {/* Price info */}
+            {/* Price info with enhanced visibility */}
             <motion.div 
-              className="mt-8 flex gap-6"
+              className="mt-8 flex gap-6 p-4 rounded-2xl"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.5)',
+                backdropFilter: 'blur(8px)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
+              }}
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             >
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Base Price</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p 
+                  className="uppercase tracking-widest mb-1 font-semibold"
+                  style={{ fontSize: '11px', color: '#6b7280' }}
+                >
+                  Base Price
+                </p>
+                <p 
+                  className="text-2xl font-black"
+                  style={{ color: '#16a34a', textShadow: '0 2px 8px rgba(22,163,74,0.3)' }}
+                >
                   {formatCurrency(player.basePrice * 1000000)}
                 </p>
               </div>
               {purchasePrice && (
                 <div>
-                  <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Purchase Price</p>
-                  <p className="text-2xl font-bold" style={{ color: config.accent }}>
+                  <p 
+                    className="uppercase tracking-widest mb-1 font-semibold"
+                    style={{ fontSize: '11px', color: '#6b7280' }}
+                  >
+                    Purchase Price
+                  </p>
+                  <p 
+                    className="text-2xl font-black" 
+                    style={{ color: config.accent, textShadow: `0 2px 8px ${config.glow}` }}
+                  >
                     {formatCurrency(purchasePrice)}
                   </p>
                 </div>
