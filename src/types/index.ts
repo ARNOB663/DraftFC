@@ -29,6 +29,9 @@ export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LM' |
 
 export type Rarity = 'legendary' | 'epic' | 'rare' | 'common';
 
+// AI Difficulty
+export type AIDifficulty = 'easy' | 'medium' | 'hard';
+
 // Game Types
 export interface GameRoom {
   id: string;
@@ -42,17 +45,21 @@ export interface GameRoom {
   createdAt: Date;
   startedAt?: Date;
   endedAt?: Date;
+  isAIGame?: boolean;
+  aiDifficulty?: AIDifficulty;
 }
 
 export interface GamePlayer {
   id: string;
   name: string;
-  socketId: string;
+  socketId: string | null;
   budget: number;
   squad: Player[];
   isReady: boolean;
   isConnected: boolean;
   color: 'cyan' | 'purple';
+  isAI?: boolean;
+  difficulty?: AIDifficulty;
 }
 
 export interface GameSettings {
@@ -80,6 +87,7 @@ export interface Bid {
   playerName: string;
   amount: number;
   timestamp: Date;
+  isAI?: boolean;
 }
 
 export interface SoldPlayer {
@@ -143,6 +151,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   'room:create': (playerName: string, callback: (room: GameRoom) => void) => void;
+  'room:create-with-ai': (playerName: string, difficulty: AIDifficulty, callback: (room: GameRoom, player: GamePlayer) => void) => void;
   'room:join': (roomId: string, playerName: string, callback: (success: boolean, room?: GameRoom, player?: GamePlayer, error?: string) => void) => void;
   'room:leave': () => void;
   'room:ready': (isReady: boolean) => void;

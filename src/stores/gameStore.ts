@@ -9,7 +9,8 @@ import type {
   Bid,
   SoldPlayer,
   GameResult,
-  Player
+  Player,
+  AIDifficulty
 } from '@/types';
 import { getSocket, connectSocket, disconnectSocket, type GameSocket } from '@/lib/socket';
 
@@ -48,6 +49,7 @@ interface GameState {
   connect: () => Promise<void>;
   disconnect: () => void;
   createRoom: (playerName: string) => Promise<GameRoom>;
+  createAIGame: (playerName: string, difficulty: AIDifficulty) => Promise<GameRoom>;
   joinRoom: (roomId: string, playerName: string) => Promise<void>;
   leaveRoom: () => void;
   setReady: (isReady: boolean) => void;
@@ -214,6 +216,31 @@ export const useGameStore = create<GameState>()(
         });
 
         setTimeout(() => reject(new Error('Timeout creating room')), 10000);
+      });
+    },
+
+    createAIGame: async (playerName: string, difficulty: AIDifficulty): Promise<GameRoom> => {
+      const socket = get().socket;
+      if (!socket) throw new Error('Not connected');
+
+      return new Promise((resolve, reject) => {
+        socket.emit('room:create-with-ai', playerName, difficulty, (room, player) => {
+          if (player) {
+            localStorage.setItem('football_auction_player_id', player.id);
+            localStorage.setItem('football_auction_room_id', room.id);
+            localStorage.setItem('football_auction_player_name', player.name);
+          }
+
+          const opponent = room.players.find(p => p.id !== player.id);
+          set({ 
+            room, 
+            currentPlayer: player || null,
+            opponent: opponent || null 
+          });
+          resolve(room);
+        });
+
+        setTimeout(() => reject(new Error('Timeout creating AI game')), 10000);
       });
     },
 

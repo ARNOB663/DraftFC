@@ -1,6 +1,17 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { AIManager } = require('./ai/AIManager.js');
+
+// AI Managers pool (one per difficulty)
+const aiManagers = {
+  easy: new AIManager('easy'),
+  medium: new AIManager('medium'),
+  hard: new AIManager('hard'),
+};
 
 const httpServer = createServer();
 const io = new Server(httpServer, {
@@ -316,6 +327,51 @@ io.on('connection', (socket) => {
     callback(room);
   });
 
+  // Create a room with AI opponent
+  socket.on('room:create-with-ai', (playerName, difficulty, callback) => {
+    const roomId = nanoid(8).toUpperCase();
+    const playerId = nanoid(12);
+
+    // Get AI manager for this difficulty
+    const aiManager = aiManagers[difficulty] || aiManagers.medium;
+
+    const player = {
+      id: playerId,
+      name: playerName,
+      socketId: socket.id,
+      budget: DEFAULT_SETTINGS.startingBudget,
+      squad: [],
+      isReady: false,
+      isConnected: true,
+      isAI: false,
+      color: 'cyan',
+    };
+
+    // Create AI player
+    const aiPlayer = aiManager.createAIPlayer(DEFAULT_SETTINGS.startingBudget);
+
+    const room = {
+      id: roomId,
+      name: `${playerName} vs ${aiPlayer.name}`,
+      players: [player, aiPlayer],
+      status: 'waiting',
+      currentAuction: null,
+      auctionQueue: [],
+      soldPlayers: [],
+      settings: { ...DEFAULT_SETTINGS },
+      createdAt: new Date(),
+      isAIGame: true,
+      aiDifficulty: difficulty,
+    };
+
+    rooms.set(roomId, room);
+    playerRooms.set(socket.id, roomId);
+    socket.join(roomId);
+
+    console.log(`🤖 AI Game room created: ${roomId} by ${playerName} vs ${aiPlayer.name} (${difficulty})`);
+    callback(room, player);
+  });
+
   // Join an existing room
   socket.on('room:join', (roomId, playerName, playerId, callback) => {
     const room = rooms.get(roomId.toUpperCase());
@@ -586,6 +642,11 @@ function startNextAuction(roomId) {
 
   io.to(roomId).emit('game:auction-start', room.currentAuction);
 
+  // Trigger AI bidding if this is an AI game
+  if (room.isAIGame) {
+    triggerAIBidding(roomId);
+  }
+
   // Start countdown timer
   const timer = setInterval(() => {
     const currentRoom = rooms.get(roomId);
@@ -595,6 +656,16 @@ function startNextAuction(roomId) {
     }
 
     currentRoom.currentAuction.timeRemaining--;
+
+    // Trigger AI bidding periodically during auction
+    if (currentRoom.isAIGame && currentRoom.currentAuction.timeRemaining > 3) {
+      // AI might bid every few seconds
+      if (currentRoom.currentAuction.timeRemaining % 5 === 0 || 
+          currentRoom.currentAuction.timeRemaining === 15 ||
+          currentRoom.currentAuction.timeRemaining === 10) {
+        triggerAIBidding(roomId);
+      }
+    }
 
     // Status updates
     if (currentRoom.currentAuction.timeRemaining === 5 && currentRoom.currentAuction.currentBidder) {
@@ -613,6 +684,64 @@ function startNextAuction(roomId) {
   }, 1000);
 
   auctionTimers.set(roomId, timer);
+}
+
+// AI Bidding Logic
+function triggerAIBidding(roomId) {
+  const room = rooms.get(roomId);
+  if (!room || !room.currentAuction || !room.isAIGame) return;
+
+  const aiPlayer = room.players.find(p => p.isAI);
+  if (!aiPlayer) return;
+
+  const aiManager = aiManagers[room.aiDifficulty] || aiManagers.medium;
+  
+  // Process AI decision
+  aiManager.processAuctionTurn(
+    roomId,
+    room.currentAuction,
+    aiPlayer,
+    room,
+    (bidAmount) => {
+      // Place the AI bid
+      placeAIBid(roomId, aiPlayer, bidAmount);
+    }
+  );
+}
+
+function placeAIBid(roomId, aiPlayer, amount) {
+  const room = rooms.get(roomId);
+  if (!room || !room.currentAuction) return;
+
+  const auction = room.currentAuction;
+
+  // Validate bid
+  if (amount <= auction.currentBid) return;
+  if (amount > aiPlayer.budget) return;
+  if (auction.currentBidder === aiPlayer.id) return;
+
+  // Place the bid
+  const bid = {
+    playerId: aiPlayer.id,
+    playerName: aiPlayer.name,
+    amount,
+    timestamp: new Date(),
+    isAI: true,
+  };
+
+  auction.currentBid = amount;
+  auction.currentBidder = aiPlayer.id;
+  auction.bidHistory.push(bid);
+  auction.status = 'active';
+
+  // Reset timer on bid
+  auction.timeRemaining = Math.max(10, auction.timeRemaining);
+
+  console.log(`🤖 AI ${aiPlayer.name} bid $${amount.toLocaleString()} on ${auction.player.name}`);
+  io.to(roomId).emit('game:bid-placed', bid, auction);
+
+  // Update room state
+  io.to(roomId).emit('room:updated', room);
 }
 
 function endCurrentAuction(roomId) {

@@ -4,17 +4,19 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/stores/gameStore';
-import { Loader2, Users, Plus, LogIn, Trophy, Zap, Shield } from 'lucide-react';
+import { Loader2, Users, Plus, LogIn, Trophy, Zap, Shield, Bot, Brain, Target, Flame } from 'lucide-react';
+import type { AIDifficulty } from '@/types';
 
 export default function HomePage() {
   const router = useRouter();
   const [playerName, setPlayerName] = useState('');
   const [roomCode, setRoomCode] = useState('');
-  const [mode, setMode] = useState<'menu' | 'create' | 'join'>('menu');
+  const [mode, setMode] = useState<'menu' | 'create' | 'join' | 'ai'>('menu');
+  const [aiDifficulty, setAiDifficulty] = useState<AIDifficulty>('medium');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { connect, isConnected, isConnecting, createRoom, joinRoom, room } = useGameStore();
+  const { connect, isConnected, isConnecting, createRoom, createAIGame, joinRoom, room } = useGameStore();
 
   useEffect(() => {
     connect();
@@ -62,6 +64,24 @@ export default function HomePage() {
       await joinRoom(roomCode.trim().toUpperCase(), playerName.trim());
     } catch (err: any) {
       setError(err.message || 'Failed to join room');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePlayAI = async () => {
+    if (!playerName.trim()) {
+      setError('Please enter your name');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await createAIGame(playerName.trim(), aiDifficulty);
+    } catch (err: any) {
+      setError(err.message || 'Failed to start AI game');
     } finally {
       setIsLoading(false);
     }
@@ -176,12 +196,21 @@ export default function HomePage() {
                 </div>
 
                 <button
-                  onClick={() => setMode('create')}
+                  onClick={() => setMode('ai')}
                   disabled={!isConnected}
                   className="btn-primary w-full flex items-center justify-center gap-3"
                 >
+                  <Bot className="w-5 h-5" />
+                  Play vs AI
+                </button>
+
+                <button
+                  onClick={() => setMode('create')}
+                  disabled={!isConnected}
+                  className="btn-secondary w-full flex items-center justify-center gap-3"
+                >
                   <Plus className="w-5 h-5" />
-                  Create Game
+                  Create Multiplayer
                 </button>
 
                 <button
@@ -314,6 +343,109 @@ export default function HomePage() {
                       <>
                         <LogIn className="w-5 h-5" />
                         Join
+                      </>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {mode === 'ai' && (
+              <motion.div
+                key="ai"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                <div>
+                  <h3 className="text-xl font-bold mb-1 flex items-center gap-2">
+                    <Bot className="w-6 h-6 text-neon-cyan" />
+                    Play vs AI
+                  </h3>
+                  <p className="text-dark-400 text-sm">Practice against an AI opponent</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-2">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                    placeholder="Enter your name..."
+                    className="input-field"
+                    maxLength={20}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-dark-300 mb-3">
+                    AI Difficulty
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setAiDifficulty('easy')}
+                      className={`p-3 rounded-xl border-2 transition-all ${
+                        aiDifficulty === 'easy'
+                          ? 'border-green-500 bg-green-500/20'
+                          : 'border-dark-600 hover:border-dark-500'
+                      }`}
+                    >
+                      <Target className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'easy' ? 'text-green-400' : 'text-dark-400'}`} />
+                      <p className={`text-sm font-medium ${aiDifficulty === 'easy' ? 'text-green-400' : 'text-dark-300'}`}>Easy</p>
+                      <p className="text-[10px] text-dark-500">Relaxed</p>
+                    </button>
+                    <button
+                      onClick={() => setAiDifficulty('medium')}
+                      className={`p-3 rounded-xl border-2 transition-all ${
+                        aiDifficulty === 'medium'
+                          ? 'border-yellow-500 bg-yellow-500/20'
+                          : 'border-dark-600 hover:border-dark-500'
+                      }`}
+                    >
+                      <Brain className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'medium' ? 'text-yellow-400' : 'text-dark-400'}`} />
+                      <p className={`text-sm font-medium ${aiDifficulty === 'medium' ? 'text-yellow-400' : 'text-dark-300'}`}>Medium</p>
+                      <p className="text-[10px] text-dark-500">Balanced</p>
+                    </button>
+                    <button
+                      onClick={() => setAiDifficulty('hard')}
+                      className={`p-3 rounded-xl border-2 transition-all ${
+                        aiDifficulty === 'hard'
+                          ? 'border-red-500 bg-red-500/20'
+                          : 'border-dark-600 hover:border-dark-500'
+                      }`}
+                    >
+                      <Flame className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'hard' ? 'text-red-400' : 'text-dark-400'}`} />
+                      <p className={`text-sm font-medium ${aiDifficulty === 'hard' ? 'text-red-400' : 'text-dark-300'}`}>Hard</p>
+                      <p className="text-[10px] text-dark-500">Competitive</p>
+                    </button>
+                  </div>
+                </div>
+
+                {error && (
+                  <p className="text-red-400 text-sm">{error}</p>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setMode('menu'); setError(''); }}
+                    className="btn-secondary flex-1"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handlePlayAI}
+                    disabled={isLoading}
+                    className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        <Bot className="w-5 h-5" />
+                        Start Game
                       </>
                     )}
                   </button>
