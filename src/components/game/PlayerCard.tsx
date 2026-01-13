@@ -21,15 +21,15 @@ export function PlayerCard({
   onClick 
 }: PlayerCardProps) {
   const sizeClasses = {
-    sm: 'w-40 h-52',
-    md: 'w-72 h-96',
-    lg: 'w-[400px] h-[520px]',
+    sm: 'w-44 h-56',
+    md: 'w-80 h-[420px]',
+    lg: 'w-[440px] h-[580px]',
   };
 
   const imageSizes = {
-    sm: { width: 140, height: 160 },
-    md: { width: 260, height: 320 },
-    lg: { width: 380, height: 450 },
+    sm: { width: 160, height: 180 },
+    md: { width: 300, height: 380 },
+    lg: { width: 420, height: 520 },
   };
 
   // Rarity accent colors
