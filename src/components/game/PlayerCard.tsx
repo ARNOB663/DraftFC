@@ -237,58 +237,43 @@ export function PlayerCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
           >
-            {/* Position badges - Main + Alternates - High Contrast Design */}
+            {/* Position badges - Main + Alternates */}
             <div className="flex flex-wrap gap-1.5 max-w-[60%]">
-              {/* Main position badge - Always high contrast */}
+              {/* Main position badge */}
               <motion.div 
-                className="relative px-3 py-1 rounded-full font-black tracking-wide"
+                className="relative px-3 py-1 rounded-full text-white font-black tracking-wide"
                 style={{ 
-                  // Dark background with white text for maximum contrast
-                  backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                  color: '#ffffff',
-                  border: `2px solid ${config.accent}`,
-                  boxShadow: `0 4px 12px ${config.glow}, 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2)`,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5)',
+                  backgroundColor: config.accent,
+                  boxShadow: `0 4px 12px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
                   fontSize: size === 'lg' ? '14px' : size === 'md' ? '12px' : '10px',
-                  WebkitTextStroke: '0.5px rgba(255,255,255,0.3)',
                 }}
                 whileHover={{ scale: 1.1 }}
               >
                 {player.position}
-                {/* Accent glow ring */}
                 <motion.div
                   className="absolute inset-0 rounded-full pointer-events-none"
-                  style={{ 
-                    boxShadow: `0 0 10px ${config.accent}, inset 0 0 10px ${config.accent}40`,
-                  }}
-                  animate={{ 
-                    boxShadow: [
-                      `0 0 10px ${config.accent}`,
-                      `0 0 20px ${config.accent}`,
-                      `0 0 10px ${config.accent}`
-                    ],
-                    opacity: [0.6, 1, 0.6]
-                  }}
+                  style={{ backgroundColor: config.accent }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               </motion.div>
               
-              {/* Alternate positions - High contrast with dark backgrounds */}
+              {/* Alternate positions */}
               {size !== 'sm' && parseAltPositions(player.altPositions).slice(0, 3).map((altPos) => {
                 const posColors = getPositionDisplayColor(altPos);
                 return (
                   <motion.div
                     key={altPos}
-                    className="px-2 py-0.5 rounded-full font-bold border-2"
+                    className={cn(
+                      'px-2 py-0.5 rounded-full font-bold border',
+                      posColors.bg,
+                      posColors.text,
+                      posColors.border
+                    )}
                     style={{ 
-                      // Dark background for all alternate positions
-                      backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                      color: '#ffffff',
-                      borderColor: posColors.border.replace('border-', '').replace('/50', ''),
                       fontSize: size === 'lg' ? '11px' : '10px',
-                      textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.5)',
-                      WebkitTextStroke: '0.5px rgba(255,255,255,0.2)',
-                      boxShadow: `0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)`,
+                      textShadow: '0 1px 2px rgba(0,0,0,0.2)',
                     }}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -335,77 +320,44 @@ export function PlayerCard({
             </div>
           </motion.div>
 
-          {/* Player name with staggered animation - Enhanced visibility with dark backdrop */}
+          {/* Player name with staggered animation - Enhanced visibility */}
           <motion.div 
-            className="mt-4 z-10 relative"
+            className="mt-4 z-10"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            {/* Dark semi-transparent backdrop for name readability */}
-            <motion.div
-              className="absolute -inset-2 rounded-lg -z-10"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                backdropFilter: 'blur(8px)',
-                boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.3)',
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            />
-            
-            {/* First name - White with strong shadow for contrast */}
+            {/* First name with text shadow and stroke effect */}
             <h3 
               className={cn(
-                'font-display font-black leading-tight relative',
+                'font-display font-black leading-tight',
                 size === 'sm' && 'text-lg',
                 size === 'md' && 'text-3xl',
                 size === 'lg' && 'text-5xl',
               )}
               style={{
-                color: '#ffffff',
-                textShadow: `
-                  0 0 10px rgba(0,0,0,0.8),
-                  0 2px 4px rgba(0,0,0,0.9),
-                  0 4px 8px rgba(0,0,0,0.7),
-                  0 0 20px rgba(0,0,0,0.5)
-                `,
-                WebkitTextStroke: size === 'lg' ? '1.5px rgba(0,0,0,0.6)' : size === 'md' ? '1px rgba(0,0,0,0.6)' : '0.5px rgba(0,0,0,0.6)',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.8))',
+                color: '#1f2937',
+                textShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8)',
+                WebkitTextStroke: size === 'lg' ? '1px rgba(0,0,0,0.1)' : 'none',
               }}
             >
               {player.name.split(' ').slice(0, -1).join(' ')}
             </h3>
-            
-            {/* Last name - Accent color with dark outline for contrast */}
+            {/* Last name with accent color and glow */}
             <motion.h3 
               className={cn(
-                'font-display font-black leading-tight relative',
+                'font-display font-black leading-tight',
                 size === 'sm' && 'text-xl',
                 size === 'md' && 'text-4xl',
                 size === 'lg' && 'text-6xl',
               )}
               style={{ 
                 color: config.accent,
-                textShadow: `
-                  0 0 20px ${config.glow},
-                  0 0 40px ${config.glow}40,
-                  0 4px 8px rgba(0,0,0,0.9),
-                  0 8px 16px rgba(0,0,0,0.7),
-                  0 0 30px rgba(0,0,0,0.6)
-                `,
-                WebkitTextStroke: size === 'lg' ? '2px rgba(0,0,0,0.8)' : size === 'md' ? '1.5px rgba(0,0,0,0.8)' : '1px rgba(0,0,0,0.8)',
-                filter: `drop-shadow(0 0 10px ${config.glow}) drop-shadow(0 4px 8px rgba(0,0,0,0.8))`,
+                textShadow: `0 2px 8px ${config.glow}, 0 4px 16px rgba(0,0,0,0.15)`,
+                WebkitTextStroke: size === 'lg' ? `0.5px ${config.accent}` : 'none',
               }}
               animate={isHovered ? { 
-                textShadow: `
-                  0 0 30px ${config.glow},
-                  0 0 60px ${config.glow}60,
-                  0 6px 12px rgba(0,0,0,0.9),
-                  0 0 40px rgba(0,0,0,0.7)
-                `,
-                filter: `drop-shadow(0 0 20px ${config.glow}) drop-shadow(0 6px 12px rgba(0,0,0,0.9))`
+                textShadow: `0 0 30px ${config.glow}, 0 4px 20px ${config.glow}` 
               } : {}}
             >
               {player.name.split(' ').slice(-1)[0]}
@@ -413,28 +365,22 @@ export function PlayerCard({
             
             {size !== 'sm' && (
               <motion.div 
-                className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2"
+                className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full"
                 style={{ 
-                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                  borderColor: config.accent,
-                  backdropFilter: 'blur(8px)',
-                  boxShadow: `0 2px 8px rgba(0,0,0,0.5), 0 0 12px ${config.glow}40, inset 0 1px 0 rgba(255,255,255,0.1)`,
+                  backgroundColor: 'rgba(255,255,255,0.7)',
+                  backdropFilter: 'blur(4px)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
                 <span 
-                  className="uppercase tracking-widest font-bold"
+                  className="uppercase tracking-widest font-semibold"
                   style={{ 
                     fontSize: size === 'lg' ? '14px' : '12px',
-                    color: '#ffffff',
-                    textShadow: `
-                      0 0 8px ${config.glow},
-                      0 2px 4px rgba(0,0,0,0.8),
-                      0 0 12px rgba(0,0,0,0.6)
-                    `,
-                    WebkitTextStroke: '0.5px rgba(0,0,0,0.5)',
+                    color: config.accent,
+                    textShadow: `0 1px 2px ${config.glow}`,
                   }}
                 >
                   {player.version}
@@ -489,71 +435,48 @@ export function PlayerCard({
             </div>
           </motion.div>
 
-          {/* Rating display with enhanced visibility - Dark backdrop */}
+          {/* Rating display with enhanced visibility */}
           <motion.div 
-            className="mt-auto z-10 relative"
+            className="mt-auto z-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
-            {/* Dark backdrop for rating */}
-            <motion.div
-              className="absolute -inset-3 rounded-xl -z-10"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                backdropFilter: 'blur(12px)',
-                boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3)',
-                border: `1px solid ${config.accent}40`,
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            />
-            
-            <div className="flex items-end gap-3 mb-3 px-2">
+            <div className="flex items-end gap-3 mb-3">
               <motion.span 
                 className={cn(
-                  'font-display font-black relative',
+                  'font-display font-black',
                   size === 'sm' && 'text-4xl',
                   size === 'md' && 'text-6xl',
                   size === 'lg' && 'text-8xl',
                 )}
                 style={{ 
-                  color: '#ffffff',
+                  color: config.accent,
                   textShadow: `
-                    0 0 20px ${config.glow},
-                    0 0 40px ${config.glow}60,
-                    0 4px 8px rgba(0,0,0,0.9),
-                    0 8px 16px rgba(0,0,0,0.7),
-                    0 0 30px rgba(0,0,0,0.6)
+                    0 2px 4px rgba(0,0,0,0.2),
+                    0 4px 12px ${config.glow},
+                    0 0 40px ${config.glow}
                   `,
-                  WebkitTextStroke: size === 'lg' ? '2.5px rgba(0,0,0,0.9)' : size === 'md' ? '2px rgba(0,0,0,0.9)' : '1.5px rgba(0,0,0,0.9)',
-                  filter: `drop-shadow(0 0 15px ${config.glow}) drop-shadow(0 4px 8px rgba(0,0,0,0.9))`,
+                  WebkitTextStroke: size === 'lg' ? `1px ${config.accent}` : 'none',
                 }}
                 animate={isHovered ? { 
                   textShadow: `
-                    0 0 30px ${config.glow},
-                    0 0 60px ${config.glow}80,
-                    0 6px 12px rgba(0,0,0,0.9),
-                    0 0 40px rgba(0,0,0,0.7)
+                    0 2px 4px rgba(0,0,0,0.3),
+                    0 8px 24px ${config.glow},
+                    0 0 60px ${config.glow}
                   `,
                   scale: 1.08,
-                  filter: `drop-shadow(0 0 25px ${config.glow}) drop-shadow(0 6px 12px rgba(0,0,0,0.9))`
                 } : { scale: 1 }}
                 transition={{ duration: 0.3 }}
               >
                 {player.rating}
               </motion.span>
               <span 
-                className="mb-2 uppercase tracking-widest font-bold relative"
+                className="mb-2 uppercase tracking-widest font-bold"
                 style={{
                   fontSize: size === 'lg' ? '14px' : '12px',
-                  color: '#ffffff',
-                  textShadow: `
-                    0 2px 4px rgba(0,0,0,0.8),
-                    0 0 8px rgba(0,0,0,0.6)
-                  `,
-                  WebkitTextStroke: '0.5px rgba(0,0,0,0.7)',
+                  color: '#374151',
+                  textShadow: '0 1px 2px rgba(255,255,255,0.8)',
                 }}
               >
                 Overall
@@ -628,30 +551,25 @@ export function PlayerCard({
               </motion.div>
             )}
 
-            {/* Price tag with enhanced visibility - Dark backdrop */}
+            {/* Price tag with enhanced visibility */}
             {size !== 'sm' && (
               <motion.div 
-                className="mt-3 flex justify-between items-center px-4 py-2.5 rounded-xl border-2"
+                className="mt-3 flex justify-between items-center px-3 py-2 rounded-xl"
                 style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                  borderColor: config.accent,
-                  backdropFilter: 'blur(12px)',
-                  boxShadow: `0 4px 16px rgba(0,0,0,0.5), 0 0 20px ${config.glow}40, inset 0 1px 0 rgba(255,255,255,0.1)`,
+                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5)',
                 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
                 <span 
-                  className="uppercase tracking-widest font-bold"
+                  className="uppercase tracking-widest font-semibold"
                   style={{
                     fontSize: '11px',
-                    color: '#ffffff',
-                    textShadow: `
-                      0 2px 4px rgba(0,0,0,0.8),
-                      0 0 8px rgba(0,0,0,0.6)
-                    `,
-                    WebkitTextStroke: '0.5px rgba(0,0,0,0.7)',
+                    color: '#6b7280',
+                    textShadow: '0 1px 0 rgba(255,255,255,0.8)',
                   }}
                 >
                   Base Price
@@ -659,15 +577,8 @@ export function PlayerCard({
                 <motion.span 
                   className="font-black text-lg"
                   style={{ 
-                    color: '#ffffff',
-                    textShadow: `
-                      0 0 12px ${config.glow},
-                      0 0 24px ${config.glow}60,
-                      0 2px 4px rgba(0,0,0,0.9),
-                      0 0 20px rgba(0,0,0,0.7)
-                    `,
-                    WebkitTextStroke: '1px rgba(0,0,0,0.8)',
-                    filter: `drop-shadow(0 0 8px ${config.glow})`,
+                    color: config.accent,
+                    textShadow: `0 1px 4px ${config.glow}`,
                   }}
                   whileHover={{ scale: 1.1 }}
                 >
