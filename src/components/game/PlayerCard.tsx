@@ -21,15 +21,15 @@ export function PlayerCard({
   onClick 
 }: PlayerCardProps) {
   const sizeClasses = {
-    sm: 'w-44 h-56',
-    md: 'w-80 h-[420px]',
-    lg: 'w-[440px] h-[580px]',
+    sm: 'w-48 h-60',
+    md: 'w-[360px] h-[480px]',
+    lg: 'w-[480px] h-[640px]',
   };
 
   const imageSizes = {
-    sm: { width: 160, height: 180 },
-    md: { width: 300, height: 380 },
-    lg: { width: 420, height: 520 },
+    sm: { width: 200, height: 220 },
+    md: { width: 380, height: 460 },
+    lg: { width: 500, height: 600 },
   };
 
   // Rarity accent colors
@@ -67,9 +67,9 @@ export function PlayerCard({
     >
       {/* Large jersey number/rating in background */}
       <div 
-        className="absolute right-0 top-1/4 font-display font-black opacity-10 select-none"
+        className="absolute right-0 top-1/4 font-display font-black opacity-8 select-none"
         style={{ 
-          fontSize: size === 'lg' ? '280px' : size === 'md' ? '180px' : '100px',
+          fontSize: size === 'lg' ? '320px' : size === 'md' ? '220px' : '120px',
           lineHeight: 0.8,
           color: accentColor,
         }}
@@ -150,7 +150,10 @@ export function PlayerCard({
         </div>
 
         {/* Player Image - large and prominent */}
-        <div className="absolute right-0 bottom-0 z-0">
+        <div className={cn(
+          "absolute z-0",
+          size === 'sm' ? 'right-0 bottom-0' : 'right-[-10%] bottom-0'
+        )}>
           <div 
             className="relative"
             style={{ 
@@ -164,7 +167,9 @@ export function PlayerCard({
               fill
               className="object-contain object-bottom"
               style={{
-                filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.2))'
+                filter: size === 'lg' 
+                  ? 'drop-shadow(0 20px 50px rgba(0,0,0,0.3))' 
+                  : 'drop-shadow(0 10px 30px rgba(0,0,0,0.2))'
               }}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Player';
@@ -507,17 +512,19 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
           </div>
 
           {/* Right side - Player Image */}
-          <div className="relative lg:w-[400px] h-[300px] lg:h-auto">
-            <div className="absolute inset-0 lg:relative lg:h-full">
-              <Image
-                src={player.images?.playerFace || '/placeholder-player.png'}
-                alt={player.name}
-                fill
-                className="object-contain object-bottom lg:object-right-bottom"
-                style={{
-                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.2))'
-                }}
-              />
+          <div className="relative lg:w-[450px] h-[350px] lg:h-auto">
+            <div className="absolute inset-0 lg:relative lg:h-full flex items-end justify-center lg:justify-end">
+              <div className="relative w-[300px] h-[350px] lg:w-[420px] lg:h-[500px]">
+                <Image
+                  src={player.images?.playerFace || '/placeholder-player.png'}
+                  alt={player.name}
+                  fill
+                  className="object-contain object-bottom"
+                  style={{
+                    filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.25))'
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
