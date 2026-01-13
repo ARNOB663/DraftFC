@@ -15,6 +15,75 @@ const io = new Server(httpServer, {
 // Game State
 const rooms = new Map();
 const playerRooms = new Map(); // socketId -> roomId
+const rateLimits = new Map(); // socketId -> { lastAction: timestamp, count: number }
+
+// Rate limiting configuration
+const RATE_LIMIT = {
+  maxActions: 20,       // Max actions per window
+  windowMs: 1000,       // 1 second window
+  bidCooldownMs: 500,   // Minimum time between bids
+};
+
+// Room TTL - cleanup stale rooms after 2 hours
+const ROOM_TTL_MS = 2 * 60 * 60 * 1000;
+
+// Cleanup stale rooms every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [roomId, room] of rooms.entries()) {
+    const roomAge = now - new Date(room.createdAt).getTime();
+    const isStale = roomAge > ROOM_TTL_MS;
+    const isEmpty = room.players.every(p => !p.isConnected);
+    
+    if (isStale || (isEmpty && room.status !== 'waiting')) {
+      console.log(`🗑️ Cleaning up stale room: ${roomId}`);
+      
+      // Clear any running auction timer
+      const timer = auctionTimers.get(roomId);
+      if (timer) {
+        clearInterval(timer);
+        auctionTimers.delete(roomId);
+      }
+      
+      rooms.delete(roomId);
+    }
+  }
+}, 10 * 60 * 1000);
+
+// Rate limiter check
+function isRateLimited(socketId, actionType = 'general') {
+  const now = Date.now();
+  let limit = rateLimits.get(socketId);
+  
+  if (!limit || (now - limit.windowStart) > RATE_LIMIT.windowMs) {
+    limit = { windowStart: now, count: 0, lastBid: 0 };
+  }
+  
+  limit.count++;
+  
+  // Check bid cooldown
+  if (actionType === 'bid') {
+    if ((now - limit.lastBid) < RATE_LIMIT.bidCooldownMs) {
+      return true;
+    }
+    limit.lastBid = now;
+  }
+  
+  rateLimits.set(socketId, limit);
+  return limit.count > RATE_LIMIT.maxActions;
+}
+
+// Sanitize chat input
+function sanitizeMessage(message) {
+  if (typeof message !== 'string') return '';
+  return message
+    .trim()
+    .slice(0, 500) // Max 500 characters
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
 
 // Default settings
 const DEFAULT_SETTINGS = {
@@ -135,7 +204,8 @@ function calculateTeamScore(player) {
   const avgRating = squad.reduce((sum, p) => sum + p.rating, 0) / squad.length;
   const ratingScore = avgRating * 0.5;
 
-  // Calculate position balance (ideal: 1 GK, 4 DEF, 3 MID, 3 ATT)
+  // Calculate position balance
+  // Dynamic ideal distribution based on squad size (scales from 11 to 16)
   const positions = {
     GK: squad.filter(p => p.position === 'GK').length,
     DEF: squad.filter(p => ['CB', 'LB', 'RB'].includes(p.position)).length,
@@ -143,15 +213,25 @@ function calculateTeamScore(player) {
     ATT: squad.filter(p => ['LW', 'RW', 'ST'].includes(p.position)).length,
   };
 
-  // Ideal distribution for 11 players
-  const idealPositions = { GK: 1, DEF: 4, MID: 3, ATT: 3 };
+  // Calculate ideal based on actual squad size
+  // Base: 1 GK, then distribute rest as ~36% DEF, ~36% MID, ~27% ATT
+  const squadSize = squad.length;
+  const outfieldPlayers = Math.max(0, squadSize - 1);
+  const idealPositions = {
+    GK: 1,
+    DEF: Math.round(outfieldPlayers * 0.36),
+    MID: Math.round(outfieldPlayers * 0.36),
+    ATT: outfieldPlayers - Math.round(outfieldPlayers * 0.36) - Math.round(outfieldPlayers * 0.36),
+  };
+  
   let positionScore = 100;
 
-  // Penalty for missing or excess positions
-  positionScore -= Math.abs(positions.GK - idealPositions.GK) * 25;
-  positionScore -= Math.abs(positions.DEF - idealPositions.DEF) * 10;
-  positionScore -= Math.abs(positions.MID - idealPositions.MID) * 10;
-  positionScore -= Math.abs(positions.ATT - idealPositions.ATT) * 10;
+  // Penalty for missing or excess positions (scaled penalties)
+  const gkPenalty = positions.GK === 0 ? 30 : Math.abs(positions.GK - idealPositions.GK) * 20;
+  positionScore -= gkPenalty;
+  positionScore -= Math.abs(positions.DEF - idealPositions.DEF) * 8;
+  positionScore -= Math.abs(positions.MID - idealPositions.MID) * 8;
+  positionScore -= Math.abs(positions.ATT - idealPositions.ATT) * 8;
 
   positionScore = Math.max(0, positionScore);
   const positionScoreFinal = positionScore * 0.3;
@@ -346,8 +426,14 @@ io.on('connection', (socket) => {
     startNextAuction(roomId);
   });
 
-  // Place bid
+  // Place bid (with rate limiting)
   socket.on('game:bid', (amount) => {
+    // Rate limit check for bids
+    if (isRateLimited(socket.id, 'bid')) {
+      socket.emit('room:error', 'Bidding too fast. Please wait.');
+      return;
+    }
+
     const roomId = playerRooms.get(socket.id);
     if (!roomId) return;
 
@@ -358,6 +444,12 @@ io.on('connection', (socket) => {
     if (!player) return;
 
     const auction = room.currentAuction;
+
+    // Validate bid amount is a valid number
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+      socket.emit('room:error', 'Invalid bid amount');
+      return;
+    }
 
     // Validate bid
     if (amount <= auction.currentBid) {
@@ -396,8 +488,14 @@ io.on('connection', (socket) => {
     io.to(roomId).emit('game:bid-placed', bid, auction);
   });
 
-  // Chat message
+  // Chat message (with rate limiting and sanitization)
   socket.on('room:chat', (message) => {
+    // Rate limit check
+    if (isRateLimited(socket.id, 'chat')) {
+      socket.emit('room:error', 'Too many messages. Please slow down.');
+      return;
+    }
+
     const roomId = playerRooms.get(socket.id);
     if (!roomId) return;
 
@@ -407,11 +505,15 @@ io.on('connection', (socket) => {
     const player = room.players.find(p => p.socketId === socket.id);
     if (!player) return;
 
+    // Sanitize message
+    const sanitizedMessage = sanitizeMessage(message);
+    if (!sanitizedMessage) return;
+
     const chatMessage = {
       id: nanoid(),
       playerId: player.id,
       playerName: player.name,
-      message,
+      message: sanitizedMessage,
       timestamp: new Date(),
     };
 
@@ -571,10 +673,36 @@ function endGame(roomId) {
   // Calculate scores
   const scores = room.players.map(p => calculateTeamScore(p));
 
-  // Determine winner
+  // Determine winner with proper tie-breaking
   const [score1, score2] = scores;
-  const winner = score1.totalScore >= score2.totalScore ? room.players[0] : room.players[1];
-  const loser = winner === room.players[0] ? room.players[1] : room.players[0];
+  let winner, loser;
+  
+  if (score1.totalScore > score2.totalScore) {
+    winner = room.players[0];
+    loser = room.players[1];
+  } else if (score1.totalScore < score2.totalScore) {
+    winner = room.players[1];
+    loser = room.players[0];
+  } else {
+    // Tie-breaker 1: Higher average rating wins
+    if (score1.breakdown.averageRating > score2.breakdown.averageRating) {
+      winner = room.players[0];
+      loser = room.players[1];
+    } else if (score1.breakdown.averageRating < score2.breakdown.averageRating) {
+      winner = room.players[1];
+      loser = room.players[0];
+    } else {
+      // Tie-breaker 2: More remaining budget wins (better financial management)
+      if (room.players[0].budget >= room.players[1].budget) {
+        winner = room.players[0];
+        loser = room.players[1];
+      } else {
+        winner = room.players[1];
+        loser = room.players[0];
+      }
+    }
+  }
+  
   const winnerScore = scores.find(s => s.playerId === winner.id);
   const loserScore = scores.find(s => s.playerId === loser.id);
 

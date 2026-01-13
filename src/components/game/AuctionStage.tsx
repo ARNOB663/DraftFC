@@ -114,8 +114,8 @@ export function AuctionStage() {
   return (
     <div className="min-h-screen p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Top Bar: Players & Budgets */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        {/* Top Bar: Players & Budgets - Responsive grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Current Player */}
           <motion.div
             className={cn(
@@ -144,7 +144,7 @@ export function AuctionStage() {
             </div>
 
             {/* Squad slots - Responsive Grid for 16 players */}
-            <div className="flex flex-wrap gap-1 mt-3 justify-start content-start">
+            <div className="hidden md:flex flex-wrap gap-1 mt-3 justify-start content-start">
               {Array.from({ length: room.settings.squadSize }).map((_, i) => (
                 <div key={i} className="w-[calc(25%-3px)] aspect-[3/4]">
                   {currentPlayer.squad[i] ? (
@@ -160,10 +160,14 @@ export function AuctionStage() {
                 </div>
               ))}
             </div>
+            {/* Mobile: Show squad count only */}
+            <div className="md:hidden mt-2 text-sm text-dark-400">
+              Squad: {currentPlayer.squad.length}/{room.settings.squadSize}
+            </div>
           </motion.div>
 
-          {/* Auction Info (Center) */}
-          <div className="text-center">
+          {/* Auction Info (Center) - Hidden details on mobile, shown as row */}
+          <div className="text-center order-first md:order-none">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Gavel className="w-5 h-5 text-neon-cyan" />
               <span className="text-sm text-dark-400">
@@ -248,30 +252,36 @@ export function AuctionStage() {
 
             {/* Opponent squad slots - Responsive Grid for 16 players */}
             {opponent && (
-              <div className="flex flex-wrap gap-1 mt-3 justify-start content-start">
-                {Array.from({ length: room.settings.squadSize }).map((_, i) => (
-                  <div key={i} className="w-[calc(25%-3px)] aspect-[3/4]">
-                    {opponent.squad[i] ? (
-                      <MiniPlayerCard 
-                        player={opponent.squad[i]} 
-                        onClick={() => handlePlayerClick(opponent.squad[i])}
-                      />
-                    ) : (
-                      <div className="squad-slot w-full h-full flex items-center justify-center">
-                        <span className="text-[10px] text-dark-500">{i + 1}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="hidden md:flex flex-wrap gap-1 mt-3 justify-start content-start">
+                  {Array.from({ length: room.settings.squadSize }).map((_, i) => (
+                    <div key={i} className="w-[calc(25%-3px)] aspect-[3/4]">
+                      {opponent.squad[i] ? (
+                        <MiniPlayerCard 
+                          player={opponent.squad[i]} 
+                          onClick={() => handlePlayerClick(opponent.squad[i])}
+                        />
+                      ) : (
+                        <div className="squad-slot w-full h-full flex items-center justify-center">
+                          <span className="text-[10px] text-dark-500">{i + 1}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {/* Mobile: Show squad count only */}
+                <div className="md:hidden mt-2 text-sm text-dark-400">
+                  Squad: {opponent.squad.length}/{room.settings.squadSize}
+                </div>
+              </>
             )}
           </motion.div>
         </div>
 
         {/* Main Auction Area */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left: Bid History */}
-          <div className="glass-card p-4 order-2 lg:order-1">
+          {/* Left: Bid History - Hidden on mobile */}
+          <div className="glass-card p-4 order-2 lg:order-1 hidden md:block">
             <h3 className="font-bold mb-3 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-neon-cyan" />
               Bid History
@@ -330,13 +340,19 @@ export function AuctionStage() {
               )}
             </motion.div>
 
-            {/* Player Card */}
+            {/* Player Card - Responsive sizing */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="mb-6"
             >
-              <PlayerCard player={player} size="lg" showStats spotlight />
+              {/* Large card on desktop, medium on mobile */}
+              <div className="hidden md:block">
+                <PlayerCard player={player} size="lg" showStats spotlight />
+              </div>
+              <div className="md:hidden">
+                <PlayerCard player={player} size="md" showStats spotlight />
+              </div>
             </motion.div>
 
             {/* Bid Actions */}
@@ -350,8 +366,8 @@ export function AuctionStage() {
             />
           </div>
 
-          {/* Right: Quick Stats */}
-          <div className="glass-card p-4 order-3">
+          {/* Right: Quick Stats - Hidden on mobile */}
+          <div className="glass-card p-4 order-3 hidden lg:block">
             <h3 className="font-bold mb-3 flex items-center gap-2">
               <Zap className="w-4 h-4 text-neon-cyan" />
               Player Stats

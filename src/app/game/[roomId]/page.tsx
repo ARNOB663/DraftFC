@@ -6,9 +6,9 @@ import { useGameStore } from '@/stores/gameStore';
 import { Lobby } from '@/components/game/Lobby';
 import { AuctionStage } from '@/components/game/AuctionStage';
 import { GameResult } from '@/components/game/GameResult';
-import { Notification } from '@/components/ui/Notification';
+import { Notification, ErrorBoundary } from '@/components/ui';
 
-export default function GamePage() {
+function GameContent() {
   const params = useParams();
   const router = useRouter();
   const { room, isConnected, connect, notification, setNotification } = useGameStore();
@@ -57,5 +57,13 @@ export default function GamePage() {
         <GameResult />
       ) : null}
     </>
+  );
+}
+
+export default function GamePage() {
+  return (
+    <ErrorBoundary>
+      <GameContent />
+    </ErrorBoundary>
   );
 }

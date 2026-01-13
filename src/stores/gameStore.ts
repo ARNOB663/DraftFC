@@ -88,6 +88,10 @@ export const useGameStore = create<GameState>()(
       try {
         const socket = await connectSocket();
 
+        // IMPORTANT: Remove all existing listeners before adding new ones
+        // This prevents listener accumulation on reconnection
+        socket.removeAllListeners();
+
         // Handle disconnection
         socket.on('disconnect', () => {
           console.log('🔌 Disconnected from server');
