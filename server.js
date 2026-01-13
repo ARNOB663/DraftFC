@@ -5,6 +5,7 @@ import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const { AIManager } = require('./ai/AIManager.js');
+const ScoringEngine = require('./scoring/ScoringEngine.js');
 
 // AI Managers pool (one per difficulty)
 const aiManagers = {
@@ -191,99 +192,41 @@ function createAuctionQueue() {
 }
 
 // Calculate team score
-function calculateTeamScore(player) {
-  const squad = player.squad;
-  if (squad.length === 0) {
-    return {
-      playerId: player.id,
-      playerName: player.name,
-      totalScore: 0,
-      breakdown: {
-        averageRating: 0,
-        ratingScore: 0,
-        positionBalance: 0,
-        positionScore: 0,
-        synergy: 0,
-        synergyScore: 0,
-      },
-      squad,
-      formation: { name: 'None', positions: [] },
-    };
-  }
+/**
+ * ============================================
+ * ADVANCED SCORING SYSTEM - 5 PILLARS
+ * ============================================
+ * 
+ * Final Score Composition:
+ * - Power Score (30%): Raw football quality
+ * - Tactical Score (20%): Position matching and formation
+ * - Chemistry Score (20%): Team links and synergy
+ * - Balance Score (15%): Squad structure
+ * - Manager IQ Score (15%): Budget efficiency
+ * 
+ * REQUIRED: 11 valid players to win
+ */
 
-  // Calculate average rating
-  const avgRating = squad.reduce((sum, p) => sum + p.rating, 0) / squad.length;
-  const ratingScore = avgRating * 0.5;
-
-  // Calculate position balance
-  // Dynamic ideal distribution based on squad size (scales from 11 to 16)
-  const positions = {
-    GK: squad.filter(p => p.position === 'GK').length,
-    DEF: squad.filter(p => ['CB', 'LB', 'RB'].includes(p.position)).length,
-    MID: squad.filter(p => ['CDM', 'CM', 'CAM', 'LM', 'RM'].includes(p.position)).length,
-    ATT: squad.filter(p => ['LW', 'RW', 'ST'].includes(p.position)).length,
-  };
-
-  // Calculate ideal based on actual squad size
-  // Base: 1 GK, then distribute rest as ~36% DEF, ~36% MID, ~27% ATT
-  const squadSize = squad.length;
-  const outfieldPlayers = Math.max(0, squadSize - 1);
-  const idealPositions = {
-    GK: 1,
-    DEF: Math.round(outfieldPlayers * 0.36),
-    MID: Math.round(outfieldPlayers * 0.36),
-    ATT: outfieldPlayers - Math.round(outfieldPlayers * 0.36) - Math.round(outfieldPlayers * 0.36),
-  };
+// Legacy wrapper for backward compatibility (uses new engine)
+function calculateTeamScore(player, soldPlayers = [], startingBudget = DEFAULT_SETTINGS.startingBudget) {
+  // Use the new scoring engine
+  const analysis = ScoringEngine.analyzeTeam(player, soldPlayers, startingBudget);
   
-  let positionScore = 100;
-
-  // Penalty for missing or excess positions (scaled penalties)
-  const gkPenalty = positions.GK === 0 ? 30 : Math.abs(positions.GK - idealPositions.GK) * 20;
-  positionScore -= gkPenalty;
-  positionScore -= Math.abs(positions.DEF - idealPositions.DEF) * 8;
-  positionScore -= Math.abs(positions.MID - idealPositions.MID) * 8;
-  positionScore -= Math.abs(positions.ATT - idealPositions.ATT) * 8;
-
-  positionScore = Math.max(0, positionScore);
-  const positionScoreFinal = positionScore * 0.3;
-
-  // Calculate synergy (same nation/club bonuses)
-  const nations = {};
-  const clubs = {};
-  squad.forEach(p => {
-    const nation = p.images?.nationFlag || 'unknown';
-    const club = p.images?.clubBadge || 'unknown';
-    nations[nation] = (nations[nation] || 0) + 1;
-    clubs[club] = (clubs[club] || 0) + 1;
-  });
-
-  let synergyBonus = 0;
-  Object.values(nations).forEach(count => {
-    if (count >= 3) synergyBonus += (count - 2) * 5;
-  });
-  Object.values(clubs).forEach(count => {
-    if (count >= 2) synergyBonus += (count - 1) * 10;
-  });
-
-  const synergy = Math.min(100, synergyBonus);
-  const synergyScore = synergy * 0.2;
-
-  const totalScore = ratingScore + positionScoreFinal + synergyScore;
-
   return {
     playerId: player.id,
     playerName: player.name,
-    totalScore: Math.round(totalScore * 100) / 100,
+    totalScore: analysis.finalScore,
     breakdown: {
-      averageRating: Math.round(avgRating * 100) / 100,
-      ratingScore: Math.round(ratingScore * 100) / 100,
-      positionBalance: positionScore,
-      positionScore: Math.round(positionScoreFinal * 100) / 100,
-      synergy,
-      synergyScore: Math.round(synergyScore * 100) / 100,
+      averageRating: analysis.power.avgOverall,
+      ratingScore: analysis.power.total * 0.5,
+      positionBalance: analysis.balance.total,
+      positionScore: analysis.tactical.total * 0.5,
+      synergy: analysis.chemistry.total,
+      synergyScore: analysis.chemistry.total * 0.5,
     },
-    squad,
-    formation: { name: '4-3-3', positions: Object.keys(positions) },
+    analysis, // Full analysis for new UI
+    squad: player.squad,
+    formation: analysis.formation,
   };
 }
 
@@ -799,55 +742,27 @@ function endGame(roomId) {
   room.status = 'finished';
   room.endedAt = new Date();
 
-  // Calculate scores
-  const scores = room.players.map(p => calculateTeamScore(p));
+  // Use the new Advanced Scoring Engine
+  const result = ScoringEngine.calculateGameResult(room);
 
-  // Determine winner with proper tie-breaking
-  const [score1, score2] = scores;
-  let winner, loser;
-  
-  if (score1.totalScore > score2.totalScore) {
-    winner = room.players[0];
-    loser = room.players[1];
-  } else if (score1.totalScore < score2.totalScore) {
-    winner = room.players[1];
-    loser = room.players[0];
-  } else {
-    // Tie-breaker 1: Higher average rating wins
-    if (score1.breakdown.averageRating > score2.breakdown.averageRating) {
-      winner = room.players[0];
-      loser = room.players[1];
-    } else if (score1.breakdown.averageRating < score2.breakdown.averageRating) {
-      winner = room.players[1];
-      loser = room.players[0];
-    } else {
-      // Tie-breaker 2: More remaining budget wins (better financial management)
-      if (room.players[0].budget >= room.players[1].budget) {
-        winner = room.players[0];
-        loser = room.players[1];
-      } else {
-        winner = room.players[1];
-        loser = room.players[0];
-      }
-    }
+  // Log match summary
+  const { matchSummary, winnerScore, loserScore } = result;
+  console.log(`\n🏆 === GAME FINISHED: ${roomId} ===`);
+  console.log(`👑 Winner: ${result.winner.name} (Score: ${winnerScore.totalScore})`);
+  console.log(`   Squad Valid: ${matchSummary.winnerValidSquad ? '✅' : '❌'}`);
+  console.log(`📊 5-Pillar Breakdown:`);
+  console.log(`   Power: ${winnerScore.analysis.power.total} vs ${loserScore.analysis.power.total}`);
+  console.log(`   Tactical: ${winnerScore.analysis.tactical.total} vs ${loserScore.analysis.tactical.total}`);
+  console.log(`   Chemistry: ${winnerScore.analysis.chemistry.total} vs ${loserScore.analysis.chemistry.total}`);
+  console.log(`   Balance: ${winnerScore.analysis.balance.total} vs ${loserScore.analysis.balance.total}`);
+  console.log(`   Manager IQ: ${winnerScore.analysis.managerIQ.total} vs ${loserScore.analysis.managerIQ.total}`);
+  console.log(`🎯 Dominant Pillar: ${matchSummary.dominantPillar}`);
+  console.log(`⚔️ Closest Pillar: ${matchSummary.closestPillar}`);
+  if (matchSummary.winByDefault) {
+    console.log(`⚠️ Win by default (opponent had invalid squad)`);
   }
-  
-  const winnerScore = scores.find(s => s.playerId === winner.id);
-  const loserScore = scores.find(s => s.playerId === loser.id);
+  console.log(`===========================\n`);
 
-  // Find MVP (highest rated player from winner's squad)
-  const mvp = winner.squad.reduce((best, p) => (p.rating > (best?.rating || 0) ? p : best), null);
-
-  const result = {
-    winner,
-    loser,
-    winnerScore,
-    loserScore,
-    scoreDifference: Math.abs(score1.totalScore - score2.totalScore),
-    mvp,
-  };
-
-  console.log(`🏆 Game finished in room ${roomId}. Winner: ${winner.name}`);
   io.to(roomId).emit('game:finished', result, room);
 }
 

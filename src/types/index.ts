@@ -6,6 +6,9 @@ export interface Player {
   position: Position;
   version: string;
   age: number;
+  club?: string;
+  nation?: string;
+  league?: string;
   images: {
     playerFace: string;
     nationFlag: string;
@@ -26,6 +29,8 @@ export interface Player {
 }
 
 export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LM' | 'RM' | 'LW' | 'RW' | 'ST';
+
+export type PositionGroup = 'GK' | 'DEF' | 'MID' | 'FWD';
 
 export type Rarity = 'legendary' | 'epic' | 'rare' | 'common';
 
@@ -60,6 +65,7 @@ export interface GamePlayer {
   color: 'cyan' | 'purple';
   isAI?: boolean;
   difficulty?: AIDifficulty;
+  totalSpent?: number; // Track total money spent
 }
 
 export interface GameSettings {
@@ -98,11 +104,154 @@ export interface SoldPlayer {
   auctionNumber: number;
 }
 
-// Scoring Types
+// ============================================
+// ADVANCED SCORING SYSTEM - 5 PILLARS
+// ============================================
+
+// Squad Validation
+export interface SquadValidation {
+  isValid: boolean;
+  hasElevenPlayers: boolean;
+  hasGoalkeeper: boolean;
+  hasMinDefenders: boolean; // At least 3
+  hasMinMidfielders: boolean; // At least 2
+  hasMinForwards: boolean; // At least 1
+  errors: string[];
+  positionCounts: {
+    GK: number;
+    DEF: number;
+    MID: number;
+    FWD: number;
+  };
+}
+
+// Formation Types
+export interface Formation {
+  name: string;
+  positions: Position[];
+  displayName: string;
+  structure: string; // e.g., "4-3-3"
+}
+
+// The 5 Pillars of Scoring
+export interface PowerScore {
+  total: number; // 0-100
+  avgOverall: number;
+  keyStatsAvg: number;
+  superstarBonus: number; // Players 90+
+  legendaryBonus: number; // Legendary rarity
+  details: {
+    attackPower: number;
+    midfieldControl: number;
+    defensiveSolidity: number;
+    goalkeepingQuality: number;
+  };
+}
+
+export interface TacticalScore {
+  total: number; // 0-100
+  naturalPositions: number; // Players in their main position
+  secondaryPositions: number; // Players in alt positions
+  outOfPosition: number; // Penalties
+  formationFit: number;
+  roleBalance: number;
+  details: {
+    positionMatches: { player: string; position: Position; bonus: number }[];
+    penalties: { player: string; issue: string; penalty: number }[];
+  };
+}
+
+export interface ChemistryScore {
+  total: number; // 0-100
+  clubLinks: number;
+  leagueLinks: number;
+  nationLinks: number;
+  playstyleBonus: number;
+  lineLinks: number; // DEF-MID, MID-ATK connections
+  details: {
+    links: { player1: string; player2: string; type: string; bonus: number }[];
+    strongLinks: number;
+    weakLinks: number;
+  };
+}
+
+export interface BalanceScore {
+  total: number; // 0-100
+  positionCoverage: number;
+  wingBalance: number; // Left/Right coverage
+  ageDistribution: number;
+  depthScore: number;
+  details: {
+    hasGK: boolean;
+    defenderCount: number;
+    midfielderCount: number;
+    forwardCount: number;
+    leftSideCount: number;
+    rightSideCount: number;
+    avgAge: number;
+    penalties: { issue: string; penalty: number }[];
+  };
+}
+
+export interface ManagerIQScore {
+  total: number; // 0-100
+  budgetEfficiency: number; // Power per dollar spent
+  stealBids: number; // Players bought below market value
+  squadCompletion: number; // How quickly 11 was reached
+  riskManagement: number; // Balanced spending
+  details: {
+    totalSpent: number;
+    remainingBudget: number;
+    avgPricePerPlayer: number;
+    bestValueSigning: { player: string; price: number; value: number } | null;
+    worstValueSigning: { player: string; price: number; value: number } | null;
+    earlySpending: number; // % spent in first half
+    lateSpending: number; // % spent in second half
+  };
+}
+
+// Complete Team Analysis
+export interface TeamAnalysis {
+  playerId: string;
+  playerName: string;
+  squad: Player[];
+  validation: SquadValidation;
+  
+  // The 5 Pillars
+  power: PowerScore;
+  tactical: TacticalScore;
+  chemistry: ChemistryScore;
+  balance: BalanceScore;
+  managerIQ: ManagerIQScore;
+  
+  // Final Score (weighted)
+  finalScore: number;
+  
+  // Formation determined
+  formation: Formation;
+  
+  // Awards & Highlights
+  mvp: Player | null;
+  bestTacticalChoice: Player | null;
+  bestValueSigning: Player | null;
+}
+
+// Score Weights Configuration
+export interface ScoreWeights {
+  power: number; // 0.30
+  tactical: number; // 0.20
+  chemistry: number; // 0.20
+  balance: number; // 0.15
+  managerIQ: number; // 0.15
+}
+
+// Enhanced Team Score (replacing old TeamScore)
 export interface TeamScore {
   playerId: string;
   playerName: string;
   totalScore: number;
+  
+  // Legacy compatibility
   breakdown: {
     averageRating: number;
     ratingScore: number;
@@ -111,22 +260,42 @@ export interface TeamScore {
     synergy: number;
     synergyScore: number;
   };
+  
+  // New Advanced System
+  analysis: TeamAnalysis;
+  
   squad: Player[];
   formation: Formation;
 }
 
-export interface Formation {
-  name: string;
-  positions: Position[];
-}
-
+// Enhanced Game Result
 export interface GameResult {
   winner: GamePlayer;
   loser: GamePlayer;
   winnerScore: TeamScore;
   loserScore: TeamScore;
   scoreDifference: number;
+  
+  // Enhanced Results
   mvp: Player;
+  bestTacticalChoice: Player | null;
+  bestValueSigning: Player | null;
+  
+  // Match Summary
+  matchSummary: {
+    winnerValidSquad: boolean;
+    loserValidSquad: boolean;
+    winByDefault: boolean; // Winner won because opponent had invalid squad
+    closestPillar: string; // Which score was closest
+    dominantPillar: string; // Which score winner dominated most
+  };
+  
+  // Comparison for radar chart
+  radarComparison: {
+    categories: string[];
+    winnerValues: number[];
+    loserValues: number[];
+  };
 }
 
 // Socket Events
