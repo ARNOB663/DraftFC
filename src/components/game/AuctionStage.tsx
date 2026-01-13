@@ -103,71 +103,88 @@ export function AuctionStage() {
 
   return (
     <div className="min-h-screen bg-dark-950">
-      {/* Floating Header Bar */}
-      <div className="sticky top-0 z-40 bg-dark-950/90 backdrop-blur-lg border-b border-dark-800">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+      {/* Floating Header Bar - Compact & Modern */}
+      <div className="sticky top-0 z-40 bg-dark-950/95 backdrop-blur-xl border-b border-dark-800/50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
             {/* Left: Auction Progress */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Gavel className="w-5 h-5 text-neon-cyan" />
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-dark-800/50 px-3 py-1.5 rounded-lg">
+                <Gavel className="w-4 h-4 text-neon-cyan" />
                 <span className="text-sm font-medium">
-                  Auction <span className="text-neon-cyan">{room.soldPlayers.length + 1}</span>/{room.settings.totalPlayers}
+                  <span className="text-neon-cyan font-bold">{room.soldPlayers.length + 1}</span>
+                  <span className="text-dark-400">/{room.settings.totalPlayers}</span>
                 </span>
               </div>
-              <div className="hidden sm:block h-4 w-px bg-dark-700" />
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2 text-dark-400">
                 <Trophy className="w-4 h-4 text-rarity-legendary" />
-                <span className="text-xs text-dark-400">
-                  {room.soldPlayers.length} sold
-                </span>
+                <span className="text-xs">{room.soldPlayers.length} sold</span>
               </div>
             </div>
 
-            {/* Center: Timer */}
-            <div className="flex items-center gap-3">
+            {/* Center: Timer - Clean Pill Design */}
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
               <motion.div
                 className={cn(
-                  'relative flex items-center justify-center w-14 h-14 rounded-full border-4 transition-colors',
+                  'flex items-center gap-3 px-4 py-2 rounded-full border-2 transition-all',
+                  'bg-dark-900/80 backdrop-blur-sm',
                   timerColor
                 )}
-                animate={timeRemaining <= 5 ? { scale: [1, 1.05, 1] } : {}}
+                animate={timeRemaining <= 5 ? { 
+                  scale: [1, 1.02, 1],
+                  boxShadow: [
+                    '0 0 0 rgba(239, 68, 68, 0)',
+                    '0 0 20px rgba(239, 68, 68, 0.4)',
+                    '0 0 0 rgba(239, 68, 68, 0)'
+                  ]
+                } : {}}
                 transition={{ repeat: Infinity, duration: 0.5 }}
               >
-                <span className={cn('text-xl font-display font-black', timerColor.split(' ')[0])}>
+                {/* Timer Icon */}
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" className="opacity-20" />
+                  <path d="M12 6v6l4 2" strokeLinecap="round" />
+                </svg>
+                
+                {/* Timer Value */}
+                <span className={cn('text-2xl font-display font-black tabular-nums', timerColor.split(' ')[0])}>
                   {timeRemaining}
                 </span>
-                {/* Progress ring */}
-                <svg className="absolute inset-0 w-full h-full -rotate-90">
-                  <circle
-                    cx="28"
-                    cy="28"
-                    r="24"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="transparent"
-                    strokeDasharray={151}
-                    strokeDashoffset={151 - (151 * timerProgress) / 100}
-                    className={cn('transition-all duration-1000 opacity-30', timerColor.split(' ')[0])}
-                    strokeLinecap="round"
+                
+                {/* Progress Bar */}
+                <div className="w-16 h-1.5 bg-dark-700 rounded-full overflow-hidden">
+                  <motion.div
+                    className={cn('h-full rounded-full', 
+                      timeRemaining <= 5 ? 'bg-red-500' : 
+                      timeRemaining <= 10 ? 'bg-yellow-500' : 
+                      'bg-neon-cyan'
+                    )}
+                    style={{ width: `${timerProgress}%` }}
+                    transition={{ duration: 1, ease: 'linear' }}
                   />
-                </svg>
+                </div>
               </motion.div>
               
-              {/* Status Badge */}
+              {/* Status Badge - Positioned Below Timer */}
               <AnimatePresence mode="wait">
                 {status !== 'active' && (
                   <motion.div
                     key={status}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
+                    initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 10 }}
                     className={cn(
-                      'px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider',
-                      status === 'going_once' && 'bg-yellow-500/20 text-yellow-400',
-                      status === 'going_twice' && 'bg-orange-500/20 text-orange-400',
-                      status === 'sold' && 'bg-green-500/20 text-green-400',
+                      'px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-wider',
+                      'shadow-lg',
+                      status === 'going_once' && 'bg-yellow-500 text-yellow-950',
+                      status === 'going_twice' && 'bg-orange-500 text-orange-950',
+                      status === 'sold' && 'bg-green-500 text-green-950',
                     )}
+                    style={{
+                      boxShadow: status === 'going_once' ? '0 0 20px rgba(234, 179, 8, 0.5)' :
+                                 status === 'going_twice' ? '0 0 20px rgba(249, 115, 22, 0.5)' :
+                                 '0 0 20px rgba(34, 197, 94, 0.5)'
+                    }}
                   >
                     {status === 'going_once' && 'Going Once!'}
                     {status === 'going_twice' && 'Going Twice!'}
@@ -180,10 +197,14 @@ export function AuctionStage() {
             {/* Right: Sound Toggle */}
             <button
               onClick={toggleSound}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              className={cn(
+                'p-2.5 rounded-lg transition-all',
+                'hover:bg-white/10',
+                soundEnabled ? 'text-white' : 'text-dark-500'
+              )}
               title={soundEnabled ? "Mute sounds" : "Enable sounds"}
             >
-              {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 text-dark-500" />}
+              {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
             </button>
           </div>
         </div>
