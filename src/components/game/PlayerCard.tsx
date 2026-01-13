@@ -21,15 +21,15 @@ export function PlayerCard({
   onClick 
 }: PlayerCardProps) {
   const sizeClasses = {
-    sm: 'w-32 h-44',
-    md: 'w-56 h-80',
-    lg: 'w-72 h-[420px]',
+    sm: 'w-36 h-48',
+    md: 'w-60 h-96',
+    lg: 'w-80 h-[480px]',
   };
 
   const imageSizes = {
-    sm: { width: 100, height: 120 },
-    md: { width: 180, height: 220 },
-    lg: { width: 240, height: 300 },
+    sm: { width: 120, height: 140 },
+    md: { width: 220, height: 280 },
+    lg: { width: 300, height: 360 },
   };
 
   // Rarity-based gradient colors
