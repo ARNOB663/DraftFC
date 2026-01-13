@@ -6,7 +6,7 @@ import { useGameStore } from '@/stores/gameStore';
 import { PlayerCard, MiniPlayerCard, PlayerDetailModal } from './PlayerCard';
 import type { Player } from '@/types';
 import { BidPanel } from './BidPanel';
-import { cn, formatBudget, formatCurrency } from '@/lib/utils';
+import { cn, formatBudget, formatCurrency, parseAltPositions, getPositionDisplayColor } from '@/lib/utils';
 import {
   DollarSign,
   Users,
@@ -485,13 +485,40 @@ export function AuctionStage() {
             {/* Player Info Card */}
             <div className="glass-card p-4">
               <h3 className="font-bold mb-3 flex items-center gap-2 text-sm">
-                <DollarSign className="w-4 h-4 text-neon-green" />
+                <Target className="w-4 h-4 text-neon-cyan" />
                 Player Info
               </h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center py-2 border-b border-dark-700">
-                  <span className="text-dark-400">Position</span>
-                  <span className="font-bold text-neon-cyan">{player.position}</span>
+                {/* Position Section - Main + Alternates */}
+                <div className="py-2 border-b border-dark-700">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-dark-400">Position</span>
+                    <span className="font-bold text-neon-cyan">{player.position}</span>
+                  </div>
+                  {/* Alternate Positions */}
+                  {parseAltPositions(player.altPositions).length > 0 && (
+                    <div className="mt-2">
+                      <span className="text-dark-500 text-xs">Can also play:</span>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        {parseAltPositions(player.altPositions).map((altPos) => {
+                          const posColors = getPositionDisplayColor(altPos);
+                          return (
+                            <span
+                              key={altPos}
+                              className={cn(
+                                'px-2 py-0.5 rounded text-xs font-bold border',
+                                posColors.bg,
+                                posColors.text,
+                                posColors.border
+                              )}
+                            >
+                              {altPos}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-dark-700">
                   <span className="text-dark-400">Age</span>

@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { useState, useRef, useCallback } from 'react';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, parseAltPositions, getPositionDisplayColor } from '@/lib/utils';
 import type { Player } from '@/types';
 
 interface PlayerCardProps {
@@ -237,25 +237,54 @@ export function PlayerCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
           >
-            {/* Position badge with pulse effect and enhanced visibility */}
-            <motion.div 
-              className="relative px-4 py-1.5 rounded-full text-white font-black tracking-wide"
-              style={{ 
-                backgroundColor: config.accent,
-                boxShadow: `0 4px 12px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
-                textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                fontSize: size === 'lg' ? '14px' : '13px',
-              }}
-              whileHover={{ scale: 1.1 }}
-            >
-              {player.position}
-              <motion.div
-                className="absolute inset-0 rounded-full pointer-events-none"
-                style={{ backgroundColor: config.accent }}
-                animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </motion.div>
+            {/* Position badges - Main + Alternates */}
+            <div className="flex flex-wrap gap-1.5 max-w-[60%]">
+              {/* Main position badge */}
+              <motion.div 
+                className="relative px-3 py-1 rounded-full text-white font-black tracking-wide"
+                style={{ 
+                  backgroundColor: config.accent,
+                  boxShadow: `0 4px 12px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                  fontSize: size === 'lg' ? '14px' : size === 'md' ? '12px' : '10px',
+                }}
+                whileHover={{ scale: 1.1 }}
+              >
+                {player.position}
+                <motion.div
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                  style={{ backgroundColor: config.accent }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </motion.div>
+              
+              {/* Alternate positions */}
+              {size !== 'sm' && parseAltPositions(player.altPositions).slice(0, 3).map((altPos) => {
+                const posColors = getPositionDisplayColor(altPos);
+                return (
+                  <motion.div
+                    key={altPos}
+                    className={cn(
+                      'px-2 py-0.5 rounded-full font-bold border',
+                      posColors.bg,
+                      posColors.text,
+                      posColors.border
+                    )}
+                    style={{ 
+                      fontSize: size === 'lg' ? '11px' : '10px',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                    }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    whileHover={{ scale: 1.1 }}
+                  >
+                    {altPos}
+                  </motion.div>
+                );
+              })}
+            </div>
 
             {/* Club & Nation badges */}
             <div className="flex items-center gap-2">
@@ -800,18 +829,53 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
               visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
             }}
           >
-            {/* Position badge with enhanced visibility */}
+            {/* All Positions - Main + Alternates */}
             <motion.div 
-              className="inline-block px-5 py-2 rounded-full text-white font-black tracking-wide mb-6"
-              style={{ 
-                backgroundColor: config.accent,
-                boxShadow: `0 4px 16px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
-                textShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                fontSize: '15px',
-              }}
+              className="flex flex-wrap gap-2 mb-6"
               variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
             >
-              {player.position}
+              {/* Main position */}
+              <div 
+                className="px-5 py-2 rounded-full text-white font-black tracking-wide"
+                style={{ 
+                  backgroundColor: config.accent,
+                  boxShadow: `0 4px 16px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                  textShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  fontSize: '15px',
+                }}
+              >
+                {player.position}
+                <span className="ml-2 text-xs opacity-80 font-normal">Main</span>
+              </div>
+              
+              {/* Alternate positions */}
+              {parseAltPositions(player.altPositions).map((altPos) => {
+                const posColors = getPositionDisplayColor(altPos);
+                return (
+                  <div
+                    key={altPos}
+                    className={cn(
+                      'px-4 py-2 rounded-full font-bold border-2',
+                      posColors.bg,
+                      posColors.border
+                    )}
+                    style={{ 
+                      fontSize: '14px',
+                      color: '#374151',
+                    }}
+                  >
+                    {altPos}
+                    <span className="ml-2 text-xs opacity-60 font-normal">Alt</span>
+                  </div>
+                );
+              })}
+              
+              {/* Show count if no alternates */}
+              {parseAltPositions(player.altPositions).length === 0 && (
+                <div className="px-4 py-2 rounded-full bg-gray-200/50 text-gray-500 text-sm font-medium">
+                  No alternate positions
+                </div>
+              )}
             </motion.div>
 
             {/* Player name with enhanced visibility */}

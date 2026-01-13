@@ -92,3 +92,109 @@ export function getBidOptions(currentBid: number, budget: number): number[] {
   
   return options;
 }
+
+// ============================================
+// POSITION UTILITIES
+// ============================================
+
+// All known positions
+export const ALL_POSITIONS = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'ST', 'CF', 'LF', 'RF'];
+
+// Position group colors for UI
+export const POSITION_GROUP_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  GK: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/50' },
+  CB: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/50' },
+  LB: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/50' },
+  RB: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/50' },
+  LWB: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/50' },
+  RWB: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/50' },
+  CDM: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/50' },
+  CM: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/50' },
+  CAM: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/50' },
+  LM: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/50' },
+  RM: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/50' },
+  LW: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/50' },
+  RW: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/50' },
+  ST: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/50' },
+  CF: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/50' },
+  LF: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/50' },
+  RF: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/50' },
+};
+
+/**
+ * Parse alternate positions from various formats
+ * Handles: ["CDMCAM"], ["CDM", "CAM"], "CDMCAM", etc.
+ */
+export function parseAltPositions(altPositions: string[] | undefined): string[] {
+  if (!altPositions || !Array.isArray(altPositions)) return [];
+  
+  const parsed: string[] = [];
+  
+  altPositions.forEach(pos => {
+    if (typeof pos !== 'string') return;
+    
+    // If it's already a valid single position
+    if (ALL_POSITIONS.includes(pos)) {
+      parsed.push(pos);
+      return;
+    }
+    
+    // Parse combined string like "CDMCAM" or "LMCAM"
+    let remaining = pos.toUpperCase();
+    
+    // Sort positions by length (longer first) to match correctly
+    const sortedPositions = [...ALL_POSITIONS].sort((a, b) => b.length - a.length);
+    
+    while (remaining.length > 0) {
+      let found = false;
+      for (const position of sortedPositions) {
+        if (remaining.startsWith(position)) {
+          parsed.push(position);
+          remaining = remaining.slice(position.length);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        // Skip unknown character
+        remaining = remaining.slice(1);
+      }
+    }
+  });
+  
+  // Remove duplicates
+  return [...new Set(parsed)];
+}
+
+/**
+ * Get all positions a player can play (main + alternates)
+ */
+export function getAllPlayerPositions(player: { position: string; altPositions?: string[] }): string[] {
+  const positions = [player.position];
+  const altPos = parseAltPositions(player.altPositions);
+  return [...new Set([...positions, ...altPos])];
+}
+
+/**
+ * Get position group (GK, DEF, MID, FWD)
+ */
+export function getPositionGroup(position: string): 'GK' | 'DEF' | 'MID' | 'FWD' {
+  const POSITION_GROUPS: Record<string, string[]> = {
+    GK: ['GK'],
+    DEF: ['CB', 'LB', 'RB', 'LWB', 'RWB'],
+    MID: ['CDM', 'CM', 'CAM', 'LM', 'RM'],
+    FWD: ['LW', 'RW', 'ST', 'CF', 'LF', 'RF']
+  };
+
+  for (const [group, positions] of Object.entries(POSITION_GROUPS)) {
+    if (positions.includes(position)) return group as 'GK' | 'DEF' | 'MID' | 'FWD';
+  }
+  return 'MID';
+}
+
+/**
+ * Get position display color based on position type
+ */
+export function getPositionDisplayColor(position: string): { bg: string; text: string; border: string } {
+  return POSITION_GROUP_COLORS[position] || { bg: 'bg-gray-500/20', text: 'text-gray-400', border: 'border-gray-500/50' };
+}

@@ -53,6 +53,63 @@ const FORMATIONS = [
   { name: '4-3-2-1', displayName: '4-3-2-1', structure: '4-3-2-1', positions: ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'CM', 'LW', 'RW', 'ST'] },
 ];
 
+// All known positions for parsing
+const ALL_POSITIONS = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'ST', 'CF', 'LF', 'RF'];
+
+/**
+ * Parse alternate positions from various formats
+ * Handles: ["CDMCAM"], ["CDM", "CAM"], "CDMCAM", etc.
+ */
+function parseAltPositions(altPositions) {
+  if (!altPositions || !Array.isArray(altPositions)) return [];
+  
+  const parsed = [];
+  
+  altPositions.forEach(pos => {
+    if (typeof pos !== 'string') return;
+    
+    // If it's already a valid single position
+    if (ALL_POSITIONS.includes(pos)) {
+      parsed.push(pos);
+      return;
+    }
+    
+    // Parse combined string like "CDMCAM" or "LMCAM"
+    let remaining = pos.toUpperCase();
+    
+    // Sort positions by length (longer first) to match correctly
+    const sortedPositions = [...ALL_POSITIONS].sort((a, b) => b.length - a.length);
+    
+    while (remaining.length > 0) {
+      let found = false;
+      for (const position of sortedPositions) {
+        if (remaining.startsWith(position)) {
+          parsed.push(position);
+          remaining = remaining.slice(position.length);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        // Skip unknown character
+        remaining = remaining.slice(1);
+      }
+    }
+  });
+  
+  // Remove duplicates
+  return [...new Set(parsed)];
+}
+
+/**
+ * Get all positions a player can play (main + alternates)
+ */
+function getAllPlayerPositions(player) {
+  const positions = [player.position];
+  const altPos = parseAltPositions(player.altPositions);
+  return [...new Set([...positions, ...altPos])];
+}
+
 /**
  * Get position group for a position
  */
@@ -216,10 +273,11 @@ function calculatePowerScore(players) {
  * TACTICAL SCORE (20%)
  * ============================================
  * How well players match their positions and formation
+ * Now properly uses altPositions for better tactical flexibility
  */
 function calculateTacticalScore(players, formation) {
   if (players.length === 0) {
-    return { total: 0, naturalPositions: 0, secondaryPositions: 0, outOfPosition: 0, formationFit: 0, roleBalance: 0, details: { positionMatches: [], penalties: [] } };
+    return { total: 0, naturalPositions: 0, secondaryPositions: 0, outOfPosition: 0, formationFit: 0, roleBalance: 0, details: { positionMatches: [], penalties: [], playerPositions: [] } };
   }
 
   let naturalPositions = 0;
@@ -227,53 +285,105 @@ function calculateTacticalScore(players, formation) {
   let outOfPosition = 0;
   const positionMatches = [];
   const penalties = [];
+  const playerPositions = []; // Track all player position capabilities
 
   // Check each player against formation positions
   const formationPositions = [...formation.positions];
   const assignedPlayers = [];
 
-  // First pass: assign natural positions
+  // Build player position info for UI
+  players.forEach(player => {
+    const parsedAltPos = parseAltPositions(player.altPositions);
+    const allPositions = getAllPlayerPositions(player);
+    playerPositions.push({
+      playerId: player._id,
+      playerName: player.name,
+      mainPosition: player.position,
+      altPositions: parsedAltPos,
+      allPositions: allPositions
+    });
+  });
+
+  // First pass: assign natural positions (main position matches formation slot)
   players.forEach(player => {
     const playerPos = player.position;
-    const altPositions = player.altPositions || [];
 
-    // Check if player can fill any formation slot naturally
+    // Check if player can fill any formation slot with their main position
     const naturalIdx = formationPositions.findIndex(fp => fp === playerPos);
     if (naturalIdx !== -1) {
       naturalPositions++;
-      positionMatches.push({ player: player.name, position: playerPos, bonus: 10 });
+      positionMatches.push({ 
+        player: player.name, 
+        position: playerPos, 
+        assignedPosition: playerPos,
+        type: 'natural',
+        bonus: 10 
+      });
       formationPositions.splice(naturalIdx, 1);
       assignedPlayers.push(player._id);
     }
   });
 
-  // Second pass: assign secondary positions
+  // Second pass: assign using alternate positions
+  players.forEach(player => {
+    if (assignedPlayers.includes(player._id)) return;
+
+    const parsedAltPos = parseAltPositions(player.altPositions);
+    
+    // Check if any of the player's alt positions match remaining formation slots
+    for (const altPos of parsedAltPos) {
+      const altIdx = formationPositions.findIndex(fp => fp === altPos);
+      if (altIdx !== -1) {
+        secondaryPositions++;
+        positionMatches.push({ 
+          player: player.name, 
+          position: player.position,
+          assignedPosition: altPos,
+          type: 'alternate',
+          bonus: 8 // Higher bonus for actual alternate positions
+        });
+        formationPositions.splice(altIdx, 1);
+        assignedPlayers.push(player._id);
+        return;
+      }
+    }
+  });
+
+  // Third pass: assign using position compatibility (nearby positions)
   players.forEach(player => {
     if (assignedPlayers.includes(player._id)) return;
 
     const playerPos = player.position;
-    const altPositions = player.altPositions || [];
     const compat = POSITION_COMPATIBILITY[playerPos] || { natural: [], secondary: [], penalty: -5 };
 
-    // Check secondary positions
-    const secondaryIdx = formationPositions.findIndex(fp => 
-      compat.secondary.includes(fp) || altPositions.includes(fp)
-    );
+    // Check compatible positions
+    const compatIdx = formationPositions.findIndex(fp => compat.secondary.includes(fp));
 
-    if (secondaryIdx !== -1) {
+    if (compatIdx !== -1) {
       secondaryPositions++;
-      positionMatches.push({ player: player.name, position: formationPositions[secondaryIdx], bonus: 6 });
-      formationPositions.splice(secondaryIdx, 1);
+      positionMatches.push({ 
+        player: player.name, 
+        position: playerPos,
+        assignedPosition: formationPositions[compatIdx],
+        type: 'compatible',
+        bonus: 5 
+      });
+      formationPositions.splice(compatIdx, 1);
       assignedPlayers.push(player._id);
     }
   });
 
-  // Third pass: remaining players are out of position
+  // Fourth pass: remaining players are out of position
   players.forEach(player => {
-    if (assignedPlayers.includes(player._id)) {
+    if (!assignedPlayers.includes(player._id)) {
       outOfPosition++;
       const compat = POSITION_COMPATIBILITY[player.position] || { penalty: -5 };
-      penalties.push({ player: player.name, issue: 'Out of position', penalty: compat.penalty });
+      penalties.push({ 
+        player: player.name, 
+        mainPosition: player.position,
+        issue: 'Out of position - no suitable slot', 
+        penalty: compat.penalty 
+      });
     }
   });
 
@@ -930,5 +1040,8 @@ module.exports = {
   SCORE_WEIGHTS,
   FORMATIONS,
   POSITION_GROUPS,
-  getPositionGroup
+  ALL_POSITIONS,
+  getPositionGroup,
+  parseAltPositions,
+  getAllPlayerPositions
 };
