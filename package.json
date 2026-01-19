@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:next\" \"npm run dev:socket\"",
     "dev:next": "next dev",
-    "dev:socket": "node server.js",
+    "dev:socket": "node server.mjs",
     "build": "next build",
-    "start": "concurrently \"next start\" \"node server.js\"",
+    "start": "concurrently \"next start\" \"node server.mjs\"",
     "lint": "next lint"
   },
   "dependencies": {

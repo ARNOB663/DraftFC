@@ -10,7 +10,8 @@ import type {
   SoldPlayer,
   GameResult,
   Player,
-  AIDifficulty
+  AIDifficulty,
+  Formation
 } from '@/types';
 import { getSocket, connectSocket, disconnectSocket, type GameSocket } from '@/lib/socket';
 
@@ -44,18 +45,21 @@ interface GameState {
   // UI State
   notification: { message: string; type: 'info' | 'success' | 'error' } | null;
   chatMessages: ChatMessage[];
+  opponentSquadStatus: 'pending' | 'submitted' | null;
 
   // Actions
   connect: () => Promise<void>;
   disconnect: () => void;
   createRoom: (playerName: string) => Promise<GameRoom>;
   createAIGame: (playerName: string, difficulty: AIDifficulty) => Promise<GameRoom>;
+  createTestSquadRoom: (playerName: string) => Promise<GameRoom>;
   joinRoom: (roomId: string, playerName: string) => Promise<void>;
   leaveRoom: () => void;
   setReady: (isReady: boolean) => void;
   startGame: () => void;
   placeBid: (amount: number) => void;
   skipBid: () => void;
+  submitSquad: (squad: Player[], formation: Formation) => Promise<void>;
   setNotification: (notification: { message: string; type: 'info' | 'success' | 'error' } | null) => void;
   reset: () => void;
   rejoinSession: () => Promise<void>;
@@ -75,6 +79,7 @@ const initialState = {
   gameResult: null,
   notification: null,
   chatMessages: [],
+  opponentSquadStatus: null,
 };
 
 export const useGameStore = create<GameState>()(
@@ -171,6 +176,29 @@ export const useGameStore = create<GameState>()(
           }));
         });
 
+        socket.on('game:squad-building', (room) => {
+          set({ 
+            room,
+            notification: { message: 'Auction complete! Build your squad now.', type: 'info' }
+          });
+        });
+
+        socket.on('game:squad-submitted', (playerId, room) => {
+          const currentPlayer = room.players.find(p => p.socketId === socket.id);
+          if (currentPlayer && playerId === currentPlayer.id) {
+            set({
+              room,
+              notification: { message: 'Squad submitted successfully!', type: 'success' }
+            });
+          } else {
+            set({
+              room,
+              opponentSquadStatus: 'submitted',
+              notification: { message: 'Opponent submitted their squad!', type: 'info' }
+            });
+          }
+        });
+
         socket.on('game:finished', (result, room) => {
           set({
             gameResult: result,
@@ -241,6 +269,46 @@ export const useGameStore = create<GameState>()(
         });
 
         setTimeout(() => reject(new Error('Timeout creating AI game')), 10000);
+      });
+    },
+
+    createTestSquadRoom: async (playerName: string): Promise<GameRoom> => {
+      const socket = get().socket;
+      if (!socket) {
+        console.error('❌ No socket connection');
+        throw new Error('Not connected to server. Please wait for connection.');
+      }
+
+      console.log('📡 Emitting room:create-test-squad', playerName);
+
+      return new Promise((resolve, reject) => {
+        socket.emit('room:create-test-squad', playerName, (room, player) => {
+          console.log('✅ Test room created', { room, player });
+          
+          if (!room) {
+            reject(new Error('Server did not return a room'));
+            return;
+          }
+
+          if (player) {
+            localStorage.setItem('football_auction_player_id', player.id);
+            localStorage.setItem('football_auction_room_id', room.id);
+            localStorage.setItem('football_auction_player_name', player.name);
+          }
+
+          const opponent = room.players.find(p => p.id !== player.id);
+          set({ 
+            room, 
+            currentPlayer: player || null,
+            opponent: opponent || null 
+          });
+          resolve(room);
+        });
+
+        setTimeout(() => {
+          console.error('⏱️ Timeout creating test room');
+          reject(new Error('Timeout creating test room. Server may not be running.'));
+        }, 10000);
       });
     },
 
@@ -336,6 +404,23 @@ export const useGameStore = create<GameState>()(
 
     skipBid: () => {
       // Just don't bid - timer will handle it
+    },
+
+    submitSquad: async (squad: Player[], formation: Formation) => {
+      const socket = get().socket;
+      if (!socket) throw new Error('Not connected');
+
+      return new Promise<void>((resolve, reject) => {
+        socket.emit('game:submit-squad', squad, formation, (success: boolean, error?: string) => {
+          if (success) {
+            resolve();
+          } else {
+            reject(new Error(error || 'Failed to submit squad'));
+          }
+        });
+
+        setTimeout(() => reject(new Error('Timeout submitting squad')), 10000);
+      });
     },
 
     setNotification: (notification) => {

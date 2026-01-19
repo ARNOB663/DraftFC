@@ -16,7 +16,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { connect, isConnected, isConnecting, createRoom, createAIGame, joinRoom, room } = useGameStore();
+  const { connect, isConnected, isConnecting, createRoom, createAIGame, createTestSquadRoom, joinRoom, room } = useGameStore();
 
   useEffect(() => {
     connect();
@@ -87,6 +87,34 @@ export default function HomePage() {
     }
   };
 
+  const handleTestSquad = async () => {
+    console.log('🧪 Test Squad Builder clicked', { playerName, isConnected });
+
+    if (!playerName.trim()) {
+      setError('Please enter your name');
+      return;
+    }
+
+    if (!isConnected) {
+      setError('Not connected to server. Please wait...');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      console.log('Creating test squad room...');
+      await createTestSquadRoom(playerName.trim());
+      console.log('Test squad room created successfully');
+    } catch (err: any) {
+      console.error('Error creating test room:', err);
+      setError(err.message || 'Failed to create test room');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       {/* Background effects */}
@@ -101,7 +129,7 @@ export default function HomePage() {
         className="relative z-10 w-full max-w-md"
       >
         {/* Logo */}
-        <motion.div 
+        <motion.div
           className="text-center mb-10"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -120,7 +148,7 @@ export default function HomePage() {
 
         {/* Connection status */}
         {isConnecting && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex items-center justify-center gap-2 text-neon-cyan mb-6"
@@ -131,13 +159,13 @@ export default function HomePage() {
         )}
 
         {!isConnected && !isConnecting && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex flex-col items-center justify-center gap-2 text-red-400 mb-6"
           >
             <span>Unable to connect to server</span>
-            <button 
+            <button
               onClick={() => connect()}
               className="text-sm text-neon-cyan hover:underline"
             >
@@ -147,7 +175,7 @@ export default function HomePage() {
         )}
 
         {isConnected && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex items-center justify-center gap-2 text-green-400 mb-6"
@@ -173,6 +201,25 @@ export default function HomePage() {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-4"
               >
+                {/* Player Name Input */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-dark-300 mb-2">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                    placeholder="Enter your name..."
+                    className="input-field"
+                    maxLength={20}
+                  />
+                </div>
+
+                {error && (
+                  <p className="text-red-400 text-sm mb-4">{error}</p>
+                )}
+
                 {/* Features */}
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="text-center">
@@ -203,6 +250,29 @@ export default function HomePage() {
                   <Bot className="w-5 h-5" />
                   Play vs AI
                 </button>
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Button clicked', { isConnected, isLoading, playerName });
+                    handleTestSquad();
+                  }}
+                  disabled={!isConnected || isLoading}
+                  className="btn-secondary w-full flex items-center justify-center gap-3 border-yellow-500/50 bg-yellow-500/10 hover:bg-yellow-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={!isConnected ? 'Waiting for server connection...' : 'Skip to Squad Builder for testing'}
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-yellow-400" />
+                  ) : (
+                    <Target className="w-5 h-5 text-yellow-400" />
+                  )}
+                  {isLoading ? 'Creating...' : 'Test Squad Builder'}
+                </button>
+                {!isConnected && (
+                  <p className="text-xs text-dark-500 text-center mt-1">
+                    Waiting for connection...
+                  </p>
+                )}
 
                 <button
                   onClick={() => setMode('create')}
@@ -387,11 +457,10 @@ export default function HomePage() {
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => setAiDifficulty('easy')}
-                      className={`p-3 rounded-xl border-2 transition-all ${
-                        aiDifficulty === 'easy'
+                      className={`p-3 rounded-xl border-2 transition-all ${aiDifficulty === 'easy'
                           ? 'border-green-500 bg-green-500/20'
                           : 'border-dark-600 hover:border-dark-500'
-                      }`}
+                        }`}
                     >
                       <Target className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'easy' ? 'text-green-400' : 'text-dark-400'}`} />
                       <p className={`text-sm font-medium ${aiDifficulty === 'easy' ? 'text-green-400' : 'text-dark-300'}`}>Easy</p>
@@ -399,11 +468,10 @@ export default function HomePage() {
                     </button>
                     <button
                       onClick={() => setAiDifficulty('medium')}
-                      className={`p-3 rounded-xl border-2 transition-all ${
-                        aiDifficulty === 'medium'
+                      className={`p-3 rounded-xl border-2 transition-all ${aiDifficulty === 'medium'
                           ? 'border-yellow-500 bg-yellow-500/20'
                           : 'border-dark-600 hover:border-dark-500'
-                      }`}
+                        }`}
                     >
                       <Brain className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'medium' ? 'text-yellow-400' : 'text-dark-400'}`} />
                       <p className={`text-sm font-medium ${aiDifficulty === 'medium' ? 'text-yellow-400' : 'text-dark-300'}`}>Medium</p>
@@ -411,11 +479,10 @@ export default function HomePage() {
                     </button>
                     <button
                       onClick={() => setAiDifficulty('hard')}
-                      className={`p-3 rounded-xl border-2 transition-all ${
-                        aiDifficulty === 'hard'
+                      className={`p-3 rounded-xl border-2 transition-all ${aiDifficulty === 'hard'
                           ? 'border-red-500 bg-red-500/20'
                           : 'border-dark-600 hover:border-dark-500'
-                      }`}
+                        }`}
                     >
                       <Flame className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'hard' ? 'text-red-400' : 'text-dark-400'}`} />
                       <p className={`text-sm font-medium ${aiDifficulty === 'hard' ? 'text-red-400' : 'text-dark-300'}`}>Hard</p>

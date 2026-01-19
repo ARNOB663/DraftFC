@@ -46,17 +46,17 @@ setInterval(() => {
     const roomAge = now - new Date(room.createdAt).getTime();
     const isStale = roomAge > ROOM_TTL_MS;
     const isEmpty = room.players.every(p => !p.isConnected);
-    
+
     if (isStale || (isEmpty && room.status !== 'waiting')) {
       console.log(`🗑️ Cleaning up stale room: ${roomId}`);
-      
+
       // Clear any running auction timer
       const timer = auctionTimers.get(roomId);
       if (timer) {
         clearInterval(timer);
         auctionTimers.delete(roomId);
       }
-      
+
       rooms.delete(roomId);
     }
   }
@@ -66,13 +66,13 @@ setInterval(() => {
 function isRateLimited(socketId, actionType = 'general') {
   const now = Date.now();
   let limit = rateLimits.get(socketId);
-  
+
   if (!limit || (now - limit.windowStart) > RATE_LIMIT.windowMs) {
     limit = { windowStart: now, count: 0, lastBid: 0 };
   }
-  
+
   limit.count++;
-  
+
   // Check bid cooldown
   if (actionType === 'bid') {
     if ((now - limit.lastBid) < RATE_LIMIT.bidCooldownMs) {
@@ -80,7 +80,7 @@ function isRateLimited(socketId, actionType = 'general') {
     }
     limit.lastBid = now;
   }
-  
+
   rateLimits.set(socketId, limit);
   return limit.count > RATE_LIMIT.maxActions;
 }
@@ -211,7 +211,7 @@ function createAuctionQueue() {
 function calculateTeamScore(player, soldPlayers = [], startingBudget = DEFAULT_SETTINGS.startingBudget) {
   // Use the new scoring engine
   const analysis = ScoringEngine.analyzeTeam(player, soldPlayers, startingBudget);
-  
+
   return {
     playerId: player.id,
     playerName: player.name,
@@ -312,6 +312,58 @@ io.on('connection', (socket) => {
     socket.join(roomId);
 
     console.log(`🤖 AI Game room created: ${roomId} by ${playerName} vs ${aiPlayer.name} (${difficulty})`);
+    callback(room, player);
+  });
+
+  // DEV: Create test room that skips to squad building
+  socket.on('room:create-test-squad', (playerName, callback) => {
+    const roomId = nanoid(8).toUpperCase();
+    const playerId = nanoid(12);
+
+    // Generate mock players for testing
+    const mockPlayers = generateMockPlayers().slice(0, 16); // Get 16 players for testing
+
+    const player = {
+      id: playerId,
+      name: playerName,
+      socketId: socket.id,
+      budget: DEFAULT_SETTINGS.startingBudget - 500000000, // Spent some money
+      squad: mockPlayers,
+      isReady: true,
+      isConnected: true,
+      color: 'cyan',
+    };
+
+    // Create AI opponent
+    const aiPlayer = aiManagers.medium.createAIPlayer(DEFAULT_SETTINGS.startingBudget);
+    aiPlayer.squad = generateMockPlayers().slice(16, 32);
+    aiPlayer.isReady = true;
+
+    const room = {
+      id: roomId,
+      name: `${playerName}'s Test Room`,
+      players: [player, aiPlayer],
+      status: 'squad_building',
+      currentAuction: null,
+      auctionQueue: [],
+      soldPlayers: mockPlayers.map((p, i) => ({
+        player: p,
+        buyerId: player.id,
+        buyerName: player.name,
+        price: (p.basePrice || 50) * 1000000,
+        auctionNumber: i + 1,
+      })),
+      settings: { ...DEFAULT_SETTINGS },
+      createdAt: new Date(),
+      squadBuildingStartedAt: new Date(),
+      submittedSquads: {},
+    };
+
+    rooms.set(roomId, room);
+    playerRooms.set(socket.id, roomId);
+    socket.join(roomId);
+
+    console.log(`🧪 TEST Room created: ${roomId} by ${playerName} (Squad Building)`);
     callback(room, player);
   });
 
@@ -603,9 +655,9 @@ function startNextAuction(roomId) {
     // Trigger AI bidding periodically during auction
     if (currentRoom.isAIGame && currentRoom.currentAuction.timeRemaining > 3) {
       // AI might bid every few seconds
-      if (currentRoom.currentAuction.timeRemaining % 5 === 0 || 
-          currentRoom.currentAuction.timeRemaining === 15 ||
-          currentRoom.currentAuction.timeRemaining === 10) {
+      if (currentRoom.currentAuction.timeRemaining % 5 === 0 ||
+        currentRoom.currentAuction.timeRemaining === 15 ||
+        currentRoom.currentAuction.timeRemaining === 10) {
         triggerAIBidding(roomId);
       }
     }
@@ -638,7 +690,7 @@ function triggerAIBidding(roomId) {
   if (!aiPlayer) return;
 
   const aiManager = aiManagers[room.aiDifficulty] || aiManagers.medium;
-  
+
   // Process AI decision
   aiManager.processAuctionTurn(
     roomId,
@@ -767,7 +819,7 @@ function endGame(roomId) {
 }
 
 // Start server
-const PORT = process.env.SOCKET_PORT || process.env.PORT || 3001;
+const PORT = process.env.SOCKET_PORT || process.env.PORT || 3003;
 
 loadPlayers().then(() => {
   httpServer.listen(PORT, () => {

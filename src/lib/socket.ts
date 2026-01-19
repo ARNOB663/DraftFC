@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/types';
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3003';
 
 export type GameSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
@@ -24,7 +24,7 @@ export const getSocket = (): GameSocket => {
 export const connectSocket = (): Promise<GameSocket> => {
   return new Promise((resolve, reject) => {
     const s = getSocket();
-    
+
     if (s.connected) {
       console.log('🔌 Already connected');
       resolve(s);

@@ -162,6 +162,163 @@
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-dark-600 rounded-full hover:bg-dark-500;
   }
+
+  /* Pitch field */
+  .pitch-field {
+    background: linear-gradient(180deg, #0b1f6d 0%, #1230b6 45%, #0a1a5e 100%);
+    border: 4px solid rgba(255, 255, 255, 0.9);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 20px 50px rgba(0, 0, 0, 0.35);
+    border-radius: 24px;
+  }
+
+  .pitch-lines {
+    stroke: rgba(255, 255, 255, 0.65);
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .pitch-lines * {
+    stroke: inherit;
+    stroke-width: inherit;
+    fill: none;
+  }
+
+  .pitch-badge {
+    background: #d11f2c;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    padding: 6px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .pitch-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .pitch-slot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: clamp(72px, 9vw, 110px);
+    height: clamp(78px, 10vw, 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .pitch-slot-empty {
+    border: 2px dashed rgba(255, 255, 255, 0.35);
+    border-radius: 18px;
+    background: rgba(10, 16, 60, 0.4);
+  }
+
+  .pitch-slot-filled {
+    border-radius: 18px;
+  }
+
+  .pitch-slot-eligible {
+    border-color: rgba(34, 197, 94, 0.8);
+    background: rgba(34, 197, 94, 0.15);
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+
+  .pitch-slot-dragover {
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .pitch-slot-blocked {
+    opacity: 0.5;
+  }
+
+  .pitch-position {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 999px;
+    border-width: 1px;
+  }
+
+  .pitch-slot-hint {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .pitch-slot-warning {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 999px;
+    padding: 2px;
+  }
+
+  .pitch-player {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    justify-items: center;
+    gap: 6px;
+  }
+
+  .pitch-player-face {
+    position: relative;
+    width: clamp(44px, 6vw, 64px);
+    height: clamp(44px, 6vw, 64px);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .pitch-player-name {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #d11f2c;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+  }
+
+  .pitch-player-number {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0b1f6d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+
+  .pitch-player-text {
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @layer utilities {

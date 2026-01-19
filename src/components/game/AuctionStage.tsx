@@ -90,7 +90,7 @@ export function AuctionStage() {
   const isHighestBidder = currentBidder === currentPlayer.id;
   const canBid = !isHighestBidder && currentBid < currentPlayer.budget;
   const timerProgress = (timeRemaining / room.settings.auctionTimeLimit) * 100;
-  
+
   const timerColor = timeRemaining <= 5
     ? 'text-red-500 border-red-500'
     : timeRemaining <= 10
@@ -130,7 +130,7 @@ export function AuctionStage() {
                   'bg-dark-900/80 backdrop-blur-sm',
                   timerColor
                 )}
-                animate={timeRemaining <= 5 ? { 
+                animate={timeRemaining <= 5 ? {
                   scale: [1, 1.02, 1],
                   boxShadow: [
                     '0 0 0 rgba(239, 68, 68, 0)',
@@ -145,26 +145,26 @@ export function AuctionStage() {
                   <circle cx="12" cy="12" r="10" className="opacity-20" />
                   <path d="M12 6v6l4 2" strokeLinecap="round" />
                 </svg>
-                
+
                 {/* Timer Value */}
                 <span className={cn('text-2xl font-display font-black tabular-nums', timerColor.split(' ')[0])}>
                   {timeRemaining}
                 </span>
-                
+
                 {/* Progress Bar */}
                 <div className="w-16 h-1.5 bg-dark-700 rounded-full overflow-hidden">
                   <motion.div
-                    className={cn('h-full rounded-full', 
-                      timeRemaining <= 5 ? 'bg-red-500' : 
-                      timeRemaining <= 10 ? 'bg-yellow-500' : 
-                      'bg-neon-cyan'
+                    className={cn('h-full rounded-full',
+                      timeRemaining <= 5 ? 'bg-red-500' :
+                        timeRemaining <= 10 ? 'bg-yellow-500' :
+                          'bg-neon-cyan'
                     )}
                     style={{ width: `${timerProgress}%` }}
                     transition={{ duration: 1, ease: 'linear' }}
                   />
                 </div>
               </motion.div>
-              
+
               {/* Status Badge - Positioned Below Timer */}
               <AnimatePresence mode="wait">
                 {status !== 'active' && (
@@ -182,8 +182,8 @@ export function AuctionStage() {
                     )}
                     style={{
                       boxShadow: status === 'going_once' ? '0 0 20px rgba(234, 179, 8, 0.5)' :
-                                 status === 'going_twice' ? '0 0 20px rgba(249, 115, 22, 0.5)' :
-                                 '0 0 20px rgba(34, 197, 94, 0.5)'
+                        status === 'going_twice' ? '0 0 20px rgba(249, 115, 22, 0.5)' :
+                          '0 0 20px rgba(34, 197, 94, 0.5)'
                     }}
                   >
                     {status === 'going_once' && 'Going Once!'}
@@ -213,7 +213,7 @@ export function AuctionStage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-12 gap-6">
-          
+
           {/* Left Sidebar - Player Info Panels */}
           <div className="lg:col-span-3 space-y-4 order-2 lg:order-1">
             {/* Your Panel */}
@@ -223,7 +223,7 @@ export function AuctionStage() {
                 isHighestBidder && 'ring-2 ring-neon-cyan'
               )}
             >
-              <div 
+              <div
                 className="p-4 cursor-pointer hover:bg-white/5 transition-colors"
                 onClick={() => setShowMySquad(!showMySquad)}
               >
@@ -256,7 +256,7 @@ export function AuctionStage() {
                   </div>
                 )}
               </div>
-              
+
               {/* Squad Grid */}
               <AnimatePresence>
                 {showMySquad && (
@@ -270,8 +270,8 @@ export function AuctionStage() {
                       {Array.from({ length: room.settings.squadSize }).map((_, i) => (
                         <div key={i} className="aspect-[3/4]">
                           {currentPlayer.squad[i] ? (
-                            <MiniPlayerCard 
-                              player={currentPlayer.squad[i]} 
+                            <MiniPlayerCard
+                              player={currentPlayer.squad[i]}
                               onClick={() => handlePlayerClick(currentPlayer.squad[i])}
                             />
                           ) : (
@@ -294,7 +294,7 @@ export function AuctionStage() {
                 currentBidder === opponent?.id && 'ring-2 ring-neon-purple'
               )}
             >
-              <div 
+              <div
                 className="p-4 cursor-pointer hover:bg-white/5 transition-colors"
                 onClick={() => setShowOpponentSquad(!showOpponentSquad)}
               >
@@ -338,7 +338,7 @@ export function AuctionStage() {
                   </div>
                 )}
               </div>
-              
+
               {/* Opponent Squad Grid */}
               <AnimatePresence>
                 {showOpponentSquad && opponent && (
@@ -352,8 +352,8 @@ export function AuctionStage() {
                       {Array.from({ length: room.settings.squadSize }).map((_, i) => (
                         <div key={i} className="aspect-[3/4]">
                           {opponent.squad[i] ? (
-                            <MiniPlayerCard 
-                              player={opponent.squad[i]} 
+                            <MiniPlayerCard
+                              player={opponent.squad[i]}
                               onClick={() => handlePlayerClick(opponent.squad[i])}
                             />
                           ) : (
@@ -407,21 +407,21 @@ export function AuctionStage() {
             </div>
           </div>
 
-          {/* Center - Player Card & Bidding */}
-          <div className="lg:col-span-6 order-1 lg:order-2">
-            {/* Current Bid Display */}
+          {/* Center - Player Card & Bidding - Optimized Layout */}
+          <div className="lg:col-span-6 order-1 lg:order-2 flex flex-col">
+            {/* Current Bid Display - Compact */}
             <motion.div
-              className="text-center mb-6"
+              className="text-center mb-3"
               key={currentBid}
               initial={{ scale: 1.05 }}
               animate={{ scale: 1 }}
             >
-              <p className="text-dark-400 text-sm mb-1">Current Bid</p>
-              <div className="text-5xl md:text-6xl font-display font-black text-neon-green">
+              <p className="text-dark-400 text-xs mb-0.5">Current Bid</p>
+              <div className="text-3xl md:text-4xl font-display font-black text-neon-green">
                 {formatCurrency(currentBid)}
               </div>
               {currentBidder && (
-                <p className="text-sm mt-2">
+                <p className="text-xs mt-1">
                   by{' '}
                   <span className={cn(
                     'font-medium',
@@ -433,27 +433,29 @@ export function AuctionStage() {
               )}
             </motion.div>
 
-            {/* Player Card */}
-            <div className="flex justify-center mb-6">
+            {/* Player Card + Bid Panel - Side by Side on Large Screens */}
+            <div className="flex flex-col xl:flex-row items-center xl:items-start justify-center gap-4 xl:gap-6">
+              {/* Player Card - Use md size for better fit */}
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 200 }}
+                className="flex-shrink-0"
               >
-                <PlayerCard player={player} size="lg" showStats spotlight />
+                <PlayerCard player={player} size="md" showStats spotlight />
               </motion.div>
-            </div>
 
-            {/* Bid Panel */}
-            <div className="max-w-md mx-auto">
-              <BidPanel
-                currentBid={currentBid}
-                budget={currentPlayer.budget}
-                canBid={canBid}
-                isHighestBidder={isHighestBidder}
-                onBid={handleBid}
-                minIncrement={room.settings.minBidIncrement}
-              />
+              {/* Bid Panel - Alongside card on xl screens */}
+              <div className="w-full max-w-sm xl:max-w-xs flex-shrink-0">
+                <BidPanel
+                  currentBid={currentBid}
+                  budget={currentPlayer.budget}
+                  canBid={canBid}
+                  isHighestBidder={isHighestBidder}
+                  onBid={handleBid}
+                  minIncrement={room.settings.minBidIncrement}
+                />
+              </div>
             </div>
           </div>
 
@@ -477,7 +479,7 @@ export function AuctionStage() {
                     { label: 'PHY', full: 'Physical', value: player.overallStats.physicalOverall, color: '#F97316' },
                   ].map((stat) => (
                     <div key={stat.label} className="flex items-center gap-3">
-                      <div 
+                      <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm"
                         style={{ backgroundColor: stat.color }}
                       >
@@ -598,7 +600,7 @@ export function AuctionStage() {
 
       {/* Chat Panel */}
       <ChatPanel />
-      
+
       {/* Player Detail Modal */}
       <AnimatePresence>
         <PlayerDetailModal

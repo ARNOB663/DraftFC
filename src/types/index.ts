@@ -76,7 +76,7 @@ export interface GameSettings {
   totalPlayers: number; // number of players to auction
 }
 
-export type GameStatus = 'waiting' | 'ready' | 'auction' | 'finished';
+export type GameStatus = 'waiting' | 'ready' | 'auction' | 'squad_building' | 'finished';
 
 // Auction Types
 export interface AuctionState {

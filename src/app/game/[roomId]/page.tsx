@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useGameStore } from '@/stores/gameStore';
 import { Lobby } from '@/components/game/Lobby';
 import { AuctionStage } from '@/components/game/AuctionStage';
+import { SquadBuilder } from '@/components/game/SquadBuilder';
 import { GameResult } from '@/components/game/GameResult';
 import { Notification, ErrorBoundary } from '@/components/ui';
 
@@ -53,6 +54,8 @@ function GameContent() {
         <Lobby />
       ) : room.status === 'auction' ? (
         <AuctionStage />
+      ) : room.status === 'squad_building' ? (
+        <SquadBuilder />
       ) : room.status === 'finished' ? (
         <GameResult />
       ) : null}
