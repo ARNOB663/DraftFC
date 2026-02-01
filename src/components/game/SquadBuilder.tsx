@@ -82,35 +82,35 @@ type FormationLine = { y: number; positions: Position[] };
 
 const FORMATION_LAYOUTS: Record<string, FormationLine[]> = {
   '4-3-3': [
-    { y: 88, positions: ['GK'] },
-    { y: 70, positions: ['LB', 'CB', 'CB', 'RB'] },
-    { y: 52, positions: ['CM', 'CM', 'CM'] },
-    { y: 30, positions: ['LW', 'ST', 'RW'] },
+    { y: 90, positions: ['GK'] },
+    { y: 72, positions: ['LB', 'CB', 'CB', 'RB'] },
+    { y: 50, positions: ['CM', 'CM', 'CM'] },
+    { y: 22, positions: ['LW', 'ST', 'RW'] },
   ],
   '4-4-2': [
-    { y: 88, positions: ['GK'] },
-    { y: 70, positions: ['LB', 'CB', 'CB', 'RB'] },
-    { y: 52, positions: ['LM', 'CM', 'CM', 'RM'] },
-    { y: 30, positions: ['ST', 'ST'] },
+    { y: 90, positions: ['GK'] },
+    { y: 72, positions: ['LB', 'CB', 'CB', 'RB'] },
+    { y: 48, positions: ['LM', 'CM', 'CM', 'RM'] },
+    { y: 24, positions: ['ST', 'ST'] },
   ],
   '4-2-3-1': [
-    { y: 88, positions: ['GK'] },
-    { y: 70, positions: ['LB', 'CB', 'CB', 'RB'] },
-    { y: 58, positions: ['CDM', 'CDM'] },
-    { y: 42, positions: ['LW', 'CAM', 'RM'] },
-    { y: 26, positions: ['ST'] },
+    { y: 90, positions: ['GK'] },
+    { y: 72, positions: ['LB', 'CB', 'CB', 'RB'] },
+    { y: 60, positions: ['CDM', 'CDM'] },
+    { y: 40, positions: ['LW', 'CAM', 'RM'] },
+    { y: 18, positions: ['ST'] },
   ],
   '3-5-2': [
-    { y: 88, positions: ['GK'] },
-    { y: 70, positions: ['CB', 'CB', 'CB'] },
+    { y: 90, positions: ['GK'] },
+    { y: 72, positions: ['CB', 'CB', 'CB'] },
     { y: 52, positions: ['LM', 'CDM', 'CM', 'CM', 'RM'] },
-    { y: 30, positions: ['ST', 'ST'] },
+    { y: 22, positions: ['ST', 'ST'] },
   ],
   '5-3-2': [
-    { y: 88, positions: ['GK'] },
-    { y: 72, positions: ['LWB', 'CB', 'CB', 'CB', 'RWB'] },
+    { y: 90, positions: ['GK'] },
+    { y: 74, positions: ['LWB', 'CB', 'CB', 'CB', 'RWB'] },
     { y: 52, positions: ['CM', 'CDM', 'CM'] },
-    { y: 30, positions: ['ST', 'ST'] },
+    { y: 22, positions: ['ST', 'ST'] },
   ],
 };
 
@@ -120,10 +120,12 @@ function buildSlots(formation: Formation): SquadSlot[] {
 
   if (!lines) {
     const cols = 4;
+    const left = 8;
+    const right = 92;
     formation.positions.forEach((pos, index) => {
       const row = Math.floor(index / cols);
       const col = index % cols;
-      const x = 12 + (col * 76) / (cols - 1);
+      const x = left + ((right - left) * col) / (cols - 1);
       const y = 18 + row * 16;
       slots.push({ position: pos, player: null, isValid: false, x, y });
     });
@@ -132,8 +134,10 @@ function buildSlots(formation: Formation): SquadSlot[] {
 
   lines.forEach((line) => {
     const count = line.positions.length;
+    const left = 6; // extend closer to touchlines
+    const right = 94;
     line.positions.forEach((pos, idx) => {
-      const x = count === 1 ? 50 : 10 + (80 * idx) / (count - 1);
+      const x = count === 1 ? 50 : left + ((right - left) * idx) / (count - 1);
       slots.push({ position: pos, player: null, isValid: false, x, y: line.y });
     });
   });
@@ -151,6 +155,7 @@ export function SquadBuilder() {
   const [showFormationPicker, setShowFormationPicker] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
+  const [isLoadingOfficial, setIsLoadingOfficial] = useState(false);
 
   // Initialize squad slots based on formation
   useEffect(() => {
@@ -165,6 +170,31 @@ export function SquadBuilder() {
       setUnassignedPlayers([...currentPlayer.squad]);
     }
   }, [currentPlayer]);
+
+  // Load official players from API (dev-friendly fallback)
+  const loadOfficialPlayers = useCallback(async () => {
+    setIsLoadingOfficial(true);
+    try {
+      const res = await fetch('/api/players');
+      if (!res.ok) throw new Error('Failed to fetch players');
+      const data = await res.json();
+      setUnassignedPlayers(data);
+    } catch (error) {
+      console.error('Failed to load official players', error);
+    } finally {
+      setIsLoadingOfficial(false);
+    }
+  }, []);
+
+  // If server-provided squad looks like mock data (placeholder faces), auto-swap to official list
+  useEffect(() => {
+    if (currentPlayer?.squad && currentPlayer.squad.length > 0) {
+      const firstFace = currentPlayer.squad[0].images?.playerFace || '';
+      if (firstFace.includes('via.placeholder.com') && unassignedPlayers.length === currentPlayer.squad.length) {
+        loadOfficialPlayers();
+      }
+    }
+  }, [currentPlayer?.squad]);
 
   // Auto-submit on timeout
   const handleAutoSubmit = useCallback(async () => {
@@ -288,11 +318,30 @@ export function SquadBuilder() {
     return allPositions.includes(position);
   };
 
+  // Helper: get player by id from multiple sources (currentPlayer.squad, unassigned, or already placed slots)
+  const getPlayerById = (id: string): Player | undefined => {
+    // Search currentPlayer.squad (authoritative if available)
+    if (currentPlayer?.squad) {
+      const fromCurrent = currentPlayer.squad.find(p => p._id === id);
+      if (fromCurrent) return fromCurrent;
+    }
+
+    // Search unassignedPlayers (visible pool)
+    const fromUnassigned = unassignedPlayers.find(p => p._id === id);
+    if (fromUnassigned) return fromUnassigned;
+
+    // Search already assigned slots
+    const fromSlot = squadSlots.find(s => s.player?._id === id)?.player;
+    if (fromSlot) return fromSlot;
+
+    return undefined;
+  };
+
   // Handle player drop on slot
   const handlePlayerDrop = (slotIndex: number, player: Player | null) => {
     const slot = squadSlots[slotIndex];
     const newSlots = [...squadSlots];
-    
+
     // If clicking on a slot with a player and no player selected, remove the player
     if (!player && slot.player) {
       const removedPlayer = slot.player;
@@ -307,25 +356,30 @@ export function SquadBuilder() {
 
     // Check if position is valid
     if (!canPlayPosition(player, slot.position)) {
+      // Optionally show a tooltip/notification here
       return;
     }
 
+    // If dropping into the same slot, do nothing
+    const prevIndex = newSlots.findIndex(s => s.player?._id === player._id);
+    if (prevIndex === slotIndex) return;
+
     // Remove player from previous slot if exists
-    const previousSlotIndex = newSlots.findIndex(s => s.player?._id === player._id);
-    
-    if (previousSlotIndex !== -1) {
-      newSlots[previousSlotIndex].player = null;
-      newSlots[previousSlotIndex].isValid = false;
+    if (prevIndex !== -1) {
+      newSlots[prevIndex] = { ...newSlots[prevIndex], player: null, isValid: false };
     }
 
-    // If slot already has a player, move it to unassigned
-    if (slot.player) {
-      setUnassignedPlayers(prev => [...prev, slot.player!]);
+    // If slot already has a player (and it's a different player), move it to unassigned
+    if (slot.player && slot.player._id !== player._id) {
+      setUnassignedPlayers(prev => {
+        // avoid duplicates
+        if (prev.some(p => p._id === slot.player!._id)) return prev;
+        return [...prev, slot.player!];
+      });
     }
 
     // Add player to new slot
-    newSlots[slotIndex].player = player;
-    newSlots[slotIndex].isValid = true;
+    newSlots[slotIndex] = { ...newSlots[slotIndex], player, isValid: true };
 
     setSquadSlots(newSlots);
 
@@ -367,26 +421,40 @@ export function SquadBuilder() {
     setUnassignedPlayers(prev => [...prev, ...invalidPlayers]);
   };
 
-  // Auto-fill best XI
+  // Auto-fill best XI (fills empty slots from visible pool reliably)
   const handleAutoFill = () => {
-    if (!currentPlayer?.squad) return;
+    // Build a pool of available players from currentPlayer.squad, unassignedPlayers, and already placed players
+    const poolMap = new Map<string, Player>();
+    if (currentPlayer?.squad) currentPlayer.squad.forEach(p => poolMap.set(p._id, p));
+    unassignedPlayers.forEach(p => poolMap.set(p._id, p));
+    squadSlots.forEach(s => { if (s.player) poolMap.set(s.player._id, s.player); });
 
-    const availablePlayers = [...currentPlayer.squad];
-    const newSlots: SquadSlot[] = buildSlots(selectedFormation).map((slot) => {
-      const candidates = availablePlayers.filter(p => {
-        const allPositions = getAllPlayerPositions(p);
-        return allPositions.includes(slot.position);
-      });
-      if (candidates.length > 0) {
-        const best = candidates.sort((a, b) => b.rating - a.rating)[0];
-        const index = availablePlayers.findIndex(p => p._id === best._id);
-        if (index !== -1) availablePlayers.splice(index, 1);
-        return { ...slot, player: best, isValid: true };
+    let availablePlayers = Array.from(poolMap.values());
+
+    // Remove players who are already assigned to slots from the available pool
+    const assignedIds = new Set(squadSlots.filter(s => s.player).map(s => s.player!._id));
+    availablePlayers = availablePlayers.filter(p => !assignedIds.has(p._id));
+
+    const newSlots = [...squadSlots];
+
+    // Fill only empty slots with best matching players
+    for (let i = 0; i < newSlots.length; i++) {
+      const slot = newSlots[i];
+      if (!slot.player) {
+        const candidates = availablePlayers.filter(p => getAllPlayerPositions(p).includes(slot.position));
+        if (candidates.length > 0) {
+          candidates.sort((a, b) => b.rating - a.rating);
+          const best = candidates[0];
+          newSlots[i] = { ...slot, player: best, isValid: true };
+          // remove from pool
+          const idx = availablePlayers.findIndex(p => p._id === best._id);
+          if (idx !== -1) availablePlayers.splice(idx, 1);
+        }
       }
-      return slot;
-    });
+    }
 
     setSquadSlots(newSlots);
+    // Remaining availablePlayers become unassigned
     setUnassignedPlayers(availablePlayers);
   };
 
@@ -662,9 +730,20 @@ export function SquadBuilder() {
 
             {/* Unassigned Players */}
             <div className="glass-card p-4">
-              <h3 className="font-bold mb-3 flex items-center gap-2">
-                <Users className="w-5 h-5 text-neon-purple" />
-                Available Players ({unassignedPlayers.length})
+              <h3 className="font-bold mb-3 flex items-center gap-2 justify-between">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-neon-purple" />
+                  <span>Available Players ({unassignedPlayers.length})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={loadOfficialPlayers}
+                    className="btn-secondary text-xs px-2 py-1"
+                    disabled={isLoadingOfficial}
+                  >
+                    {isLoadingOfficial ? 'Loading...' : 'Load Official'}
+                  </button>
+                </div>
               </h3>
               <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
                 {unassignedPlayers.map(player => (
@@ -714,6 +793,7 @@ export function SquadBuilder() {
               selectedPlayer={selectedPlayer}
               onClearSelection={() => setSelectedPlayer(null)}
               playerLookup={playerLookup}
+              getPlayerById={(id: string) => getPlayerById(id)}
             />
           </div>
 
@@ -894,6 +974,7 @@ function PitchView({
   selectedPlayer,
   onClearSelection,
   playerLookup,
+  getPlayerById,
 }: {
   formation: Formation;
   squadSlots: SquadSlot[];
@@ -903,6 +984,7 @@ function PitchView({
   selectedPlayer: Player | null;
   onClearSelection: () => void;
   playerLookup: Map<string, Player>;
+  getPlayerById: (id: string) => Player | undefined;
 }) {
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
 
@@ -914,41 +996,48 @@ function PitchView({
           <span className="pitch-subtitle">{formation.displayName}</span>
         </div>
 
-        {/* Field lines */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none pitch-lines">
-          <rect x="2%" y="2%" width="96%" height="96%" rx="18" ry="18" />
-          {/* Center circle */}
-          <circle
-            cx="50%"
-            cy="50%"
-            r="25%"
-            fill="none"
-          />
-          {/* Center line */}
-          <line
-            x1="2%"
-            y1="50%"
-            x2="98%"
-            y2="50%"
-          />
-          {/* Penalty boxes */}
-          <rect
-            x="6%"
-            y="22%"
-            width="18%"
-            height="56%"
-            fill="none"
-          />
-          <rect
-            x="76%"
-            y="22%"
-            width="18%"
-            height="56%"
-            fill="none"
-          />
-          {/* Six-yard boxes */}
-          <rect x="2%" y="35%" width="10%" height="30%" fill="none" />
-          <rect x="88%" y="35%" width="10%" height="30%" fill="none" />
+        {/* Field lines (official markings) */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none pitch-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {/* Boundary (touchlines / goal lines) */}
+          <rect x="2" y="2" width="96" height="96" rx="3" ry="3" fill="none" />
+
+          {/* Halfway line */}
+          <line x1="2" y1="50" x2="98" y2="50" />
+
+          {/* Center circle + spot */}
+          <circle cx="50" cy="50" r="12" fill="none" />
+          <circle cx="50" cy="50" r="0.8" fill="#ffffff" />
+
+          {/* Top penalty area (penalty box) */}
+          <rect x="30" y="4" width="40" height="22" fill="none" />
+          {/* Top goal area (6-yard box) */}
+          <rect x="42" y="8" width="16" height="8" fill="none" />
+          {/* Top penalty spot */}
+          <circle cx="50" cy="14.5" r="0.8" fill="#ffffff" />
+          {/* Top penalty arc (the 'D') */}
+          <path d="M38 26 A12 12 0 0 1 62 26" fill="none" />
+
+          {/* Bottom penalty area (penalty box) */}
+          <rect x="30" y="74" width="40" height="22" fill="none" />
+          {/* Bottom goal area (6-yard box) */}
+          <rect x="42" y="83" width="16" height="8" fill="none" />
+          {/* Bottom penalty spot */}
+          <circle cx="50" cy="85.5" r="0.8" fill="#ffffff" />
+          {/* Bottom penalty arc (the 'D') */}
+          <path d="M38 74 A12 12 0 0 0 62 74" fill="none" />
+
+          {/* Goal lines (short centered segments) */}
+          <line x1="44" y1="2" x2="56" y2="2" strokeWidth="1.8" />
+          <line x1="44" y1="98" x2="56" y2="98" strokeWidth="1.8" />
+
+          {/* Corner arcs */}
+          <path d="M6 2 A4 4 0 0 1 2 6" fill="none" />
+          <path d="M94 2 A4 4 0 0 0 98 6" fill="none" />
+          <path d="M6 98 A4 4 0 0 0 2 94" fill="none" />
+          <path d="M94 98 A4 4 0 0 1 98 94" fill="none" />
+
+          {/* Center circle slight inner arc highlight */}
+          <path d="M38 50 A12 12 0 1 0 62 50" fill="none" opacity="0.06" />
         </svg>
 
         {/* Position Slots */}
@@ -977,10 +1066,12 @@ function PitchView({
                 onDrop={(e) => {
                   e.preventDefault();
                   const playerId = e.dataTransfer.getData('text/plain');
-                  const droppedPlayer = playerLookup.get(playerId);
+                  const droppedPlayer = getPlayerById(playerId) || playerLookup.get(playerId);
                   if (droppedPlayer) {
                     onPlayerDrop(index, droppedPlayer);
                     onClearSelection();
+                  } else {
+                    console.warn('Dropped player not found for id:', playerId);
                   }
                   setDragOverSlot(null);
                 }}

@@ -320,8 +320,11 @@ io.on('connection', (socket) => {
     const roomId = nanoid(8).toUpperCase();
     const playerId = nanoid(12);
 
-    // Generate mock players for testing
-    const mockPlayers = generateMockPlayers().slice(0, 16); // Get 16 players for testing
+    // Use real loaded players if available, otherwise generate mock players
+    const pool = (allPlayers && allPlayers.length > 0) ? allPlayers : generateMockPlayers();
+    const squadSize = DEFAULT_SETTINGS.squadSize || 16;
+
+    const mockPlayers = pool.slice(0, squadSize);
 
     const player = {
       id: playerId,
@@ -336,7 +339,7 @@ io.on('connection', (socket) => {
 
     // Create AI opponent
     const aiPlayer = aiManagers.medium.createAIPlayer(DEFAULT_SETTINGS.startingBudget);
-    aiPlayer.squad = generateMockPlayers().slice(16, 32);
+    aiPlayer.squad = pool.slice(squadSize, squadSize * 2);
     aiPlayer.isReady = true;
 
     const room = {
