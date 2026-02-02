@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Search, Filter, ChevronDown } from 'lucide-react';
 import { useToaster } from '@/components/ui/Toaster';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { ALL_POSITIONS } from '@/lib/utils';
 
 interface Player {
   _id: string;
@@ -16,6 +18,71 @@ interface Player {
   rarity?: string;
 }
 
+const SORT_OPTIONS = [
+  { value: 'rating-desc', label: 'Rating (highest)' },
+  { value: 'rating-asc', label: 'Rating (lowest)' },
+  { value: 'name-asc', label: 'Name (A–Z)' },
+  { value: 'name-desc', label: 'Name (Z–A)' },
+  { value: 'age-desc', label: 'Age (oldest)' },
+  { value: 'age-asc', label: 'Age (youngest)' },
+  { value: 'position', label: 'Position' },
+] as const;
+
+const RARITY_OPTIONS = ['All', 'legendary', 'epic', 'rare', 'common'] as const;
+
+function DarkSelect({
+  value,
+  onChange,
+  options,
+  label,
+  getLabel,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: readonly string[] | readonly { value: string; label: string }[];
+  label: string;
+  getLabel?: (v: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const items = options.map((o) => (typeof o === 'string' ? { value: o, label: getLabel ? getLabel(o) : o } : o));
+  const selectedLabel = items.find((i) => i.value === value)?.label ?? value;
+
+  return (
+    <div className="relative">
+      <label className="block text-xs text-white/60 mb-1">{label}</label>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className="flex items-center justify-between gap-2 w-full min-w-[140px] px-3 py-2 rounded-lg border border-white/20 bg-dark-800 text-white focus:outline-none focus:border-neon-cyan/50"
+      >
+        <span>{selectedLabel}</span>
+        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 py-1 w-full min-w-[140px] rounded-lg border border-white/20 bg-dark-800 shadow-xl max-h-56 overflow-y-auto">
+          {items.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange(item.value);
+                setOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 text-sm hover:bg-white/10 ${
+                value === item.value ? 'bg-neon-cyan/20 text-neon-cyan' : 'text-white'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PlayerAdmin() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
@@ -25,8 +92,58 @@ export default function PlayerAdmin() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [createName, setCreateName] = useState<string>('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [filterPosition, setFilterPosition] = useState<string>('All');
+  const [filterRarity, setFilterRarity] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<string>('rating-desc');
+  const [showFilters, setShowFilters] = useState(false);
 
   const { notify } = useToaster();
+
+  const filteredPlayers = useMemo(() => {
+    let result = [...players];
+
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.position.toLowerCase().includes(q) ||
+          (p.rarity && p.rarity.toLowerCase().includes(q))
+      );
+    }
+
+    if (filterPosition !== 'All') {
+      result = result.filter((p) => p.position === filterPosition);
+    }
+
+    if (filterRarity !== 'All') {
+      result = result.filter((p) => (p.rarity ?? '').toLowerCase() === filterRarity.toLowerCase());
+    }
+
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'rating-desc':
+          return b.rating - a.rating;
+        case 'rating-asc':
+          return a.rating - b.rating;
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'age-desc':
+          return (b.age ?? 0) - (a.age ?? 0);
+        case 'age-asc':
+          return (a.age ?? 0) - (b.age ?? 0);
+        case 'position':
+          return a.position.localeCompare(b.position) || a.name.localeCompare(b.name);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [players, search, filterPosition, filterRarity, sortBy]);
 
   useEffect(() => {
     const saved = localStorage.getItem('admin_token');
@@ -122,6 +239,30 @@ export default function PlayerAdmin() {
 
 
       <div className="mb-4 flex gap-2 items-center flex-wrap">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+          <input
+            type="text"
+            placeholder="Search by name, position, rarity..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:border-neon-cyan/50"
+          />
+        </div>
+
+        {/* Filter toggle */}
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+            showFilters ? 'bg-neon-cyan/20 border-neon-cyan/50 text-neon-cyan' : 'border-white/20 bg-white/10 hover:bg-white/20'
+          }`}
+        >
+          <Filter className="w-4 h-4" />
+          Filters
+          <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+        </button>
+
         {showCreateForm ? (
           <>
             <input
@@ -150,10 +291,51 @@ export default function PlayerAdmin() {
         </button>
       </div>
 
+      {showFilters && (
+        <div className="mb-4 p-4 rounded-xl border border-white/20 bg-white/5 flex flex-wrap gap-4">
+          <DarkSelect
+            label="Position"
+            value={filterPosition}
+            onChange={setFilterPosition}
+            options={['All', ...ALL_POSITIONS]}
+            getLabel={(v) => (v === 'All' ? 'All positions' : v)}
+          />
+          <DarkSelect
+            label="Rarity"
+            value={filterRarity}
+            onChange={setFilterRarity}
+            options={[...RARITY_OPTIONS]}
+            getLabel={(v) => (v === 'All' ? 'All rarities' : v)}
+          />
+          <DarkSelect
+            label="Sort by"
+            value={sortBy}
+            onChange={setSortBy}
+            options={SORT_OPTIONS}
+          />
+          <div className="flex items-end">
+            <button
+              onClick={() => {
+                setSearch('');
+                setFilterPosition('All');
+                setFilterRarity('All');
+                setSortBy('rating-desc');
+              }}
+              className="px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white/80 hover:bg-white/20 text-sm"
+            >
+              Reset filters
+            </button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <p>Loading players...</p>
       ) : (
         <div className="overflow-x-auto">
+          <p className="text-sm text-white/60 mb-2">
+            Showing {filteredPlayers.length} of {players.length} players
+          </p>
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="text-left">
@@ -167,7 +349,14 @@ export default function PlayerAdmin() {
               </tr>
             </thead>
             <tbody>
-              {players.map(player => (
+              {filteredPlayers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-white/60">
+                    {players.length === 0 ? 'No players yet. Create one above.' : 'No players match your search or filters.'}
+                  </td>
+                </tr>
+              ) : (
+              filteredPlayers.map(player => (
                 <tr key={player._id} className="border-t">
                   <td className="p-2">
                     {player.images?.playerFace ? (
@@ -187,7 +376,7 @@ export default function PlayerAdmin() {
                     <button className="px-2 py-1 bg-red-600 text-white rounded" onClick={() => requestDelete(player._id)}>Delete</button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

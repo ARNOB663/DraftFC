@@ -171,7 +171,14 @@ export function SquadBuilder() {
       const res = await fetch('/api/players');
       if (!res.ok) throw new Error('Failed to fetch players');
       const data = await res.json();
-      setUnassignedPlayers(data);
+      const seen = new Set<string>();
+      const unique = (Array.isArray(data) ? data : []).filter((p: Player) => {
+        const id = p._id ?? (p as { id?: string }).id;
+        if (!id || seen.has(String(id))) return false;
+        seen.add(String(id));
+        return true;
+      });
+      setUnassignedPlayers(unique);
     } catch (error) {
       console.error('Failed to load players from database', error);
     } finally {
@@ -724,9 +731,9 @@ export function SquadBuilder() {
                 </div>
               </h3>
               <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
-                {unassignedPlayers.map(player => (
+                {unassignedPlayers.map((player, idx) => (
                   <motion.div
-                    key={player._id}
+                    key={`${player._id}-${idx}`}
                     onClick={() => setSelectedPlayer(player)}
                     draggable
                     onDragStart={(e) => {
