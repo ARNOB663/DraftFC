@@ -14,12 +14,12 @@ interface PlayerCardProps {
   onClick?: () => void;
 }
 
-export function PlayerCard({ 
-  player, 
-  size = 'md', 
+export function PlayerCard({
+  player,
+  size = 'md',
   showStats = false,
   spotlight = false,
-  onClick 
+  onClick
 }: PlayerCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -106,7 +106,7 @@ export function PlayerCard({
   const config = rarityConfig[player.rarity || 'common'];
 
   return (
-    <div 
+    <div
       className="perspective-1000"
       style={{ perspective: '1000px' }}
     >
@@ -124,9 +124,9 @@ export function PlayerCard({
           rotateX: isHovered ? rotateX : 0,
           rotateY: isHovered ? rotateY : 0,
           transformStyle: 'preserve-3d',
-          boxShadow: isHovered 
+          boxShadow: isHovered
             ? `0 30px 60px -10px ${config.glow}, 0 0 40px ${config.glow}`
-            : spotlight 
+            : spotlight
               ? `0 20px 60px ${config.accent}40`
               : '0 10px 40px rgba(0,0,0,0.1)',
         }}
@@ -144,7 +144,7 @@ export function PlayerCard({
           <motion.div
             className="absolute inset-0 rounded-2xl pointer-events-none z-0"
             style={{
-              background: `linear-gradient(45deg, ${config.accent}00, ${config.accent}60, ${config.accent}00)`,
+              backgroundImage: `linear-gradient(45deg, ${config.accent}00, ${config.accent}60, ${config.accent}00)`,
               backgroundSize: '200% 200%',
             }}
             animate={{
@@ -184,9 +184,9 @@ export function PlayerCard({
         />
 
         {/* Large rating in background with parallax */}
-        <motion.div 
+        <motion.div
           className="absolute right-0 top-1/4 font-display font-black opacity-[0.08] select-none"
-          style={{ 
+          style={{
             fontSize: size === 'lg' ? '320px' : size === 'md' ? '220px' : '120px',
             lineHeight: 0.8,
             color: config.accent,
@@ -226,12 +226,12 @@ export function PlayerCard({
         )}
 
         {/* Content container with z-depth */}
-        <div 
+        <div
           className="relative h-full flex flex-col p-4"
           style={{ transform: 'translateZ(20px)' }}
         >
           {/* Top: Position badge & Club/Nation */}
-          <motion.div 
+          <motion.div
             className="flex justify-between items-start z-10"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -240,9 +240,9 @@ export function PlayerCard({
             {/* Position badges - Main + Alternates */}
             <div className="flex flex-wrap gap-1.5 max-w-[60%]">
               {/* Main position badge */}
-              <motion.div 
+              <motion.div
                 className="relative px-3 py-1 rounded-full text-white font-black tracking-wide"
-                style={{ 
+                style={{
                   backgroundColor: config.accent,
                   boxShadow: `0 4px 12px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
                   textShadow: '0 1px 2px rgba(0,0,0,0.3)',
@@ -258,7 +258,7 @@ export function PlayerCard({
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               </motion.div>
-              
+
               {/* Alternate positions */}
               {size !== 'sm' && parseAltPositions(player.altPositions).slice(0, 3).map((altPos) => {
                 const posColors = getPositionDisplayColor(altPos);
@@ -271,7 +271,7 @@ export function PlayerCard({
                       posColors.text,
                       posColors.border
                     )}
-                    style={{ 
+                    style={{
                       fontSize: size === 'lg' ? '11px' : '10px',
                       textShadow: '0 1px 2px rgba(0,0,0,0.2)',
                     }}
@@ -289,7 +289,7 @@ export function PlayerCard({
             {/* Club & Nation badges */}
             <div className="flex items-center gap-2">
               {player.images?.nationFlag && (
-                <motion.div 
+                <motion.div
                   className={cn(
                     'relative rounded overflow-hidden shadow-lg',
                     size === 'sm' ? 'w-6 h-4' : 'w-8 h-5'
@@ -305,7 +305,7 @@ export function PlayerCard({
                 </motion.div>
               )}
               {player.images?.clubBadge && (
-                <motion.div 
+                <motion.div
                   className={cn('relative', size === 'sm' ? 'w-6 h-6' : 'w-10 h-10')}
                   whileHover={{ scale: 1.2, rotate: -5 }}
                 >
@@ -321,14 +321,14 @@ export function PlayerCard({
           </motion.div>
 
           {/* Player name with staggered animation - Enhanced visibility */}
-          <motion.div 
+          <motion.div
             className="mt-4 z-10"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
             {/* First name with text shadow and stroke effect */}
-            <h3 
+            <h3
               className={cn(
                 'font-display font-black leading-tight',
                 size === 'sm' && 'text-lg',
@@ -344,29 +344,29 @@ export function PlayerCard({
               {player.name.split(' ').slice(0, -1).join(' ')}
             </h3>
             {/* Last name with accent color and glow */}
-            <motion.h3 
+            <motion.h3
               className={cn(
                 'font-display font-black leading-tight',
                 size === 'sm' && 'text-xl',
                 size === 'md' && 'text-4xl',
                 size === 'lg' && 'text-6xl',
               )}
-              style={{ 
+              style={{
                 color: config.accent,
                 textShadow: `0 2px 8px ${config.glow}, 0 4px 16px rgba(0,0,0,0.15)`,
                 WebkitTextStroke: size === 'lg' ? `0.5px ${config.accent}` : 'none',
               }}
-              animate={isHovered ? { 
-                textShadow: `0 0 30px ${config.glow}, 0 4px 20px ${config.glow}` 
+              animate={isHovered ? {
+                textShadow: `0 0 30px ${config.glow}, 0 4px 20px ${config.glow}`
               } : {}}
             >
               {player.name.split(' ').slice(-1)[0]}
             </motion.h3>
-            
+
             {size !== 'sm' && (
-              <motion.div 
+              <motion.div
                 className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full"
-                style={{ 
+                style={{
                   backgroundColor: 'rgba(255,255,255,0.7)',
                   backdropFilter: 'blur(4px)',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -375,9 +375,9 @@ export function PlayerCard({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                <span 
+                <span
                   className="uppercase tracking-widest font-semibold"
-                  style={{ 
+                  style={{
                     fontSize: size === 'lg' ? '14px' : '12px',
                     color: config.accent,
                     textShadow: `0 1px 2px ${config.glow}`,
@@ -390,7 +390,7 @@ export function PlayerCard({
           </motion.div>
 
           {/* Player Image with parallax and floating animation */}
-          <motion.div 
+          <motion.div
             className={cn(
               "absolute z-0",
               size === 'sm' ? 'right-0 bottom-0' : 'right-[-10%] bottom-0'
@@ -399,19 +399,19 @@ export function PlayerCard({
               x: isHovered ? imageX : 0,
               y: isHovered ? imageY : 0,
             }}
-            animate={!isHovered ? { 
+            animate={!isHovered ? {
               y: [0, -8, 0],
             } : {}}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity, 
-              ease: 'easeInOut' 
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: 'easeInOut'
             }}
           >
-            <div 
+            <div
               className="relative"
-              style={{ 
-                width: imageSizes[size].width, 
+              style={{
+                width: imageSizes[size].width,
                 height: imageSizes[size].height,
                 transform: 'translateZ(40px)',
               }}
@@ -422,10 +422,10 @@ export function PlayerCard({
                 fill
                 className="object-contain object-bottom"
                 style={{
-                  filter: isHovered 
+                  filter: isHovered
                     ? `drop-shadow(0 30px 60px ${config.glow})`
-                    : size === 'lg' 
-                      ? 'drop-shadow(0 20px 50px rgba(0,0,0,0.3))' 
+                    : size === 'lg'
+                      ? 'drop-shadow(0 20px 50px rgba(0,0,0,0.3))'
                       : 'drop-shadow(0 10px 30px rgba(0,0,0,0.2))'
                 }}
                 onError={(e) => {
@@ -436,21 +436,21 @@ export function PlayerCard({
           </motion.div>
 
           {/* Rating display with enhanced visibility */}
-          <motion.div 
+          <motion.div
             className="mt-auto z-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             <div className="flex items-end gap-3 mb-3">
-              <motion.span 
+              <motion.span
                 className={cn(
                   'font-display font-black',
                   size === 'sm' && 'text-4xl',
                   size === 'md' && 'text-6xl',
                   size === 'lg' && 'text-8xl',
                 )}
-                style={{ 
+                style={{
                   color: config.accent,
                   textShadow: `
                     0 2px 4px rgba(0,0,0,0.2),
@@ -459,7 +459,7 @@ export function PlayerCard({
                   `,
                   WebkitTextStroke: size === 'lg' ? `1px ${config.accent}` : 'none',
                 }}
-                animate={isHovered ? { 
+                animate={isHovered ? {
                   textShadow: `
                     0 2px 4px rgba(0,0,0,0.3),
                     0 8px 24px ${config.glow},
@@ -471,7 +471,7 @@ export function PlayerCard({
               >
                 {player.rating}
               </motion.span>
-              <span 
+              <span
                 className="mb-2 uppercase tracking-widest font-bold"
                 style={{
                   fontSize: size === 'lg' ? '14px' : '12px',
@@ -485,7 +485,7 @@ export function PlayerCard({
 
             {/* Stats bar with staggered reveal */}
             {size !== 'sm' && player.overallStats && (
-              <motion.div 
+              <motion.div
                 className="flex gap-2"
                 initial="hidden"
                 animate="visible"
@@ -502,10 +502,10 @@ export function PlayerCard({
                   { label: 'DEF', value: player.overallStats.defendingOverall, color: '#8B5CF6' },
                   { label: 'PHY', value: player.overallStats.physicalOverall, color: '#F97316' },
                 ].slice(0, size === 'md' ? 4 : 6).map((stat) => (
-                  <motion.div 
-                    key={stat.label} 
+                  <motion.div
+                    key={stat.label}
                     className="flex-1 rounded-xl py-2 px-1 text-center text-white relative overflow-hidden"
-                    style={{ 
+                    style={{
                       backgroundColor: stat.color,
                       boxShadow: `0 4px 12px ${stat.color}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
                     }}
@@ -513,8 +513,8 @@ export function PlayerCard({
                       hidden: { opacity: 0, y: 20, scale: 0.8 },
                       visible: { opacity: 1, y: 0, scale: 1 }
                     }}
-                    whileHover={{ 
-                      scale: 1.12, 
+                    whileHover={{
+                      scale: 1.12,
                       zIndex: 10,
                       boxShadow: `0 8px 24px ${stat.color}80, inset 0 1px 0 rgba(255,255,255,0.3)`,
                     }}
@@ -528,7 +528,7 @@ export function PlayerCard({
                       style={{ opacity: 0.4 }}
                     />
                     {/* Stat value with enhanced visibility */}
-                    <div 
+                    <div
                       className={cn('font-black relative', size === 'md' ? 'text-lg' : 'text-xl')}
                       style={{
                         textShadow: '0 1px 2px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.2)',
@@ -537,7 +537,7 @@ export function PlayerCard({
                       {stat.value}
                     </div>
                     {/* Stat label */}
-                    <div 
+                    <div
                       className="text-[10px] uppercase font-semibold tracking-wide relative"
                       style={{
                         textShadow: '0 1px 1px rgba(0,0,0,0.2)',
@@ -553,7 +553,7 @@ export function PlayerCard({
 
             {/* Price tag with enhanced visibility */}
             {size !== 'sm' && (
-              <motion.div 
+              <motion.div
                 className="mt-3 flex justify-between items-center px-3 py-2 rounded-xl"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.6)',
@@ -564,7 +564,7 @@ export function PlayerCard({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                <span 
+                <span
                   className="uppercase tracking-widest font-semibold"
                   style={{
                     fontSize: '11px',
@@ -574,9 +574,9 @@ export function PlayerCard({
                 >
                   Base Price
                 </span>
-                <motion.span 
+                <motion.span
                   className="font-black text-lg"
-                  style={{ 
+                  style={{
                     color: config.accent,
                     textShadow: `0 1px 4px ${config.glow}`,
                   }}
@@ -594,7 +594,7 @@ export function PlayerCard({
           <motion.div
             className="absolute inset-0 pointer-events-none z-10"
             style={{
-              background: `linear-gradient(105deg, transparent 40%, ${config.accent}30 50%, transparent 60%)`,
+              backgroundImage: `linear-gradient(105deg, transparent 40%, ${config.accent}30 50%, transparent 60%)`,
               backgroundSize: '200% 100%',
             }}
             animate={{
@@ -605,7 +605,7 @@ export function PlayerCard({
         )}
 
         {/* Edge highlight */}
-        <div 
+        <div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           style={{
             background: `linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)`,
@@ -624,7 +624,7 @@ interface MiniPlayerCardProps {
 
 export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const rarityColors = {
     legendary: { bg: 'from-amber-100 to-yellow-200', accent: '#FFD700', border: 'border-yellow-400', glow: 'rgba(255,215,0,0.5)' },
     epic: { bg: 'from-purple-100 to-violet-200', accent: '#A855F7', border: 'border-purple-400', glow: 'rgba(168,85,247,0.4)' },
@@ -645,8 +645,8 @@ export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
       initial={{ scale: 0, opacity: 0, rotateY: -90 }}
       animate={{ scale: 1, opacity: 1, rotateY: 0 }}
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-      whileHover={{ 
-        scale: 1.12, 
+      whileHover={{
+        scale: 1.12,
         zIndex: 10,
         boxShadow: `0 10px 30px ${colors.glow}`,
       }}
@@ -656,7 +656,7 @@ export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
       onClick={onClick}
     >
       {/* Player face image */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0"
         animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
         transition={{ duration: 0.3 }}
@@ -678,17 +678,17 @@ export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%)',
+          backgroundImage: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%)',
           backgroundSize: '200% 100%',
         }}
         animate={isHovered ? { backgroundPosition: ['200% 0', '-200% 0'] } : {}}
         transition={{ duration: 0.6 }}
       />
-      
+
       {/* Rating badge with enhanced glow */}
-      <motion.div 
+      <motion.div
         className="absolute top-1 left-1 px-2 py-0.5 rounded-md font-black text-white"
-        style={{ 
+        style={{
           backgroundColor: colors.accent,
           fontSize: '11px',
           boxShadow: `0 2px 6px ${colors.glow}`,
@@ -700,7 +700,7 @@ export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
       </motion.div>
 
       {/* Position with better visibility */}
-      <div 
+      <div
         className="absolute top-1 right-1 px-1.5 py-0.5 rounded-md font-bold text-gray-800"
         style={{
           fontSize: '9px',
@@ -710,16 +710,16 @@ export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
       >
         {player.position}
       </div>
-      
+
       {/* Player name with enhanced visibility */}
-      <motion.div 
+      <motion.div
         className="absolute bottom-0 left-0 right-0 p-1.5 text-center"
         style={{
           background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%)',
         }}
         animate={isHovered ? { y: -2 } : { y: 0 }}
       >
-        <p 
+        <p
           className="font-black text-white truncate"
           style={{
             fontSize: '10px',
@@ -763,12 +763,12 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
       onClick={onClose}
     >
       {/* Backdrop with blur */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 bg-black/70 backdrop-blur-md"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       />
-      
+
       {/* Modal with 3D entrance */}
       <motion.div
         className={cn(
@@ -789,7 +789,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
         <motion.div
           className="absolute inset-0 rounded-3xl pointer-events-none"
           style={{
-            background: `linear-gradient(45deg, ${config.accent}00, ${config.accent}40, ${config.accent}00)`,
+            backgroundImage: `linear-gradient(45deg, ${config.accent}00, ${config.accent}40, ${config.accent}00)`,
             backgroundSize: '200% 200%',
           }}
           animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
@@ -797,7 +797,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
         />
 
         {/* Large rating in background */}
-        <motion.div 
+        <motion.div
           className="absolute right-0 top-0 font-display font-black opacity-5 select-none"
           style={{ fontSize: '400px', lineHeight: 0.8, color: config.accent }}
           initial={{ x: 100, opacity: 0 }}
@@ -820,7 +820,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
         {/* Content */}
         <div className="relative flex flex-col lg:flex-row min-h-[500px]">
           {/* Left side - Info with staggered animations */}
-          <motion.div 
+          <motion.div
             className="flex-1 p-8 lg:p-12 z-10"
             initial="hidden"
             animate="visible"
@@ -830,14 +830,14 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
             }}
           >
             {/* All Positions - Main + Alternates */}
-            <motion.div 
+            <motion.div
               className="flex flex-wrap gap-2 mb-6"
               variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
             >
               {/* Main position */}
-              <div 
+              <div
                 className="px-5 py-2 rounded-full text-white font-black tracking-wide"
-                style={{ 
+                style={{
                   backgroundColor: config.accent,
                   boxShadow: `0 4px 16px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
                   textShadow: '0 1px 3px rgba(0,0,0,0.3)',
@@ -847,7 +847,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
                 {player.position}
                 <span className="ml-2 text-xs opacity-80 font-normal">Main</span>
               </div>
-              
+
               {/* Alternate positions */}
               {parseAltPositions(player.altPositions).map((altPos) => {
                 const posColors = getPositionDisplayColor(altPos);
@@ -859,7 +859,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
                       posColors.bg,
                       posColors.border
                     )}
-                    style={{ 
+                    style={{
                       fontSize: '14px',
                       color: '#374151',
                     }}
@@ -869,7 +869,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
                   </div>
                 );
               })}
-              
+
               {/* Show count if no alternates */}
               {parseAltPositions(player.altPositions).length === 0 && (
                 <div className="px-4 py-2 rounded-full bg-gray-200/50 text-gray-500 text-sm font-medium">
@@ -879,7 +879,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
             </motion.div>
 
             {/* Player name with enhanced visibility */}
-            <motion.h2 
+            <motion.h2
               className="text-4xl lg:text-6xl font-display font-black leading-tight"
               style={{
                 color: '#1f2937',
@@ -889,9 +889,9 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
             >
               {player.name.split(' ').slice(0, -1).join(' ')}
             </motion.h2>
-            <motion.h2 
+            <motion.h2
               className="text-5xl lg:text-7xl font-display font-black leading-tight mb-4"
-              style={{ 
+              style={{
                 color: config.accent,
                 textShadow: `0 2px 12px ${config.glow}, 0 4px 20px rgba(0,0,0,0.15)`,
               }}
@@ -901,7 +901,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
             </motion.h2>
 
             {/* Club & Nation */}
-            <motion.div 
+            <motion.div
               className="flex items-center gap-4 mb-8"
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             >
@@ -924,7 +924,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
             </motion.div>
 
             {/* Player info grid with enhanced visibility */}
-            <motion.div 
+            <motion.div
               className="grid grid-cols-3 gap-4 mb-8 p-4 rounded-2xl"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.5)',
@@ -934,13 +934,13 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             >
               <div>
-                <p 
+                <p
                   className="uppercase tracking-widest mb-1 font-semibold"
                   style={{ fontSize: '11px', color: '#6b7280' }}
                 >
                   Age
                 </p>
-                <p 
+                <p
                   className="text-2xl font-black"
                   style={{ color: '#1f2937', textShadow: '0 1px 0 rgba(255,255,255,0.8)' }}
                 >
@@ -948,28 +948,28 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
                 </p>
               </div>
               <div>
-                <p 
+                <p
                   className="uppercase tracking-widest mb-1 font-semibold"
                   style={{ fontSize: '11px', color: '#6b7280' }}
                 >
                   Version
                 </p>
-                <p 
-                  className="text-lg font-black" 
+                <p
+                  className="text-lg font-black"
                   style={{ color: config.accent, textShadow: `0 1px 4px ${config.glow}` }}
                 >
                   {player.version}
                 </p>
               </div>
               <div>
-                <p 
+                <p
                   className="uppercase tracking-widest mb-1 font-semibold"
                   style={{ fontSize: '11px', color: '#6b7280' }}
                 >
                   Rarity
                 </p>
-                <p 
-                  className="text-lg font-black uppercase" 
+                <p
+                  className="text-lg font-black uppercase"
                   style={{ color: config.accent, textShadow: `0 1px 4px ${config.glow}` }}
                 >
                   {player.rarity || 'Common'}
@@ -978,20 +978,20 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
             </motion.div>
 
             {/* Rating display with enhanced visibility */}
-            <motion.div 
+            <motion.div
               className="flex items-end gap-4 mb-8"
               variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
             >
-              <span 
-                className="text-8xl font-display font-black" 
-                style={{ 
+              <span
+                className="text-8xl font-display font-black"
+                style={{
                   color: config.accent,
                   textShadow: `0 4px 16px ${config.glow}, 0 0 40px ${config.glow}`,
                 }}
               >
                 {player.rating}
               </span>
-              <span 
+              <span
                 className="mb-4 uppercase tracking-widest font-bold"
                 style={{
                   fontSize: '16px',
@@ -1005,7 +1005,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
 
             {/* Stats cards */}
             {player.overallStats && (
-              <motion.div 
+              <motion.div
                 className="grid grid-cols-3 lg:grid-cols-6 gap-2"
                 variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
               >
@@ -1017,23 +1017,23 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
                   { label: 'DEFENDING', value: player.overallStats.defendingOverall, color: '#8B5CF6' },
                   { label: 'PHYSICAL', value: player.overallStats.physicalOverall, color: '#F97316' },
                 ].map((stat) => (
-                  <motion.div 
+                  <motion.div
                     key={stat.label}
                     className="rounded-xl py-3 px-2 text-center text-white"
-                    style={{ 
+                    style={{
                       backgroundColor: stat.color,
                       boxShadow: `0 4px 12px ${stat.color}50, inset 0 1px 0 rgba(255,255,255,0.25)`,
                     }}
                     variants={{ hidden: { opacity: 0, y: 20, scale: 0.8 }, visible: { opacity: 1, y: 0, scale: 1 } }}
                     whileHover={{ scale: 1.1, boxShadow: `0 8px 24px ${stat.color}80` }}
                   >
-                    <div 
+                    <div
                       className="text-2xl font-black"
                       style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
                     >
                       {stat.value}
                     </div>
-                    <div 
+                    <div
                       className="text-[9px] uppercase tracking-wider font-semibold"
                       style={{ textShadow: '0 1px 1px rgba(0,0,0,0.2)', opacity: 0.95 }}
                     >
@@ -1045,7 +1045,7 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
             )}
 
             {/* Price info with enhanced visibility */}
-            <motion.div 
+            <motion.div
               className="mt-8 flex gap-6 p-4 rounded-2xl"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.5)',
@@ -1055,13 +1055,13 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             >
               <div>
-                <p 
+                <p
                   className="uppercase tracking-widest mb-1 font-semibold"
                   style={{ fontSize: '11px', color: '#6b7280' }}
                 >
                   Base Price
                 </p>
-                <p 
+                <p
                   className="text-2xl font-black"
                   style={{ color: '#16a34a', textShadow: '0 2px 8px rgba(22,163,74,0.3)' }}
                 >
@@ -1070,14 +1070,14 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
               </div>
               {purchasePrice && (
                 <div>
-                  <p 
+                  <p
                     className="uppercase tracking-widest mb-1 font-semibold"
                     style={{ fontSize: '11px', color: '#6b7280' }}
                   >
                     Purchase Price
                   </p>
-                  <p 
-                    className="text-2xl font-black" 
+                  <p
+                    className="text-2xl font-black"
                     style={{ color: config.accent, textShadow: `0 2px 8px ${config.glow}` }}
                   >
                     {formatCurrency(purchasePrice)}
@@ -1089,13 +1089,13 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
 
           {/* Right side - Player Image with float animation */}
           <div className="relative lg:w-[450px] h-[350px] lg:h-auto">
-            <motion.div 
+            <motion.div
               className="absolute inset-0 lg:relative lg:h-full flex items-end justify-center lg:justify-end"
               initial={{ opacity: 0, x: 50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: 0.4, duration: 0.6, type: 'spring' }}
             >
-              <motion.div 
+              <motion.div
                 className="relative w-[300px] h-[350px] lg:w-[420px] lg:h-[500px]"
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}

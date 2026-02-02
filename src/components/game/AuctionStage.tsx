@@ -108,7 +108,7 @@ export function AuctionStage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Left: Auction Progress */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-[200px]">
               <div className="flex items-center gap-2 bg-dark-800/50 px-3 py-1.5 rounded-lg">
                 <Gavel className="w-4 h-4 text-neon-cyan" />
                 <span className="text-sm font-medium">
@@ -122,8 +122,8 @@ export function AuctionStage() {
               </div>
             </div>
 
-            {/* Center: Timer - Clean Pill Design */}
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+            {/* Center: Timer - Flex centered */}
+            <div className="flex-1 flex justify-center items-center gap-2">
               <motion.div
                 className={cn(
                   'flex items-center gap-3 px-4 py-2 rounded-full border-2 transition-all',
@@ -195,27 +195,29 @@ export function AuctionStage() {
             </div>
 
             {/* Right: Sound Toggle */}
-            <button
-              onClick={toggleSound}
-              className={cn(
-                'p-2.5 rounded-lg transition-all',
-                'hover:bg-white/10',
-                soundEnabled ? 'text-white' : 'text-dark-500'
-              )}
-              title={soundEnabled ? "Mute sounds" : "Enable sounds"}
-            >
-              {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            </button>
+            <div className="flex justify-end w-[200px]">
+              <button
+                onClick={toggleSound}
+                className={cn(
+                  'p-2.5 rounded-lg transition-all',
+                  'hover:bg-white/10',
+                  soundEnabled ? 'text-white' : 'text-dark-500'
+                )}
+                title={soundEnabled ? "Mute sounds" : "Enable sounds"}
+              >
+                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid lg:grid-cols-12 gap-6">
+      <div className="max-w-[1600px] mx-auto px-4 py-6">
+        <div className="grid xl:grid-cols-12 gap-6 items-start">
 
           {/* Left Sidebar - Player Info Panels */}
-          <div className="lg:col-span-3 space-y-4 order-2 lg:order-1">
+          <div className="xl:col-span-3 space-y-4 order-2 xl:order-1">
             {/* Your Panel */}
             <motion.div
               className={cn(
@@ -259,6 +261,7 @@ export function AuctionStage() {
 
               {/* Squad Grid */}
               <AnimatePresence>
+                {/* Keep squad grid logic */}
                 {showMySquad && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
@@ -370,7 +373,7 @@ export function AuctionStage() {
             </motion.div>
 
             {/* Bid History - Desktop */}
-            <div className="glass-card p-4 hidden lg:block">
+            <div className="glass-card p-4 hidden xl:block">
               <h3 className="font-bold mb-3 flex items-center gap-2 text-sm">
                 <TrendingUp className="w-4 h-4 text-neon-cyan" />
                 Recent Bids
@@ -408,7 +411,7 @@ export function AuctionStage() {
           </div>
 
           {/* Center - Player Card & Bidding - Optimized Layout */}
-          <div className="lg:col-span-6 order-1 lg:order-2 flex flex-col">
+          <div className="xl:col-span-6 order-1 xl:order-2 flex flex-col items-center">
             {/* Current Bid Display - Compact */}
             <motion.div
               className="text-center mb-3"
@@ -434,7 +437,7 @@ export function AuctionStage() {
             </motion.div>
 
             {/* Player Card + Bid Panel - Side by Side on Large Screens */}
-            <div className="flex flex-col xl:flex-row items-center xl:items-start justify-center gap-4 xl:gap-6">
+            <div className="flex flex-col 2xl:flex-row items-center 2xl:items-start justify-center gap-4 xl:gap-6">
               {/* Player Card - Use md size for better fit */}
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -446,7 +449,7 @@ export function AuctionStage() {
               </motion.div>
 
               {/* Bid Panel - Alongside card on xl screens */}
-              <div className="w-full max-w-sm xl:max-w-xs flex-shrink-0">
+              <div className="w-full max-w-sm flex-shrink-0">
                 <BidPanel
                   currentBid={currentBid}
                   budget={currentPlayer.budget}
@@ -460,7 +463,7 @@ export function AuctionStage() {
           </div>
 
           {/* Right Sidebar - Stats & Info */}
-          <div className="lg:col-span-3 space-y-4 order-3">
+          <div className="xl:col-span-3 space-y-4 order-3">
             {/* Player Stats Card */}
             <div className="glass-card p-4">
               <h3 className="font-bold mb-4 flex items-center gap-2 text-sm">
