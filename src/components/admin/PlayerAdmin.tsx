@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Filter, ChevronDown } from 'lucide-react';
+import { Search, Filter, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToaster } from '@/components/ui/Toaster';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ALL_POSITIONS } from '@/lib/utils';
@@ -97,8 +97,14 @@ export default function PlayerAdmin() {
   const [filterRarity, setFilterRarity] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('rating-desc');
   const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const { notify } = useToaster();
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, filterPosition, filterRarity, sortBy]);
 
   const filteredPlayers = useMemo(() => {
     let result = [...players];
@@ -144,6 +150,12 @@ export default function PlayerAdmin() {
 
     return result;
   }, [players, search, filterPosition, filterRarity, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));
+  const paginatedPlayers = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredPlayers.slice(start, start + pageSize);
+  }, [filteredPlayers, page, pageSize]);
 
   useEffect(() => {
     const saved = localStorage.getItem('admin_token');
@@ -333,9 +345,45 @@ export default function PlayerAdmin() {
         <p>Loading players...</p>
       ) : (
         <div className="overflow-x-auto">
-          <p className="text-sm text-white/60 mb-2">
-            Showing {filteredPlayers.length} of {players.length} players
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <p className="text-sm text-white/60">
+              Showing {filteredPlayers.length === 0 ? 0 : (page - 1) * pageSize + 1}–
+              {Math.min(page * pageSize, filteredPlayers.length)} of {filteredPlayers.length}
+              {players.length !== filteredPlayers.length && ` (filtered from ${players.length})`}
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <DarkSelect
+                  label="Per page"
+                  value={String(pageSize)}
+                  onChange={(v) => {
+                    setPageSize(Number(v));
+                    setPage(1);
+                  }}
+                  options={['5', '10', '20', '50']}
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="p-2 rounded border border-white/20 bg-dark-800 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="px-3 py-1 text-sm text-white/80">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="p-2 rounded border border-white/20 bg-dark-800 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="text-left">
@@ -356,7 +404,7 @@ export default function PlayerAdmin() {
                   </td>
                 </tr>
               ) : (
-              filteredPlayers.map(player => (
+              paginatedPlayers.map(player => (
                 <tr key={player._id} className="border-t">
                   <td className="p-2">
                     {player.images?.playerFace ? (
