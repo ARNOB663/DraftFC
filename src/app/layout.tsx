@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { GameInitializer } from '@/components/GameInitializer';
+import { ToasterProvider } from '@/components/ui/Toaster';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -17,9 +18,11 @@ export default function RootLayout({
       <body className="min-h-screen bg-grid-pattern">
         <div className="fixed inset-0 bg-radial-gradient pointer-events-none" />
         <GameInitializer />
-        <main className="relative z-10">
-          {children}
-        </main>
+        <ToasterProvider>
+          <main className="relative z-10">
+            {children}
+          </main>
+        </ToasterProvider>
       </body>
     </html>
   );

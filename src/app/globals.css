@@ -235,7 +235,7 @@
     border: 1px solid rgba(255,255,255,0.03);
   }
 
-  /* Player card styles tightened to match screenshot */
+  /* Player card styles - ensure full visibility */
   .pitch-player {
     width: 100%;
     height: 100%;
@@ -249,7 +249,7 @@
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.03);
     box-shadow: 0 8px 20px rgba(0,0,0,0.7);
-    min-width: 96px;
+    min-width: 100px;
   }
 
   .pitch-player-face {
@@ -270,7 +270,7 @@
     transform: translateX(-50%);
     font-size: 11px;
     font-weight: 800;
-    padding: 4px 10px;
+    padding: 4px 12px;
     border-radius: 999px;
     background: rgba(12,18,36,0.95);
     color: #ffd54f;
@@ -280,6 +280,7 @@
     align-items: center;
     gap: 8px;
     z-index: 40;
+    max-width: 95%;
   }
 
   .pitch-player-number {
@@ -294,10 +295,11 @@
 
   .pitch-player-text {
     color: #fff;
-    max-width: 72px;
+    max-width: 110px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: inline-block;
   }
 
   .pitch-subtitle {
@@ -310,8 +312,8 @@
   .pitch-slot {
     position: absolute;
     transform: translate(-50%, -50%);
-    width: clamp(64px, 8.5vw, 100px);
-    height: clamp(66px, 9.5vw, 100px);
+    width: clamp(80px, 10vw, 120px);
+    height: clamp(80px, 11vw, 120px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -419,7 +421,7 @@
   }
 
   .pitch-player-text {
-    max-width: 70px;
+    max-width: 110px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { useState, useRef, useCallback } from 'react';
-import { cn, formatCurrency, parseAltPositions, getPositionDisplayColor } from '@/lib/utils';
+import { cn, formatCurrency, parseAltPositions, getPositionDisplayColor, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import type { Player } from '@/types';
 
 interface PlayerCardProps {
@@ -429,7 +429,7 @@ export function PlayerCard({
                       : 'drop-shadow(0 10px 30px rgba(0,0,0,0.2))'
                 }}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Player';
+                  (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
                 }}
               />
             </div>
@@ -667,7 +667,7 @@ export function MiniPlayerCard({ player, onClick }: MiniPlayerCardProps) {
           fill
           className="object-cover object-top"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=?';
+            (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
           }}
         />
         {/* Gradient overlay */}
@@ -1107,6 +1107,9 @@ export function PlayerDetailModal({ player, isOpen, onClose, purchasePrice }: Pl
                   className="object-contain object-bottom"
                   style={{
                     filter: `drop-shadow(0 30px 60px ${config.glow})`
+                  }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
                   }}
                 />
               </motion.div>

@@ -81,6 +81,29 @@ npm run migrate
    - Position Balance × 0.3
    - Synergy × 0.2
 
+---
+
+## 🔐 Admin Panel (Players CRUD & Image Upload)
+
+You can manage players directly from the admin panel.
+
+- Route: `/admin` in the app (e.g., http://localhost:3000/admin)
+- Protected by an admin token set with the `ADMIN_TOKEN` environment variable.
+- Endpoints (server-side):
+  - `GET /api/admin/players` — list players (pagination supported)
+  - `POST /api/admin/players` — create player
+  - `GET /api/admin/players/:id` — get single player
+  - `PUT /api/admin/players/:id` — update player
+  - `DELETE /api/admin/players/:id` — delete player
+  - `POST /api/admin/players/upload` — upload player face image (multipart/form-data)
+
+Setup:
+1. Add `ADMIN_TOKEN` to your `.env` (the repo contains a placeholder `ADMIN_TOKEN=change-me`).
+2. Install new dependencies: `npm install` (adds `mongodb` and `cloudinary`).
+3. Run the app: `npm run dev` and visit `/admin` to sign in with your token.
+
+Note: This panel uses MongoDB for persistent player storage and Cloudinary for image hosting.
+
 ## 📁 Project Structure
 
 ```

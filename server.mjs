@@ -2,6 +2,20 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
 import { createRequire } from 'module';
+import { MongoClient } from 'mongodb';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+// Load .env if present
+try {
+  const envPath = join(process.cwd(), '.env');
+  if (existsSync(envPath)) {
+    readFileSync(envPath, 'utf8').split('\n').forEach((line) => {
+      const m = line.match(/^([^#=]+)=(.*)$/);
+      if (m) process.env[m[1].trim()] = m[2].trim();
+    });
+  }
+} catch (_) {}
 
 const require = createRequire(import.meta.url);
 const { AIManager } = require('./ai/AIManager.js');
@@ -106,51 +120,72 @@ const DEFAULT_SETTINGS = {
   totalPlayers: 36, // 3 players * 12 positions
 };
 
-// Load players from the auction-game-data output
+// Load players from MongoDB
 let allPlayers = [];
+let mongoClient = null;
 
-async function loadPlayers() {
-  try {
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const playersPath = path.join(process.cwd(), '..', 'football-player-data-set', 'auction-game-data', 'output', 'players-simple.json');
-    const data = await fs.readFile(playersPath, 'utf-8');
-    allPlayers = JSON.parse(data);
-    console.log(`✅ Loaded ${allPlayers.length} players`);
-  } catch (error) {
-    console.error('⚠️ Could not load players from file, using mock data');
-    allPlayers = generateMockPlayers();
-  }
+function normalizePlayer(doc, index) {
+  const rating = typeof doc.rating === 'number' ? doc.rating : 75;
+  const basePrice = doc.basePrice ?? rating * 1000000;
+  const images = doc.images ?? {};
+  return {
+    _id: String(doc._id ?? `player_${index}`),
+    name: doc.name ?? 'Unknown',
+    position: doc.position ?? 'CM',
+    rating,
+    age: doc.age ?? 25,
+    version: doc.version ?? 'FUT',
+    images: {
+      playerFace: images.playerFace ?? `https://i.pravatar.cc/256?u=${doc._id}`,
+      nationFlag: images.nationFlag ?? 'https://flagcdn.com/w20/ar.png',
+      clubBadge: images.clubBadge ?? `https://picsum.photos/seed/${doc._id}/50`,
+      leagueLogo: images.leagueLogo ?? `https://picsum.photos/seed/league${doc._id}/50`,
+    },
+    overallStats: doc.overallStats ?? {
+      paceOverall: 70 + (index % 20),
+      shootingOverall: 65 + (index % 30),
+      passingOverall: 65 + (index % 25),
+      dribblingOverall: 65 + (index % 25),
+      defendingOverall: 40 + (index % 45),
+      physicalOverall: 60 + (index % 30),
+    },
+    basePrice,
+    rarity: doc.rarity ?? 'rare',
+  };
 }
 
-function generateMockPlayers() {
-  const positions = ['GK', 'CB', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CM', 'CAM', 'LW', 'RW', 'ST', 'ST'];
-  const names = ['Messi', 'Ronaldo', 'Mbappe', 'Haaland', 'De Bruyne', 'Salah', 'Bellingham', 'Vinicius Jr', 'Kane', 'Neymar'];
+async function fetchPlayersFromApi() {
+  try {
+    const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${base}/api/players`);
+    if (res.ok) {
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }
+  } catch (e) {
+    console.warn('Could not fetch players from API fallback');
+  }
+  return [];
+}
 
-  return Array.from({ length: 50 }, (_, i) => ({
-    _id: `player_${i}`,
-    name: names[i % names.length] + (i >= 10 ? ` ${Math.floor(i / 10) + 1}` : ''),
-    rating: 99 - Math.floor(i / 5),
-    position: positions[i % positions.length],
-    version: 'FUTTIES',
-    age: 20 + (i % 15),
-    images: {
-      playerFace: 'https://via.placeholder.com/150',
-      nationFlag: 'https://via.placeholder.com/50x30',
-      clubBadge: 'https://via.placeholder.com/50',
-      leagueLogo: 'https://via.placeholder.com/50',
-    },
-    overallStats: {
-      paceOverall: 80 + Math.floor(Math.random() * 19),
-      shootingOverall: 75 + Math.floor(Math.random() * 24),
-      passingOverall: 78 + Math.floor(Math.random() * 21),
-      dribblingOverall: 80 + Math.floor(Math.random() * 19),
-      defendingOverall: 50 + Math.floor(Math.random() * 49),
-      physicalOverall: 70 + Math.floor(Math.random() * 29),
-    },
-    basePrice: Math.floor((99 - Math.floor(i / 5)) * 1.5) * 1000000,
-    rarity: i < 10 ? 'legendary' : i < 25 ? 'epic' : 'rare',
-  }));
+async function loadPlayers() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error('⚠️ MONGODB_URI not set. Add players via Admin panel and set MONGODB_URI in .env');
+    allPlayers = await fetchPlayersFromApi();
+    return;
+  }
+  try {
+    mongoClient = new MongoClient(uri);
+    await mongoClient.connect();
+    const db = mongoClient.db();
+    const docs = await db.collection('players').find({}).limit(200).toArray();
+    allPlayers = docs.map((d, i) => normalizePlayer(d, i));
+    console.log(`✅ Loaded ${allPlayers.length} players from MongoDB`);
+  } catch (error) {
+    console.error('⚠️ Could not load players from MongoDB:', error.message);
+    allPlayers = await fetchPlayersFromApi();
+  }
 }
 
 // Shuffle array
@@ -316,30 +351,25 @@ io.on('connection', (socket) => {
   });
 
   // DEV: Create test room that skips to squad building
-  socket.on('room:create-test-squad', (playerName, callback) => {
+  socket.on('room:create-test-squad', async (playerName, callback) => {
     const roomId = nanoid(8).toUpperCase();
     const playerId = nanoid(12);
 
-    // Use real loaded players if available, otherwise generate mock players
-    const pool = (allPlayers && allPlayers.length > 0) ? allPlayers : generateMockPlayers();
-    const squadSize = DEFAULT_SETTINGS.squadSize || 16;
-
-    const mockPlayers = pool.slice(0, squadSize);
-
+    // Squad is empty - SquadBuilder fetches players from MongoDB directly
     const player = {
       id: playerId,
       name: playerName,
       socketId: socket.id,
       budget: DEFAULT_SETTINGS.startingBudget - 500000000, // Spent some money
-      squad: mockPlayers,
+      squad: [],
       isReady: true,
       isConnected: true,
       color: 'cyan',
     };
 
-    // Create AI opponent
+    // Create AI opponent (empty squad for now)
     const aiPlayer = aiManagers.medium.createAIPlayer(DEFAULT_SETTINGS.startingBudget);
-    aiPlayer.squad = pool.slice(squadSize, squadSize * 2);
+    aiPlayer.squad = [];
     aiPlayer.isReady = true;
 
     const room = {
@@ -349,13 +379,7 @@ io.on('connection', (socket) => {
       status: 'squad_building',
       currentAuction: null,
       auctionQueue: [],
-      soldPlayers: mockPlayers.map((p, i) => ({
-        player: p,
-        buyerId: player.id,
-        buyerName: player.name,
-        price: (p.basePrice || 50) * 1000000,
-        auctionNumber: i + 1,
-      })),
+      soldPlayers: [],
       settings: { ...DEFAULT_SETTINGS },
       createdAt: new Date(),
       squadBuildingStartedAt: new Date(),

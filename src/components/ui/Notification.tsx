@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, AlertCircle, Info, X, Zap } from 'lucide-react';
 
@@ -12,10 +12,67 @@ interface NotificationProps {
 }
 
 export function Notification({ message, type, onClose, duration = 4000 }: NotificationProps) {
+  const initialDuration = duration;
+  const remainingRef = useRef<number>(duration);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(100);
+
   useEffect(() => {
-    const timer = setTimeout(onClose, duration);
-    return () => clearTimeout(timer);
-  }, [onClose, duration]);
+    startTimer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function startTimer() {
+    startTimeRef.current = Date.now();
+    clearTimer();
+    timerRef.current = setTimeout(() => {
+      onClose();
+    }, remainingRef.current);
+
+    // Progress updater
+    intervalRef.current = setInterval(() => {
+      const elapsed = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
+      const rem = Math.max(0, remainingRef.current - elapsed);
+      setProgress((rem / initialDuration) * 100);
+    }, 100);
+  }
+
+  function clearTimer() {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }
+
+  function handleMouseEnter() {
+    if (isPaused) return;
+    setIsPaused(true);
+    if (startTimeRef.current) {
+      const elapsed = Date.now() - startTimeRef.current;
+      remainingRef.current = Math.max(0, remainingRef.current - elapsed);
+    }
+    clearTimer();
+  }
+
+  function handleMouseLeave() {
+    if (!isPaused) return;
+    setIsPaused(false);
+    startTimer();
+  }
+
+  useEffect(() => {
+    return () => {
+      clearTimer();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const icons = {
     info: Info,
@@ -57,11 +114,14 @@ export function Notification({ message, type, onClose, duration = 4000 }: Notifi
         animate={{ opacity: 1, x: 0, scale: 1 }}
         exit={{ opacity: 0, x: 50, scale: 0.9 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="fixed top-20 right-4 z-50 max-w-sm"
+        className="max-w-sm"
       >
         <div 
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onClick={() => onClose()}
           className={`
-            relative flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-xl
+            relative flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-xl cursor-pointer
             ${colorScheme.bg} ${colorScheme.border}
           `}
           style={{ boxShadow: colorScheme.glow }}
@@ -87,18 +147,16 @@ export function Notification({ message, type, onClose, duration = 4000 }: Notifi
           
           {/* Close button */}
           <button 
-            onClick={onClose} 
+            onClick={(e) => { e.stopPropagation(); onClose(); }} 
             className="ml-auto p-1 hover:bg-white/10 rounded-full transition-colors"
           >
             <X className="w-4 h-4 text-white/60 hover:text-white" />
           </button>
           
           {/* Progress bar for auto-dismiss */}
-          <motion.div
+          <div
             className={`absolute bottom-0 left-0 h-0.5 rounded-b-xl ${colorScheme.icon.replace('text-', 'bg-')}`}
-            initial={{ width: '100%' }}
-            animate={{ width: '0%' }}
-            transition={{ duration: duration / 1000, ease: 'linear' }}
+            style={{ width: `${progress}%`, transition: isPaused ? 'none' : 'width 0.1s linear' }}
           />
         </div>
       </motion.div>

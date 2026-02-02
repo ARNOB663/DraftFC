@@ -275,16 +275,26 @@ export const useGameStore = create<GameState>()(
     createTestSquadRoom: async (playerName: string): Promise<GameRoom> => {
       const socket = get().socket;
       if (!socket) {
-        console.error('❌ No socket connection');
         throw new Error('Not connected to server. Please wait for connection.');
       }
 
-      console.log('📡 Emitting room:create-test-squad', playerName);
+      if (!socket.connected) {
+        throw new Error('Socket disconnected. Try reconnecting.');
+      }
 
       return new Promise((resolve, reject) => {
-        socket.emit('room:create-test-squad', playerName, (room, player) => {
-          console.log('✅ Test room created', { room, player });
-          
+        let settled = false;
+        const timeout = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          reject(new Error('Timeout creating test room. Run `npm run dev` to start both Next.js and the socket server.'));
+        }, 10000);
+
+        socket.emit('room:create-test-squad', playerName, (room: GameRoom | null, player: GamePlayer | null) => {
+          if (settled) return;
+          clearTimeout(timeout);
+          settled = true;
+
           if (!room) {
             reject(new Error('Server did not return a room'));
             return;
@@ -296,19 +306,10 @@ export const useGameStore = create<GameState>()(
             localStorage.setItem('football_auction_player_name', player.name);
           }
 
-          const opponent = room.players.find(p => p.id !== player.id);
-          set({ 
-            room, 
-            currentPlayer: player || null,
-            opponent: opponent || null 
-          });
+          const opponent = room.players.find(p => p.id !== player?.id);
+          set({ room, currentPlayer: player || null, opponent: opponent || null });
           resolve(room);
         });
-
-        setTimeout(() => {
-          console.error('⏱️ Timeout creating test room');
-          reject(new Error('Timeout creating test room. Server may not be running.'));
-        }, 10000);
       });
     },
 
