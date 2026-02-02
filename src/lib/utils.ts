@@ -1,6 +1,10 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+/** Data URI placeholder - avoids external requests and 500s from via.placeholder */
+export const PLACEHOLDER_IMAGE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Crect fill='%23374151' width='150' height='150'/%3E%3Ctext fill='%239ca3af' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='24'%3E%3F%3C/text%3E%3C/svg%3E";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

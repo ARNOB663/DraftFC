@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useGameStore } from '@/stores/gameStore';
-import { cn, formatCurrency, getAllPlayerPositions, getPositionDisplayColor } from '@/lib/utils';
+import { cn, formatCurrency, getAllPlayerPositions, getPositionDisplayColor, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import type { Player, Position, Formation } from '@/types';
 import { 
   Clock, 
@@ -54,7 +54,7 @@ const FORMATIONS: Formation[] = [
     name: '5-3-2', 
     displayName: '5-3-2', 
     structure: '5-3-2', 
-    positions: ['GK', 'LWB', 'CB', 'CB', 'CB', 'RWB', 'CM', 'CDM', 'CM', 'ST', 'ST'] 
+    positions: ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'CM', 'CDM', 'CM', 'ST', 'ST'] 
   },
 ];
 
@@ -108,7 +108,7 @@ const FORMATION_LAYOUTS: Record<string, FormationLine[]> = {
   ],
   '5-3-2': [
     { y: 90, positions: ['GK'] },
-    { y: 74, positions: ['LWB', 'CB', 'CB', 'CB', 'RWB'] },
+    { y: 74, positions: ['LB', 'CB', 'CB', 'CB', 'RB'] },
     { y: 52, positions: ['CM', 'CDM', 'CM'] },
     { y: 22, positions: ['ST', 'ST'] },
   ],
@@ -134,8 +134,8 @@ function buildSlots(formation: Formation): SquadSlot[] {
 
   lines.forEach((line) => {
     const count = line.positions.length;
-    const left = 6; // extend closer to touchlines
-    const right = 94;
+    const left = 10; // inset to keep edge cards visible
+    const right = 90;
     line.positions.forEach((pos, idx) => {
       const x = count === 1 ? 50 : left + ((right - left) * idx) / (count - 1);
       slots.push({ position: pos, player: null, isValid: false, x, y: line.y });
@@ -164,15 +164,8 @@ export function SquadBuilder() {
     }
   }, [selectedFormation]);
 
-  // Load players from current player's squad
-  useEffect(() => {
-    if (currentPlayer?.squad) {
-      setUnassignedPlayers([...currentPlayer.squad]);
-    }
-  }, [currentPlayer]);
-
-  // Load official players from API (dev-friendly fallback)
-  const loadOfficialPlayers = useCallback(async () => {
+  // Load players ONLY from MongoDB - never use server pre-populated squad
+  const loadPlayersFromDb = useCallback(async () => {
     setIsLoadingOfficial(true);
     try {
       const res = await fetch('/api/players');
@@ -180,21 +173,16 @@ export function SquadBuilder() {
       const data = await res.json();
       setUnassignedPlayers(data);
     } catch (error) {
-      console.error('Failed to load official players', error);
+      console.error('Failed to load players from database', error);
     } finally {
       setIsLoadingOfficial(false);
     }
   }, []);
 
-  // If server-provided squad looks like mock data (placeholder faces), auto-swap to official list
+  // Fetch players from MongoDB on mount - only source of player data
   useEffect(() => {
-    if (currentPlayer?.squad && currentPlayer.squad.length > 0) {
-      const firstFace = currentPlayer.squad[0].images?.playerFace || '';
-      if (firstFace.includes('via.placeholder.com') && unassignedPlayers.length === currentPlayer.squad.length) {
-        loadOfficialPlayers();
-      }
-    }
-  }, [currentPlayer?.squad]);
+    loadPlayersFromDb();
+  }, [loadPlayersFromDb]);
 
   // Auto-submit on timeout
   const handleAutoSubmit = useCallback(async () => {
@@ -318,15 +306,8 @@ export function SquadBuilder() {
     return allPositions.includes(position);
   };
 
-  // Helper: get player by id from multiple sources (currentPlayer.squad, unassigned, or already placed slots)
+  // Helper: get player by id from unassigned pool or already placed slots (MongoDB data only)
   const getPlayerById = (id: string): Player | undefined => {
-    // Search currentPlayer.squad (authoritative if available)
-    if (currentPlayer?.squad) {
-      const fromCurrent = currentPlayer.squad.find(p => p._id === id);
-      if (fromCurrent) return fromCurrent;
-    }
-
-    // Search unassignedPlayers (visible pool)
     const fromUnassigned = unassignedPlayers.find(p => p._id === id);
     if (fromUnassigned) return fromUnassigned;
 
@@ -421,11 +402,9 @@ export function SquadBuilder() {
     setUnassignedPlayers(prev => [...prev, ...invalidPlayers]);
   };
 
-  // Auto-fill best XI (fills empty slots from visible pool reliably)
+  // Auto-fill best XI (fills empty slots from MongoDB pool)
   const handleAutoFill = () => {
-    // Build a pool of available players from currentPlayer.squad, unassignedPlayers, and already placed players
     const poolMap = new Map<string, Player>();
-    if (currentPlayer?.squad) currentPlayer.squad.forEach(p => poolMap.set(p._id, p));
     unassignedPlayers.forEach(p => poolMap.set(p._id, p));
     squadSlots.forEach(s => { if (s.player) poolMap.set(s.player._id, s.player); });
 
@@ -504,12 +483,11 @@ export function SquadBuilder() {
 
   const teamStats = calculateTeamStats();
 
-  // Get players fitting current formation
+  // Get players fitting current formation (from unassigned + placed)
   const getPlayersFittingFormation = () => {
-    if (!currentPlayer?.squad) return 0;
-    
     const requiredPositions = new Set(selectedFormation.positions);
-    return currentPlayer.squad.filter(player => {
+    const pool = [...unassignedPlayers, ...squadSlots.filter(s => s.player).map(s => s.player!)];
+    return pool.filter(player => {
       const allPositions = getAllPlayerPositions(player);
       return allPositions.some(pos => requiredPositions.has(pos as Position));
     }).length;
@@ -737,11 +715,11 @@ export function SquadBuilder() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={loadOfficialPlayers}
+                    onClick={loadPlayersFromDb}
                     className="btn-secondary text-xs px-2 py-1"
                     disabled={isLoadingOfficial}
                   >
-                    {isLoadingOfficial ? 'Loading...' : 'Load Official'}
+                    {isLoadingOfficial ? 'Loading...' : 'Refresh from DB'}
                   </button>
                 </div>
               </h3>
@@ -783,7 +761,7 @@ export function SquadBuilder() {
           </div>
 
           {/* Center: Pitch */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-6 overflow-visible min-w-0">
             <PitchView
               formation={selectedFormation}
               squadSlots={squadSlots}
@@ -989,8 +967,8 @@ function PitchView({
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
 
   return (
-    <div className="glass-card p-6">
-      <div className="relative aspect-[3/4] pitch-field overflow-hidden">
+    <div className="glass-card p-6 overflow-visible">
+      <div className="relative aspect-[3/4] pitch-field overflow-visible py-2">
         <div className="absolute left-4 top-4 z-20 flex items-center gap-2">
           <span className="pitch-badge">COMPO</span>
           <span className="pitch-subtitle">{formation.displayName}</span>
@@ -1113,9 +1091,12 @@ function PitchView({
                         alt={slot.player.name}
                         fill
                         className="object-cover object-top"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
+                        }}
                       />
                     </div>
-                    <div className="pitch-player-name">
+                    <div className="pitch-player-name" title={slot.player.name}>
                       <span className="pitch-player-number">{slot.player.rating}</span>
                       <span className="pitch-player-text">
                         {slot.player.name.split(' ').slice(-1)[0]}
