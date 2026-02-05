@@ -51,30 +51,27 @@ export function LandingPage() {
                 <div className="absolute inset-0 opacity-[0.02] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIvPjwvc3ZnPg==')]" />
             </div>
 
-            {/* Hero Player Image - Fixed on left side */}
-            <div className="fixed left-0 bottom-0 z-10 w-[45%] lg:w-[40%] xl:w-[35%] h-full pointer-events-none hidden md:block animate-slide-in-left">
+            {/* Hero Player Image - Full Visibility & Interactive */}
+            <div className="fixed left-0 bottom-0 z-25 w-[32%] lg:w-[30%] xl:w-[26%] h-full hidden md:block transition-transform duration-300">
                 <div className="relative w-full h-full">
-                    {/* Player image container */}
-                    <div className="absolute bottom-0 left-0 w-full h-[90%]">
+                    {/* Player image container - Full Height to ensure nothing is cut off */}
+                    <div className="absolute inset-0 w-full h-full">
                         <Image
                             src="/hero.png"
                             alt="Featured Player"
                             fill
-                            className="object-contain object-bottom"
+                            className="object-contain object-left-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
                             priority
                             onError={(e) => {
-                                // Hide image if not found
                                 (e.target as HTMLImageElement).style.opacity = '0';
                             }}
                         />
-                        {/* Fallback gradient silhouette if no image */}
-                        <div className="absolute inset-0 flex items-end justify-center opacity-50">
-                            <div className="w-3/4 h-4/5 bg-gradient-to-t from-fc-blue-600/30 via-fc-blue-700/20 to-transparent rounded-t-full blur-sm" />
-                        </div>
+                        {/* High quality glow behind player */}
+                        <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-fc-blue-600/20 via-transparent to-transparent opacity-40 pointer-events-none" />
                     </div>
 
-                    {/* Glow effect behind player */}
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-fc-accent/5 rounded-full blur-3xl" />
+                    {/* Accent glow for depth */}
+                    <div className="absolute bottom-10 left-1/4 w-full h-1/2 bg-fc-accent/10 rounded-full blur-[120px] pointer-events-none" />
                 </div>
             </div>
 
@@ -83,11 +80,11 @@ export function LandingPage() {
             <TopBar />
             <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-            {/* Main Content Area */}
-            <main className="relative z-20 min-h-screen pt-20 pb-20 lg:pb-24 px-4 lg:px-6">
+            {/* Main Content Area - Perfectly Aligned */}
+            <main className="relative z-20 min-h-screen pt-16 pb-20 px-4 lg:px-8 overflow-y-auto custom-scrollbar">
                 <div className="max-w-[1800px] mx-auto h-full">
-                    {/* Content positioned to the right of hero */}
-                    <div className="md:ml-[35%] lg:ml-[32%] xl:ml-[28%] lg:pl-8">
+                    {/* Positioned exactly to the right of the hero image to prevent overlap */}
+                    <div className="md:ml-[32%] lg:ml-[30%] xl:ml-[26%] lg:pl-4 transition-all duration-500">
 
                         {/* Dynamic Content based on Active Tab */}
                         <div className="pt-4 lg:pt-8 min-h-[60vh]">

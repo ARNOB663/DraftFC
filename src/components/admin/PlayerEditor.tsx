@@ -90,7 +90,7 @@ export default function PlayerEditor({ player, token, onSaved, onCancel }: { pla
             )}
             <input type="file" accept="image/*" onChange={e => {
               const f = e.target.files?.[0];
-              if (f) uploadImage(f).catch(() => {});
+              if (f) uploadImage(f).catch(() => { });
             }} />
           </div>
         </div>

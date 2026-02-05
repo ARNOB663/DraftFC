@@ -68,16 +68,16 @@ function StatCard({
   gradient: string;
 }) {
   return (
-    <div className={`relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${gradient} p-4`}>
-      <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+    <div className={`relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br ${gradient} p-2.5`}>
+      <div className="absolute top-0 right-0 w-12 h-12 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
       <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="p-2 rounded-xl bg-white/10">
-            <Icon className="w-4 h-4 text-white" />
+        <div className="flex items-center gap-1.5 mb-1">
+          <div className="p-1 rounded-lg bg-white/10">
+            <Icon className="w-3 h-3 text-white" />
           </div>
-          <span className="text-white/60 text-sm">{label}</span>
+          <span className="text-white/60 text-[10px] uppercase font-bold tracking-wider">{label}</span>
         </div>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <p className="text-lg font-black text-white">{value}</p>
       </div>
     </div>
   );
@@ -103,29 +103,29 @@ function EnhancedSelect({
 
   return (
     <div className="relative">
-      <label className="block text-xs text-white/50 mb-1.5 font-medium">{label}</label>
+      <label className="block text-[10px] text-white/50 mb-1 font-bold uppercase tracking-wider">{label}</label>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        className="flex items-center justify-between gap-2 w-full min-w-[160px] px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:border-cyan-500/50 hover:bg-white/10 transition-all"
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
+        className="flex items-center justify-between gap-2 w-full min-w-[140px] px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white focus:outline-none focus:border-cyan-500/50 hover:bg-white/10 transition-all"
       >
-        <span className="text-sm">{selectedLabel}</span>
-        <ChevronDown className={`w-4 h-4 shrink-0 text-white/50 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <span className="text-xs">{selectedLabel}</span>
+        <ChevronDown className={`w-3.5 h-3.5 shrink-0 text-white/50 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute z-50 mt-2 py-2 w-full min-w-[160px] rounded-xl border border-white/10 bg-[#1a1a2e]/95 backdrop-blur-xl shadow-2xl max-h-64 overflow-y-auto">
+        <div className="absolute left-0 top-full z-[100] mt-1 py-1 w-full min-w-[140px] rounded-lg border border-white/10 bg-[#0f172a] shadow-2xl max-h-60 overflow-y-auto custom-scrollbar">
           {items.map((item) => (
             <button
               key={item.value}
               type="button"
               onMouseDown={(e) => {
-                e.preventDefault();
+                e.preventDefault(); // Prevent blur from firing
                 onChange(item.value);
                 setOpen(false);
               }}
-              className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${value === item.value
-                ? 'bg-cyan-500/20 text-cyan-400'
+              className={`block w-full text-left px-3 py-2 text-xs transition-colors ${value === item.value
+                ? 'bg-cyan-500/20 text-cyan-400 font-medium'
                 : 'text-white/80 hover:bg-white/10'
                 }`}
             >
@@ -190,54 +190,54 @@ function PlayerCard({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border-2 ${style.border} ${style.cardBg} backdrop-blur-xl transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl hover:shadow-black/50`}
+      className={`group relative overflow-hidden rounded-xl border-2 ${style.border} ${style.cardBg} backdrop-blur-xl transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl hover:shadow-black/50`}
     >
       {/* Animated Shine Effect */}
       <div className={`absolute inset-0 bg-gradient-to-r ${style.shine} translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out`} />
 
       {/* Top Section - Rating & Position */}
-      <div className="relative p-4 pb-0">
+      <div className="relative p-3 pb-0">
         <div className="flex justify-between items-start">
           {/* Rating Display */}
           <div className="flex flex-col items-center">
-            <div className={`text-4xl font-black bg-gradient-to-b ${style.accent} bg-clip-text text-transparent drop-shadow-lg`}>
+            <div className={`text-2xl font-black bg-gradient-to-b ${style.accent} bg-clip-text text-transparent drop-shadow-lg`}>
               {player.rating}
             </div>
-            <div className={`text-sm font-bold ${style.text} tracking-wider`}>
+            <div className={`text-xs font-bold ${style.text} tracking-wider`}>
               {player.position}
             </div>
           </div>
 
           {/* Nation & Club Flags */}
-          <div className="flex flex-col gap-1.5 items-center">
+          <div className="flex flex-col gap-1 items-center">
             {player.images?.nationFlag && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={player.images.nationFlag} alt="nation" className="w-7 h-5 object-cover rounded shadow-md" />
+              <img src={player.images.nationFlag} alt="nation" className="w-5 h-4 object-cover rounded shadow-md" />
             )}
             {player.images?.clubLogo && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={player.images.clubLogo} alt="club" className="w-7 h-7 object-contain drop-shadow-lg" />
+              <img src={player.images.clubLogo} alt="club" className="w-5 h-5 object-contain drop-shadow-lg" />
             )}
           </div>
         </div>
       </div>
 
       {/* Player Image Section */}
-      <div className="relative flex justify-center -mt-2 mb-2">
+      <div className="relative flex justify-center -mt-1 mb-1">
         <div className="relative">
           {/* Glow Behind Image */}
-          <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} rounded-full blur-2xl opacity-30 scale-75`} />
+          <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} rounded-full blur-xl opacity-30 scale-75`} />
 
           {player.images?.playerFace ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={player.images.playerFace}
               alt={player.name}
-              className="relative w-52 h-52 object-contain drop-shadow-2xl transform group-hover:scale-105 transition-transform duration-300"
+              className="relative w-32 h-32 object-contain drop-shadow-2xl transform group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className={`relative w-52 h-52 rounded-full bg-gradient-to-br ${style.accent} flex items-center justify-center`}>
-              <span className="text-6xl font-black text-white/90 drop-shadow-lg">
+            <div className={`relative w-32 h-32 rounded-full bg-gradient-to-br ${style.accent} flex items-center justify-center`}>
+              <span className="text-4xl font-black text-white/90 drop-shadow-lg">
                 {player.name.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -246,54 +246,56 @@ function PlayerCard({
       </div>
 
       {/* Player Name */}
-      <div className="px-4 pb-2">
-        <div className={`w-full h-0.5 bg-gradient-to-r ${style.accent} mb-2 opacity-60`} />
+      <div className="px-3 pb-1.5">
+        <div className={`w-full h-0.5 bg-gradient-to-r ${style.accent} mb-1.5 opacity-60`} />
         <h3
-          className="font-black text-white text-center text-lg uppercase tracking-wide truncate"
+          className="font-black text-white text-center text-sm uppercase tracking-wide truncate"
           title={player.name}
         >
           {player.name}
         </h3>
       </div>
 
-      {/* Stats Grid */}
-      <div className="px-4 pb-3">
-        <div className="grid grid-cols-3 gap-2 text-center">
-          {player.age && (
-            <div className="bg-black/20 rounded-lg py-1.5">
-              <div className="text-white font-bold text-sm">{player.age}</div>
-              <div className="text-white/50 text-[10px] uppercase tracking-wide">Age</div>
-            </div>
-          )}
-          {player.version && (
-            <div className="bg-black/20 rounded-lg py-1.5">
-              <div className="text-white font-bold text-sm truncate px-1" title={player.version}>{player.version}</div>
-              <div className="text-white/50 text-[10px] uppercase tracking-wide">Ver</div>
-            </div>
-          )}
+      {/* Meta Info */}
+      <div className="px-3 pb-3 flex flex-col gap-1.5 items-center">
+        {/* Version - Full Width */}
+        {player.version && (
+          <div className="w-full text-center px-1">
+            <span className="text-[11px] font-medium text-white/80 block truncate tracking-wide" title={player.version}>
+              {player.version}
+            </span>
+          </div>
+        )}
+
+        {/* Rarity & Age Row */}
+        <div className="flex items-center justify-center gap-2 w-full">
           {player.rarity && (
-            <div className="bg-black/20 rounded-lg py-1.5">
-              <div className={`font-bold text-sm capitalize ${style.text}`}>{player.rarity}</div>
-              <div className="text-white/50 text-[10px] uppercase tracking-wide">Tier</div>
-            </div>
+            <span className={`px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-bold uppercase tracking-wider shadow-sm ${style.text}`}>
+              {player.rarity}
+            </span>
+          )}
+          {player.age && (
+            <span className="text-[10px] text-white/40 font-medium tracking-wide">
+              {player.age} yo
+            </span>
           )}
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="p-3 pt-0 flex gap-2">
+      <div className="p-2 pt-0 flex gap-1.5">
         <button
           onClick={onEdit}
-          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r ${style.accent} text-white shadow-lg hover:opacity-90 transition-all hover:shadow-xl transform hover:-translate-y-0.5`}
+          className={`flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-bold rounded-lg bg-gradient-to-r ${style.accent} text-white shadow-lg hover:opacity-90 transition-all hover:shadow-xl transform hover:-translate-y-0.5`}
         >
-          <Edit3 className="w-4 h-4" />
+          <Edit3 className="w-3.5 h-3.5" />
           Edit
         </button>
         <button
           onClick={onDelete}
-          className="flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-bold rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 hover:border-red-400/50 transition-all"
+          className="flex items-center justify-center gap-1 px-2 py-2 text-xs font-bold rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 hover:border-red-400/50 transition-all"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>
@@ -447,7 +449,7 @@ export default function PlayerAdmin() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -477,17 +479,17 @@ export default function PlayerAdmin() {
       </div>
 
       {/* Toolbar */}
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
+      <div className="relative z-20 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-2.5">
         <div className="flex flex-wrap gap-3 items-center">
           {/* Search */}
-          <div className="relative flex-1 min-w-[240px] max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
             <input
               type="text"
               placeholder="Search players..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-500/50 focus:bg-white/10 transition-all"
+              className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-white/10 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-500/50 focus:bg-white/10 transition-all"
             />
             {search && (
               <button
@@ -502,14 +504,14 @@ export default function PlayerAdmin() {
           {/* Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-all ${showFilters
+            className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-all ${showFilters
               ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400'
               : 'border-white/10 bg-white/5 hover:bg-white/10 text-white/80'
               }`}
           >
-            <Filter className="w-4 h-4" />
+            <Filter className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Filters</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Action Buttons */}
@@ -517,7 +519,7 @@ export default function PlayerAdmin() {
             {showCreateForm ? (
               <>
                 <input
-                  className="px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-500/50 min-w-[180px]"
+                  className="px-3 py-2 text-sm rounded-lg border border-white/10 bg-white/5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-500/50 min-w-[150px]"
                   placeholder="Player name"
                   value={createName}
                   onChange={(e) => setCreateName(e.target.value)}
@@ -525,13 +527,13 @@ export default function PlayerAdmin() {
                   autoFocus
                 />
                 <button
-                  className="px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:opacity-90 transition-opacity"
+                  className="px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:opacity-90 transition-opacity"
                   onClick={handleCreate}
                 >
                   Create
                 </button>
                 <button
-                  className="px-4 py-3 rounded-xl bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
+                  className="px-3 py-2 text-sm rounded-lg bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
                   onClick={() => { setShowCreateForm(false); setCreateName(''); }}
                 >
                   Cancel
@@ -539,18 +541,18 @@ export default function PlayerAdmin() {
               </>
             ) : (
               <button
-                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
                 onClick={() => setShowCreateForm(true)}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Add Player</span>
               </button>
             )}
             <button
-              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
               onClick={fetchPlayers}
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
@@ -558,7 +560,7 @@ export default function PlayerAdmin() {
 
         {/* Filters Panel */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-4">
+          <div className="mt-3 pt-3 border-t border-white/10 flex flex-wrap gap-3">
             <EnhancedSelect
               label="Position"
               value={filterPosition}
@@ -587,7 +589,7 @@ export default function PlayerAdmin() {
                   setFilterRarity('All');
                   setSortBy('rating-desc');
                 }}
-                className="px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white text-sm transition-colors"
+                className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white text-[10px] uppercase font-bold tracking-wider transition-colors"
               >
                 Reset filters
               </button>
@@ -597,24 +599,24 @@ export default function PlayerAdmin() {
       </div>
 
       {/* Results Info & Pagination Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-white/50">
-          Showing <span className="text-white font-medium">{filteredPlayers.length === 0 ? 0 : (page - 1) * pageSize + 1}</span>
-          –<span className="text-white font-medium">{Math.min(page * pageSize, filteredPlayers.length)}</span> of{' '}
-          <span className="text-white font-medium">{filteredPlayers.length.toLocaleString()}</span>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-[11px] uppercase font-bold tracking-wider text-white/40">
+          Showing <span className="text-white">{filteredPlayers.length === 0 ? 0 : (page - 1) * pageSize + 1}</span>
+          –<span className="text-white">{Math.min(page * pageSize, filteredPlayers.length)}</span> of{' '}
+          <span className="text-white">{filteredPlayers.length.toLocaleString()}</span>
           {players.length !== filteredPlayers.length && (
-            <span className="text-white/40"> (filtered from {players.length.toLocaleString()})</span>
+            <span className="text-white/30 lowercase"> (from {players.length.toLocaleString()})</span>
           )}
         </p>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <select
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-            className="px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-white text-sm focus:outline-none focus:border-cyan-500/50"
+            className="px-2 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white text-[11px] font-bold focus:outline-none focus:border-cyan-500/50"
           >
             {PAGE_SIZE_OPTIONS.map(size => (
-              <option key={size} value={size} className="bg-[#1a1a2e]">{size} per page</option>
+              <option key={size} value={size} className="bg-[#1a1a2e]">{size} / page</option>
             ))}
           </select>
 
@@ -622,19 +624,19 @@ export default function PlayerAdmin() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="p-2 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
-            <span className="px-4 py-2 text-sm text-white/80 min-w-[100px] text-center">
-              Page {page} / {totalPages}
+            <span className="px-3 py-1.5 text-[11px] font-bold text-white/70 min-w-[80px] text-center uppercase tracking-wider">
+              {page} / {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="p-2 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

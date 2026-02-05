@@ -56,15 +56,15 @@ export function PlayerCard({
   }, [mouseX, mouseY]);
 
   const sizeClasses = {
-    sm: 'w-48 h-60',
-    md: 'w-[360px] h-[480px]',
-    lg: 'w-[480px] h-[640px]',
+    sm: 'w-40 h-52',
+    md: 'w-[240px] h-[320px]',
+    lg: 'w-[320px] h-[420px]',
   };
 
   const imageSizes = {
-    sm: { width: 200, height: 220 },
-    md: { width: 380, height: 460 },
-    lg: { width: 500, height: 600 },
+    sm: { width: 160, height: 180 },
+    md: { width: 250, height: 300 },
+    lg: { width: 330, height: 400 },
   };
 
   // Rarity configurations
