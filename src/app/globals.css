@@ -442,19 +442,19 @@
      Mathematical Aesthetic Design System
      ============================================ */
 
-  /* Hero Background - Deep Radial Glow */
+  /* AAA Stadium Background */
   .bg-hero-premium {
     background:
-      /* Vignette overlay */
-      radial-gradient(ellipse at center, transparent 0%, rgba(5, 13, 26, 0.3) 60%, rgba(5, 13, 26, 0.7) 100%),
-      /* Primary radial glow - top */
-      radial-gradient(ellipse 120% 60% at 50% -10%, rgba(99, 102, 241, 0.2), transparent 50%),
-      /* Secondary radial glow - bottom right */
-      radial-gradient(ellipse 80% 50% at 80% 90%, rgba(0, 229, 255, 0.12), transparent 50%),
-      /* Tertiary glow - left accent */
-      radial-gradient(ellipse 60% 40% at 10% 60%, rgba(99, 102, 241, 0.08), transparent 50%),
-      /* Base gradient */
-      linear-gradient(135deg, #050d1a 0%, #0a1628 40%, #1e3a8a 100%);
+      /* Vignette */
+      radial-gradient(ellipse at center, transparent 0%, rgba(3, 8, 18, 0.4) 60%, rgba(3, 8, 18, 0.9) 100%),
+      /* Stadium Floodlights - Top Left */
+      radial-gradient(circle at 20% 0%, rgba(139, 92, 246, 0.15), transparent 40%),
+      /* Stadium Floodlights - Top Right */
+      radial-gradient(circle at 80% 0%, rgba(0, 229, 255, 0.15), transparent 40%),
+      /* Pitch Glow - Bottom */
+      radial-gradient(ellipse at 50% 100%, rgba(34, 197, 94, 0.08), transparent 60%),
+      /* Deep Base */
+      linear-gradient(180deg, #0a0e1a 0%, #111827 100%);
   }
 
   /* Subtle Grid Overlay */

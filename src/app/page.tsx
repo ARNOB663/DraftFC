@@ -5,25 +5,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useGameStore } from '@/stores/gameStore';
-import { Loader2, Users, Plus, LogIn, Trophy, Zap, Shield, Bot, Brain, Target, Flame, Newspaper, Gift, Star, Gem, Mail, Settings, User, Coins, ShoppingCart, ArrowLeftRight, Store } from 'lucide-react';
+import { LayoutGrid, Loader2, Users, Plus, LogIn, Trophy, Zap, Shield, Bot, Brain, Target, Flame, Newspaper, Gift, Star, Gem, Mail, Settings, User, Coins, ShoppingCart, ArrowLeftRight, Store, ChevronRight } from 'lucide-react';
 import type { AIDifficulty } from '@/types';
 
-// Bottom Nav Tabs
-const bottomTabs = [
-  { icon: <Target className="w-5 h-5" />, label: 'QUESTS', id: 'quests' },
-  { icon: <Trophy className="w-5 h-5" />, label: 'LEAGUES', id: 'leagues' },
-  { icon: <ShoppingCart className="w-5 h-5" />, label: 'MARKET', id: 'market' },
-  { icon: <ArrowLeftRight className="w-5 h-5" />, label: 'EXCHANGE', id: 'exchange' },
-  { icon: <Store className="w-5 h-5" />, label: 'STORE', id: 'store' },
-];
+import { MarketView } from '@/components/landing/tabs/MarketView';
+import { ExchangeView } from '@/components/landing/tabs/ExchangeView';
+import { LeaguesView } from '@/components/landing/tabs/LeaguesView';
+import { QuestsView } from '@/components/landing/tabs/QuestsView';
+import { StoreView } from '@/components/landing/tabs/StoreView';
+import { BottomNav } from '@/components/landing/BottomNav';
 
-// Sidebar Nav Items
-const sidebarItems = [
-  { icon: <Newspaper className="w-5 h-5" />, label: 'NEWS' },
-  { icon: <Gift className="w-5 h-5" />, label: 'DAILY LOGIN' },
-  { icon: <Star className="w-5 h-5" />, label: 'STAR PASS' },
-  { icon: <Gem className="w-5 h-5" />, label: 'EARN GEMS' },
-];
+// Bottom Nav Tabs - Moved to component, keeping here only if needed for reference, but logic handles it.
+// Actually, we can remove this array if we use the one in BottomNav or pass it. 
+// But BottomNav has its own internal 'navTabs' definition which matches. 
+// We will use the component's internal tabs or if it requires props? 
+// Checking BottomNav definition: it has internal 'navTabs'. 
+// So we can remove 'bottomTabs' from here entirely or keep it unused. 
+// To be clean, I'll remove it if it's not used elsewhere.
+// It WAS used in return statement map. Now we use BottomNav component.
 
 export default function HomePage() {
   const router = useRouter();
@@ -33,8 +32,7 @@ export default function HomePage() {
   const [aiDifficulty, setAiDifficulty] = useState<AIDifficulty>('medium');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('market');
-  const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('home');
 
   const { connect, isConnected, isConnecting, createRoom, createAIGame, createTestSquadRoom, joinRoom, room } = useGameStore();
 
@@ -131,523 +129,395 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-fc-dark">
+    <div className="relative min-h-screen overflow-hidden bg-fc-dark flex flex-col items-center">
       {/* Background layers - Premium Esports Aesthetic */}
       <div className="fixed inset-0 z-0">
-        {/* Deep radial glow base gradient */}
         <div className="absolute inset-0 bg-hero-premium" />
-
-        {/* Subtle grid overlay */}
         <div className="absolute inset-0 bg-grid-subtle opacity-40" />
-
         {/* Animated diagonal light streaks */}
         <div className="absolute inset-0 overflow-hidden">
           <div
-            className="absolute -left-1/4 top-0 w-[150%] h-[150%] bg-gradient-to-br from-indigo-600/10 via-transparent to-transparent animate-pulse-subtle"
+            className="absolute -left-1/4 top-0 w-[150%] h-[150%] bg-gradient-to-br from-fc-purple/10 via-transparent to-transparent animate-pulse-subtle"
             style={{ transform: 'rotate(-15deg) translateY(-20%)' }}
           />
           <div
-            className="absolute -right-1/4 bottom-0 w-[100%] h-[80%] bg-gradient-to-tl from-fc-accent/8 via-indigo-900/15 to-transparent"
+            className="absolute -right-1/4 bottom-0 w-[100%] h-[80%] bg-gradient-to-tl from-fc-cyan/8 via-fc-blue-900/15 to-transparent"
             style={{ transform: 'rotate(-15deg) translateY(10%)' }}
           />
-          {/* Accent light beam */}
-          <div
-            className="absolute left-1/3 top-0 w-px h-[200%] bg-gradient-to-b from-transparent via-fc-accent/30 to-transparent opacity-60"
-            style={{ transform: 'rotate(-15deg)' }}
-          />
         </div>
-
-        {/* Enhanced radial glow orbs */}
-        <div className="absolute top-[-10%] left-1/4 w-[600px] h-[600px] bg-indigo-600/12 rounded-full blur-[100px] animate-float-slow" />
-        <div className="absolute bottom-[-5%] right-1/4 w-[500px] h-[500px] bg-fc-accent/10 rounded-full blur-[80px] animate-float-slow" style={{ animationDelay: '-3s' }} />
-        <div className="absolute top-1/3 right-[-5%] w-[400px] h-[400px] bg-indigo-500/8 rounded-full blur-[60px]" />
-
         {/* Soft vignette overlay */}
         <div className="absolute inset-0 bg-vignette pointer-events-none" />
       </div>
 
-      {/* Hero Player Image - Left side */}
-      <div className="fixed left-0 bottom-0 z-10 w-[40%] lg:w-[35%] xl:w-[30%] h-full pointer-events-none hidden lg:block">
-        <div className="relative w-full h-full">
-          <div className="absolute bottom-0 left-0 w-full h-[85%]">
-            <Image
-              src="/hero.png"
-              alt="Featured Player"
-              fill
-              className="object-contain object-bottom"
-              priority
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.opacity = '0';
-              }}
-            />
-            {/* Fallback gradient silhouette */}
-            <div className="absolute inset-0 flex items-end justify-center opacity-40">
-              <div className="w-3/4 h-4/5 bg-gradient-to-t from-fc-blue-600/40 via-fc-blue-700/20 to-transparent rounded-t-full blur-md" />
-            </div>
-          </div>
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-fc-accent/5 rounded-full blur-3xl" />
-        </div>
-      </div>
-
-      {/* Left Sidebar */}
-      <aside className="fixed left-0 top-0 h-full z-30 hidden md:flex flex-col items-center py-20 px-2 gap-2 bg-gradient-to-b from-fc-blue-900/80 to-fc-dark/80 backdrop-blur-md border-r border-fc-blue-600/20 w-20">
-        {sidebarItems.map((item) => (
-          <button
-            key={item.label}
-            onClick={() => setActiveSidebar(item.label)}
-            className={`group flex flex-col items-center justify-center gap-1 w-16 h-16 rounded-xl transition-all duration-200 hover:bg-fc-blue-600/40 hover:scale-105 ${activeSidebar === item.label
-              ? 'bg-fc-blue-600/50 shadow-lg shadow-fc-accent/20'
-              : 'bg-fc-blue-800/30'
-              }`}
-          >
-            <span className={`transition-colors duration-200 ${activeSidebar === item.label ? 'text-fc-accent' : 'text-fc-blue-300 group-hover:text-white'}`}>
-              {item.icon}
-            </span>
-            <span className={`text-[9px] font-semibold tracking-wide text-center leading-tight ${activeSidebar === item.label ? 'text-fc-accent' : 'text-fc-blue-300 group-hover:text-white'}`}>
-              {item.label}
-            </span>
-          </button>
-        ))}
-      </aside>
-
-      {/* Top Bar */}
-      <header className="fixed top-0 left-0 right-0 z-40 h-16 px-4 lg:px-6 md:pl-24 bg-gradient-to-b from-fc-dark/90 to-transparent backdrop-blur-sm">
-        <div className="h-full flex items-center justify-between max-w-[1800px] mx-auto">
+      {/* Top Bar - Wide & Sleek */}
+      <header className="fixed top-0 left-0 right-0 z-40 h-16 px-6 md:px-12 bg-gradient-to-b from-fc-dark/95 to-transparent backdrop-blur-sm">
+        <div className="h-full flex items-center justify-between max-w-[1500px] mx-auto w-full">
           {/* Left: User info */}
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-fc-blue-800/50 border-2 border-fc-gold/50 flex-shrink-0">
-              <div className="absolute inset-0 flex items-center justify-center text-fc-gold font-bold text-lg">⚽</div>
+            <div className="relative w-9 h-9 rounded-full overflow-hidden bg-fc-blue-800/50 border-2 border-fc-gold/50 flex-shrink-0 shadow-lg shadow-fc-gold/20">
+              <div className="absolute inset-0 flex items-center justify-center text-fc-gold font-bold text-base">⚽</div>
             </div>
             <div className="flex flex-col">
-              <span className="text-white font-bold text-sm lg:text-base tracking-wide">
+              <span className="text-white font-black text-sm tracking-wide uppercase font-display leading-tight">
                 {playerName || 'Player'}
               </span>
               <div className="flex items-center gap-2">
-                <span className="bg-fc-blue-700 text-fc-accent text-[10px] font-bold px-1.5 py-0.5 rounded">13</span>
-                <div className="hidden sm:flex items-center gap-1">
-                  <div className="w-16 h-1.5 bg-fc-blue-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-fc-accent to-fc-blue-400 rounded-full" style={{ width: '84%' }} />
+                <span className="bg-fc-blue-700 text-fc-cyan text-[9px] font-bold px-1.5 py-0.5 rounded border border-fc-cyan/30">LVL 13</span>
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="w-16 h-1.5 bg-fc-blue-900/80 rounded-full overflow-hidden border border-fc-blue-700/50">
+                    <div className="h-full bg-gradient-to-r from-fc-cyan to-fc-blue-500 rounded-full" style={{ width: '84%' }} />
                   </div>
-                  <span className="text-[10px] text-fc-blue-300">337 / 400 XP</span>
+                  <span className="text-[9px] text-fc-blue-300 font-medium">337 XP</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right: Currencies */}
-          <div className="flex items-center gap-2 lg:gap-4">
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="flex items-center gap-1.5 bg-fc-blue-800/50 backdrop-blur-sm px-2 lg:px-3 py-1.5 rounded-lg border border-fc-blue-600/30">
-                <Coins className="w-4 h-4 text-fc-gold" />
-                <span className="text-fc-gold font-bold text-xs lg:text-sm">2,229,249</span>
+          <div className="flex items-center gap-3 lg:gap-4">
+            <div className="hidden sm:flex items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-fc-mid/80 backdrop-blur-md px-3 py-1 rounded-full border border-fc-gold/30 shadow-lg shadow-black/20">
+                <Coins className="w-3.5 h-3.5 text-fc-gold fill-fc-gold" />
+                <span className="text-fc-gold font-black text-xs tracking-wider">2.2M</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-fc-blue-800/50 backdrop-blur-sm px-2 lg:px-3 py-1.5 rounded-lg border border-fc-blue-600/30">
-                <span className="text-red-400">💎</span>
-                <span className="text-red-400 font-bold text-xs lg:text-sm">1,045</span>
+              <div className="flex items-center gap-1.5 bg-fc-mid/80 backdrop-blur-md px-3 py-1 rounded-full border border-fc-purple/30 shadow-lg shadow-black/20">
+                <Gem className="w-3.5 h-3.5 text-fc-purple fill-fc-purple" />
+                <span className="text-fc-purple font-black text-xs tracking-wider">1,045</span>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <button className="p-2 rounded-lg bg-fc-blue-800/30 hover:bg-fc-blue-700/50 text-fc-blue-300 hover:text-white transition-all">
-                <Mail className="w-5 h-5" />
+            <div className="flex items-center gap-2">
+              <button className="p-2 rounded-full bg-fc-mid/80 hover:bg-fc-blue-800 border border-white/10 text-fc-blue-300 hover:text-white transition-all hover:scale-105">
+                <Mail className="w-4 h-4" />
               </button>
-              <button className="p-2 rounded-lg bg-fc-blue-800/30 hover:bg-fc-blue-700/50 text-fc-blue-300 hover:text-white transition-all">
-                <Settings className="w-5 h-5" />
+              <button className="p-2 rounded-full bg-fc-mid/80 hover:bg-fc-blue-800 border border-white/10 text-fc-blue-300 hover:text-white transition-all hover:scale-105">
+                <Settings className="w-4 h-4" />
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="relative z-20 min-h-screen pt-20 pb-20 px-4 lg:px-6 md:pl-24">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="lg:ml-[25%] xl:ml-[20%]">
-            {/* Game Menu Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-lg mx-auto lg:mx-0"
-            >
-              {/* Title - Golden Ratio Typography */}
+      {/* Main Content - AAA Dashboard Layout (Wide & Low Profile) */}
+      <main className="relative z-20 min-h-screen w-full px-4 md:px-8 pt-28 pb-24 overflow-y-auto custom-scrollbar">
+        <div className="max-w-[1600px] w-full mx-auto">
+          <AnimatePresence mode="wait">
+            {activeTab === 'home' && mode === 'menu' && (
               <motion.div
-                className="text-center lg:text-left mb-4"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
+                key="dashboard"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.02 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[450px]"
               >
-                <h1 className="text-4xl md:text-4xl font-display font-black mb-1 text-shadow-hero">
-                  <span className="text-gradient-gold">FOOTBALL</span>
-                </h1>
-                <h2 className="text-2xl md:text-2xl font-display font-black text-white text-shadow-hero">AUCTION</h2>
-                <p className="mt-2 text-fc-blue-300 text-base tracking-wide">Draft Your Dream Team</p>
+                {/* Left Panel - AI Challenge (Featured) - Low Profile */}
+                <motion.div
+                  className="col-span-1 lg:col-span-5 relative h-[300px] lg:h-full group overflow-hidden rounded-2xl border border-fc-purple/30 bg-fc-mid shadow-2xl shadow-black/40"
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {/* Background Image - Haaland */}
+                  <div className="absolute inset-0 z-0">
+                    <Image
+                      src="/dummy_image/image1.png"
+                      alt="AI Challenge - Haaland"
+                      fill
+                      className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-fc-dark via-fc-mid/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-fc-purple/50 to-transparent mix-blend-overlay" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shine" />
+                  </div>
+
+                  {/* Content Overlay */}
+                  <div className="absolute bottom-0 left-0 w-full p-6 z-10 flex flex-col items-start bg-gradient-to-t from-fc-dark/95 via-fc-dark/60 to-transparent">
+                    <div className="mb-2 px-2 py-0.5 bg-fc-purple text-white text-[9px] font-black uppercase tracking-widest rounded shadow-lg shadow-fc-purple/40">
+                      Featured
+                    </div>
+                    <h2 className="text-3xl lg:text-4xl font-black text-white italic uppercase leading-none tracking-tighter mb-2 drop-shadow-xl">
+                      AI <span className="text-transparent bg-clip-text bg-gradient-to-r from-fc-purple to-fc-cyan">Challenge</span>
+                    </h2>
+                    <p className="text-white/80 text-xs md:text-sm mb-4 font-medium max-w-xs drop-shadow-md leading-relaxed hidden lg:block">
+                      Master your strategy against elite AI opponents.
+                    </p>
+
+                    <button
+                      onClick={() => setMode('ai')}
+                      className="group/btn relative px-5 py-2.5 bg-white rounded-lg overflow-hidden shadow-xl transition-all hover:scale-105 active:scale-95"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-fc-purple to-fc-blue-600 opacity-90" />
+                      <div className="absolute inset-0 bg-white/30 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+                      <span className="relative flex items-center gap-2 text-white font-black text-sm uppercase tracking-wider">
+                        Play vs AI <ChevronRight className="w-4 h-4" />
+                      </span>
+                    </button>
+
+                    {/* Connection Status Indicator */}
+                    <div className="mt-3 flex items-center gap-1.5">
+                      <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-fc-green animate-pulse' : 'bg-red-500'}`} />
+                      <span className={`text-[9px] font-bold uppercase tracking-wider ${isConnected ? 'text-fc-green' : 'text-red-500'}`}>
+                        {isConnected ? 'Connected' : 'Offline'}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Right Grid - Modes - Strict 3-Row Grid */}
+                <div className="col-span-1 lg:col-span-7 grid grid-rows-3 gap-3 h-full">
+
+                  {/* Row 1: Real-Time Match (Green) */}
+                  <motion.button
+                    onClick={() => setMode('create')}
+                    className="row-span-1 relative group overflow-hidden rounded-2xl border border-fc-green/30 bg-fc-mid shadow-lg w-full h-full"
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-fc-green/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute -right-16 -top-16 w-56 h-56 bg-fc-green/10 rounded-full blur-3xl group-hover:bg-fc-green/20 transition-colors" />
+
+                    <div className="relative h-full flex flex-row justify-between items-center p-5">
+                      <div className="text-left z-10">
+                        <div className="flex items-center gap-1.5 mb-1 text-fc-green">
+                          <Zap className="w-3.5 h-3.5 fill-current animate-pulse" />
+                          <span className="text-[9px] font-bold uppercase tracking-wider">Live</span>
+                        </div>
+                        <h3 className="text-2xl lg:text-3xl font-black text-white uppercase italic tracking-tight drop-shadow-lg">
+                          Real-Time Match
+                        </h3>
+                      </div>
+                      <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 transform rotate-12">
+                        <Trophy className="w-20 h-20 text-fc-green drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+                      </div>
+                    </div>
+                  </motion.button>
+
+
+
+                  {/* Row 2: Split Container (Squad Builder & Join Game) */}
+                  <div className="row-span-1 grid grid-cols-2 gap-3">
+                    {/* Squad Builder (Gold) */}
+                    <motion.button
+                      onClick={handleTestSquad}
+                      className="relative group overflow-hidden rounded-2xl border border-fc-yellow/30 bg-fc-mid shadow-lg w-full h-full"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-fc-yellow/10 to-transparent" />
+                      <div className="relative h-full flex flex-col justify-end p-5 text-left z-10">
+                        <Shield strokeWidth={2.5} className="w-8 h-8 text-fc-yellow mb-2 group-hover:scale-110 transition-transform drop-shadow-glow" />
+                        <h3 className="text-lg font-black text-white uppercase leading-none mb-1">Squad Builder</h3>
+                        <p className="text-fc-yellow text-[9px] font-bold uppercase tracking-wider">Strategy</p>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shine" />
+                    </motion.button>
+
+                    {/* Join Game (Cyan) */}
+                    <motion.button
+                      onClick={() => setMode('join')}
+                      className="relative group overflow-hidden rounded-2xl border border-fc-cyan/30 bg-fc-mid shadow-lg w-full h-full"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="absolute inset-0 z-0">
+                        <Image
+                          src="/dummy_image/image2.png"
+                          alt="Join Game"
+                          fill
+                          className="object-cover object-center opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 mix-blend-luminosity group-hover:mix-blend-normal"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-fc-mid via-fc-mid/50 to-transparent" />
+                      </div>
+                      <div className="relative h-full flex flex-col justify-end p-5 text-left z-10">
+                        <Users className="w-8 h-8 text-fc-cyan mb-2 drop-shadow-glow group-hover:rotate-12 transition-transform" />
+                        <h3 className="text-lg font-black text-white uppercase leading-none mb-1 drop-shadow-md">Join Game</h3>
+                        <p className="text-fc-cyan text-[9px] font-bold uppercase tracking-wider">Lobbies</p>
+                      </div>
+                    </motion.button>
+                  </div>
+
+                  {/* Row 3: Casual Mode / Stats (Blue) */}
+                  <motion.div
+                    className="row-span-1 relative group overflow-hidden rounded-2xl border border-fc-blue-700 bg-gradient-to-r from-fc-blue-900/60 to-fc-mid/60 backdrop-blur-md shadow-lg w-full h-full"
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="h-full flex items-center justify-between px-6 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="px-2 py-0.5 bg-fc-blue-600 text-white text-[8px] font-bold uppercase tracking-widest rounded w-fit">Season 1</span>
+                        <span className="text-white text-lg font-black uppercase italic">Road to Glory</span>
+                      </div>
+                      <div className="flex gap-6">
+                        <div className="text-center group-hover:scale-110 transition-transform">
+                          <span className="block text-xl font-black text-white">12</span>
+                          <span className="text-[9px] text-fc-blue-300 uppercase font-bold tracking-wider">Games</span>
+                        </div>
+                        <div className="text-center group-hover:scale-110 transition-transform">
+                          <span className="block text-xl font-black text-fc-green">8</span>
+                          <span className="text-[9px] text-fc-blue-300 uppercase font-bold tracking-wider">Wins</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
               </motion.div>
+            )}
 
-              {/* Connection status - Enhanced visibility */}
-              {isConnecting && (
-                <div className="flex items-center justify-center lg:justify-start gap-2 text-fc-accent mb-4">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="font-medium">Connecting to server...</span>
-                </div>
-              )}
-
-              {!isConnected && !isConnecting && (
-                <div className="flex flex-col items-center lg:items-start gap-2 text-red-400 mb-4">
-                  <span className="font-medium">Unable to connect to server</span>
-                  <button onClick={() => connect()} className="text-sm text-fc-accent hover:underline font-medium">
-                    Click to retry
-                  </button>
-                </div>
-              )}
-
-              {isConnected && (
-                <div className="status-connected justify-center lg:justify-start mb-4">
-                  <div className="status-dot" />
-                  <span className="text-sm font-medium">Connected</span>
-                </div>
-              )}
-
-              {/* Main Menu Card - Premium Glass */}
+            {activeTab !== 'home' && (
               <motion.div
-                className="glass-premium p-4 lg:p-4"
+                key={activeTab}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="w-full"
               >
-                <AnimatePresence mode="wait">
-                  {mode === 'menu' && (
-                    <motion.div
-                      key="menu"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className="space-y-4"
-                    >
-                      {/* Player Name Input - Premium */}
-                      <div>
-                        <label className="block text-sm font-semibold text-fc-blue-200 mb-2">Your Name</label>
-                        <input
-                          type="text"
-                          value={playerName}
-                          onChange={(e) => setPlayerName(e.target.value)}
-                          placeholder="Enter your name..."
-                          className="input-premium px-4 py-3"
-                          maxLength={20}
-                        />
-                      </div>
-
-                      {error && <p className="text-red-400 text-sm font-medium">{error}</p>}
-
-                      {/* Action Blocks Grid - 2x2 Layout */}
-                      <div className="grid grid-cols-2 gap-3">
-                        {/* Play vs AI - Primary Block */}
-                        <button
-                          onClick={() => setMode('ai')}
-                          disabled={!isConnected}
-                          className="col-span-2 group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
-                          style={{
-                            background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(99, 102, 241, 0.2) 100%)',
-                            border: '1px solid rgba(0, 229, 255, 0.3)',
-                          }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-fc-accent/20 to-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <div className="relative flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-fc-accent to-indigo-500 flex items-center justify-center shadow-lg shadow-fc-accent/30">
-                              <Bot className="w-7 h-7 text-white" />
-                            </div>
-                            <div className="text-left">
-                              <p className="text-lg font-bold text-white">Play vs AI</p>
-                              <p className="text-sm text-fc-blue-300">Practice against AI opponent</p>
-                            </div>
-                          </div>
-                        </button>
-
-                        {/* Create Multiplayer Block */}
-                        <button
-                          onClick={() => setMode('create')}
-                          disabled={!isConnected}
-                          className="group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
-                          style={{
-                            background: 'rgba(30, 58, 138, 0.3)',
-                            border: '1px solid rgba(99, 102, 241, 0.25)',
-                          }}
-                        >
-                          <div className="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <div className="relative flex flex-col items-center gap-2 py-2">
-                            <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 group-hover:border-indigo-400/50 transition-colors">
-                              <Plus className="w-6 h-6 text-indigo-400" />
-                            </div>
-                            <p className="text-sm font-bold text-white">Create</p>
-                            <p className="text-xs text-fc-blue-400">Multiplayer</p>
-                          </div>
-                        </button>
-
-                        {/* Join Game Block */}
-                        <button
-                          onClick={() => setMode('join')}
-                          disabled={!isConnected}
-                          className="group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
-                          style={{
-                            background: 'rgba(30, 58, 138, 0.3)',
-                            border: '1px solid rgba(99, 102, 241, 0.25)',
-                          }}
-                        >
-                          <div className="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <div className="relative flex flex-col items-center gap-2 py-2">
-                            <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 group-hover:border-indigo-400/50 transition-colors">
-                              <Users className="w-6 h-6 text-indigo-400" />
-                            </div>
-                            <p className="text-sm font-bold text-white">Join</p>
-                            <p className="text-xs text-fc-blue-400">Game Room</p>
-                          </div>
-                        </button>
-
-                        {/* Test Squad Builder Block */}
-                        <button
-                          onClick={handleTestSquad}
-                          disabled={!isConnected || isLoading}
-                          className="col-span-2 group relative overflow-hidden rounded-2xl p-3 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01]"
-                          style={{
-                            background: 'transparent',
-                            border: '1px solid rgba(251, 191, 36, 0.3)',
-                          }}
-                        >
-                          <div className="absolute inset-0 bg-fc-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <div className="relative flex items-center justify-center gap-3">
-                            {isLoading ? <Loader2 className="w-5 h-5 text-fc-gold animate-spin" /> : <Target className="w-5 h-5 text-fc-gold" />}
-                            <p className="text-sm font-bold text-fc-gold">{isLoading ? 'Creating...' : 'Test Squad Builder'}</p>
-                          </div>
-                        </button>
-                      </div>
-
-                      {/* Features Strip */}
-                      <div className="flex items-center justify-center gap-6 pt-2">
-                        <div className="flex items-center gap-2 text-fc-blue-400">
-                          <Trophy className="w-4 h-4 text-fc-accent" />
-                          <span className="text-xs font-medium">Compete</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-fc-blue-400">
-                          <Zap className="w-4 h-4 text-green-400" />
-                          <span className="text-xs font-medium">Real-time</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-fc-blue-400">
-                          <Shield className="w-4 h-4 text-purple-400" />
-                          <span className="text-xs font-medium">Strategy</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {mode === 'create' && (
-                    <motion.div
-                      key="create"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-4"
-                    >
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-1">Create New Game</h3>
-                        <p className="text-fc-blue-300 text-sm">Start a room and invite a friend</p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-fc-blue-200 mb-2">Your Name</label>
-                        <input
-                          type="text"
-                          value={playerName}
-                          onChange={(e) => setPlayerName(e.target.value)}
-                          placeholder="Enter your name..."
-                          className="input-premium px-4 py-3"
-                          maxLength={20}
-                        />
-                      </div>
-
-                      {error && <p className="text-red-400 text-sm font-medium">{error}</p>}
-
-                      <div className="flex gap-3">
-                        <button onClick={() => { setMode('menu'); setError(''); }} className="btn-secondary-hero flex-1 py-3 px-4 text-white">
-                          Back
-                        </button>
-                        <button
-                          onClick={handleCreateRoom}
-                          disabled={isLoading}
-                          className="btn-primary-hero flex-1 py-3 px-4 text-white flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                          {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Plus className="w-5 h-5" /> Create</>}
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {mode === 'join' && (
-                    <motion.div
-                      key="join"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-4"
-                    >
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-1">Join Game</h3>
-                        <p className="text-fc-blue-300 text-sm">Enter the room code to join</p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-fc-blue-200 mb-2">Your Name</label>
-                        <input
-                          type="text"
-                          value={playerName}
-                          onChange={(e) => setPlayerName(e.target.value)}
-                          placeholder="Enter your name..."
-                          className="input-premium px-4 py-3"
-                          maxLength={20}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-fc-blue-200 mb-2">Room Code</label>
-                        <input
-                          type="text"
-                          value={roomCode}
-                          onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                          placeholder="Enter room code..."
-                          className="input-premium px-4 py-3 text-center text-xl tracking-widest font-mono"
-                          maxLength={8}
-                        />
-                      </div>
-
-                      {error && <p className="text-red-400 text-sm font-medium">{error}</p>}
-
-                      <div className="flex gap-3">
-                        <button onClick={() => { setMode('menu'); setError(''); }} className="btn-secondary-hero flex-1 py-3 px-4 text-white">
-                          Back
-                        </button>
-                        <button
-                          onClick={handleJoinRoom}
-                          disabled={isLoading}
-                          className="btn-primary-hero flex-1 py-3 px-4 text-white flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                          {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><LogIn className="w-5 h-5" /> Join</>}
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {mode === 'ai' && (
-                    <motion.div
-                      key="ai"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-4"
-                    >
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                          <Bot className="w-6 h-6 text-fc-accent" />
-                          Play vs AI
-                        </h3>
-                        <p className="text-fc-blue-300 text-sm">Practice against an AI opponent</p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-fc-blue-200 mb-2">Your Name</label>
-                        <input
-                          type="text"
-                          value={playerName}
-                          onChange={(e) => setPlayerName(e.target.value)}
-                          placeholder="Enter your name..."
-                          className="input-premium px-4 py-3"
-                          maxLength={20}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-fc-blue-200 mb-3">AI Difficulty</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          <button
-                            onClick={() => setAiDifficulty('easy')}
-                            className={`p-3 rounded-xl border-2 transition-all duration-200 ${aiDifficulty === 'easy' ? 'border-green-500 bg-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'border-fc-blue-600/50 hover:border-green-500/50 hover:bg-green-500/10'}`}
-                          >
-                            <Target className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'easy' ? 'text-green-400' : 'text-fc-blue-400'}`} />
-                            <p className={`text-sm font-medium ${aiDifficulty === 'easy' ? 'text-green-400' : 'text-fc-blue-300'}`}>Easy</p>
-                          </button>
-                          <button
-                            onClick={() => setAiDifficulty('medium')}
-                            className={`p-3 rounded-xl border-2 transition-all duration-200 ${aiDifficulty === 'medium' ? 'border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]' : 'border-fc-blue-600/50 hover:border-yellow-500/50 hover:bg-yellow-500/10'}`}
-                          >
-                            <Brain className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'medium' ? 'text-yellow-400' : 'text-fc-blue-400'}`} />
-                            <p className={`text-sm font-medium ${aiDifficulty === 'medium' ? 'text-yellow-400' : 'text-fc-blue-300'}`}>Medium</p>
-                          </button>
-                          <button
-                            onClick={() => setAiDifficulty('hard')}
-                            className={`p-3 rounded-xl border-2 transition-all duration-200 ${aiDifficulty === 'hard' ? 'border-red-500 bg-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'border-fc-blue-600/50 hover:border-red-500/50 hover:bg-red-500/10'}`}
-                          >
-                            <Flame className={`w-6 h-6 mx-auto mb-1 ${aiDifficulty === 'hard' ? 'text-red-400' : 'text-fc-blue-400'}`} />
-                            <p className={`text-sm font-medium ${aiDifficulty === 'hard' ? 'text-red-400' : 'text-fc-blue-300'}`}>Hard</p>
-                          </button>
-                        </div>
-                      </div>
-
-                      {error && <p className="text-red-400 text-sm font-medium">{error}</p>}
-
-                      <div className="flex gap-3">
-                        <button onClick={() => { setMode('menu'); setError(''); }} className="btn-secondary-hero flex-1 py-3 px-4 text-white">
-                          Back
-                        </button>
-                        <button
-                          onClick={handlePlayAI}
-                          disabled={isLoading}
-                          className="btn-primary-hero flex-1 py-3 px-4 text-white flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                          {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Bot className="w-5 h-5" /> Start Game</>}
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {activeTab === 'market' && <MarketView />}
+                {activeTab === 'exchange' && <ExchangeView />}
+                {activeTab === 'leagues' && <LeaguesView />}
+                {activeTab === 'quests' && <QuestsView />}
+                {activeTab === 'store' && <StoreView />}
               </motion.div>
+            )}
 
-              {/* Footer - Enhanced with subtle styling */}
-              <motion.p
-                className="text-center lg:text-left text-fc-blue-400/80 text-sm mt-4 tracking-wide"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
+            {mode !== 'menu' && (
+              <motion.div
+                key="modal"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="max-w-xl mx-auto w-full bg-fc-mid/95 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-30"
               >
-                <span className="text-fc-gold">$1B Budget</span> • Real-time Bidding • Build Your Dream Team
-              </motion.p>
-            </motion.div>
-          </div>
-        </div>
-      </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 h-16 bg-gradient-to-t from-fc-dark via-fc-blue-900/95 to-fc-blue-900/80 backdrop-blur-lg border-t border-fc-blue-600/30">
-        <div className="h-full max-w-4xl mx-auto px-2 lg:px-4">
-          <div className="h-full flex items-center justify-around lg:justify-center lg:gap-2">
-            {bottomTabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
+                {/* Back Button */}
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex flex-col items-center justify-center gap-1 min-w-[64px] lg:min-w-[100px] h-full px-3 lg:px-6 transition-all duration-200 ${isActive ? 'text-fc-gold' : 'text-fc-blue-300 hover:text-white'}`}
+                  onClick={() => setMode('menu')}
+                  className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
                 >
-                  {isActive && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-fc-gold via-amber-400 to-fc-gold rounded-b-full shadow-lg shadow-fc-gold/50" />
-                  )}
-                  <span className={`transition-all duration-200 ${isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' : ''}`}>
-                    {tab.icon}
-                  </span>
-                  <span className={`text-[10px] lg:text-xs font-bold tracking-wide ${isActive ? 'text-fc-gold' : ''}`}>
-                    {tab.label}
-                  </span>
+                  <ArrowLeftRight className="w-5 h-5" />
                 </button>
-              );
-            })}
-          </div>
+
+                {/* Forms - Keeping compact style */}
+                {mode === 'create' && (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <h3 className="text-2xl font-black text-white uppercase italic">Create Match</h3>
+                      <p className="text-fc-blue-300 text-sm">Start your own game room</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Your Name</label>
+                      <input
+                        type="text"
+                        value={playerName}
+                        onChange={(e) => setPlayerName(e.target.value)}
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors"
+                        placeholder="ENTER NAME..."
+                      />
+                    </div>
+
+                    {error && <p className="text-red-500 font-bold text-center bg-red-500/10 py-2 rounded-lg text-sm">{error}</p>}
+
+                    <button
+                      onClick={handleCreateRoom}
+                      disabled={isLoading}
+                      className="w-full py-3.5 bg-gradient-to-r from-fc-cyan to-fc-blue-600 rounded-lg text-white font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+                    >
+                      {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <><Plus className="w-5 h-5" /> Create Room</>}
+                    </button>
+                  </div>
+                )}
+
+                {/* Join & AI Forms omitted for brevity but would be same style */}
+                {mode === 'join' && (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <h3 className="text-2xl font-black text-white uppercase italic">Join Game</h3>
+                      <p className="text-fc-blue-300 text-sm">Enter room code to connect</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Your Name</label>
+                      <input
+                        type="text"
+                        value={playerName}
+                        onChange={(e) => setPlayerName(e.target.value)}
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Room Code</label>
+                      <input
+                        type="text"
+                        value={roomCode}
+                        onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white text-center text-xl font-mono tracking-[0.5em] placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors uppercase"
+                        maxLength={8}
+                      />
+                    </div>
+                    <button
+                      onClick={handleJoinRoom}
+                      disabled={isLoading}
+                      className="w-full py-3.5 bg-gradient-to-r from-fc-green to-emerald-600 rounded-lg text-white font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+                    >
+                      {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <><LogIn className="w-5 h-5" /> Join Room</>}
+                    </button>
+                  </div>
+                )}
+
+                {mode === 'ai' && (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <h3 className="text-2xl font-black text-white uppercase italic">VS AI</h3>
+                      <p className="text-fc-blue-300 text-sm">Single Player Challenge</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Your Name</label>
+                      <input
+                        type="text"
+                        value={playerName}
+                        onChange={(e) => setPlayerName(e.target.value)}
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-fc-purple transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Difficulty</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {(['easy', 'medium', 'hard'] as const).map((diff) => (
+                          <button
+                            key={diff}
+                            onClick={() => setAiDifficulty(diff)}
+                            className={`py-2.5 rounded-lg border-2 font-bold uppercase text-[10px] transition-all ${aiDifficulty === diff
+                              ? diff === 'easy' ? 'border-fc-green bg-fc-green/20 text-fc-green'
+                                : diff === 'medium' ? 'border-fc-yellow bg-fc-yellow/20 text-fc-yellow'
+                                  : 'border-red-500 bg-red-500/20 text-red-500'
+                              : 'border-white/10 text-white/50 hover:border-white/30'}`}
+                          >
+                            {diff}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      onClick={handlePlayAI}
+                      disabled={isLoading}
+                      className="w-full py-3.5 bg-gradient-to-r from-fc-purple to-indigo-600 rounded-lg text-white font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+                    >
+                      {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <><Bot className="w-5 h-5" /> Start Match</>}
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </nav>
-    </div>
+      </main >
+
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={(id) => {
+          setActiveTab(id);
+          setMode('menu');
+        }}
+      />
+    </div >
   );
 }

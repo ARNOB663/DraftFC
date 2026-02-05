@@ -83,9 +83,15 @@ module.exports = {
         },
         // FIFA/EA FC theme colors - Enhanced
         fc: {
-          dark: '#0a1628',
-          darker: '#050d1a',
-          deepest: '#030812',
+          dark: '#0a0e1a',     // Navy Deep
+          mid: '#1a1f35',      // Navy Mid
+          purple: '#8b5cf6',   // Electric Purple
+          cyan: '#00e5ff',     // Cyan Blue
+          green: '#22c55e',    // Neon Green
+          yellow: '#fbbf24',   // Golden Yellow
+          orange: '#f97316',   // Stadium Orange
+          darker: '#050d1a',   // Legacy darker
+          deepest: '#030812',  // Legacy deepest
           blue: {
             100: '#dbeafe',
             200: '#bfdbfe',
@@ -144,6 +150,7 @@ module.exports = {
         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
         'focus-ring': 'focus-ring 1.5s ease-in-out infinite',
         'status-pulse': 'status-pulse 2s ease-in-out infinite',
+        'shine': 'shine 1.5s ease-in-out infinite',
       },
       keyframes: {
         'pulse-glow': {
@@ -202,6 +209,10 @@ module.exports = {
         'status-pulse': {
           '0%, 100%': { transform: 'scale(1)', opacity: '1' },
           '50%': { transform: 'scale(1.2)', opacity: '0.8' },
+        },
+        'shine': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       backgroundImage: {
