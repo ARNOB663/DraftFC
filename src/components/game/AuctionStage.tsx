@@ -437,19 +437,19 @@ export function AuctionStage() {
             </motion.div>
 
             {/* Player Card + Bid Panel - Side by Side on Large Screens */}
-            <div className="flex flex-col 2xl:flex-row items-center 2xl:items-start justify-center gap-4 xl:gap-6">
+            <div className="flex flex-col xl:flex-row items-center xl:items-start justify-center gap-2 xl:gap-4 w-full">
               {/* Player Card - Use md size for better fit */}
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 200 }}
-                className="flex-shrink-0"
+                className="flex-shrink-0 scale-90 xl:scale-100 origin-top"
               >
                 <PlayerCard player={player} size="md" showStats spotlight />
               </motion.div>
 
               {/* Bid Panel - Alongside card on xl screens */}
-              <div className="w-full max-w-sm flex-shrink-0">
+              <div className="w-full max-w-sm flex-shrink-1">
                 <BidPanel
                   currentBid={currentBid}
                   budget={currentPlayer.budget}
