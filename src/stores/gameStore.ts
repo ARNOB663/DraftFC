@@ -11,17 +11,10 @@ import type {
   GameResult,
   Player,
   AIDifficulty,
-  Formation
+  Formation,
+  ChatMessage
 } from '@/types';
 import { getSocket, connectSocket, disconnectSocket, type GameSocket } from '@/lib/socket';
-
-export interface ChatMessage {
-  id: string;
-  playerId: string;
-  playerName: string;
-  message: string;
-  timestamp: Date;
-}
 
 interface GameState {
   // Connection
@@ -177,7 +170,7 @@ export const useGameStore = create<GameState>()(
         });
 
         socket.on('game:squad-building', (room) => {
-          set({ 
+          set({
             room,
             notification: { message: 'Auction complete! Build your squad now.', type: 'info' }
           });
@@ -260,10 +253,10 @@ export const useGameStore = create<GameState>()(
           }
 
           const opponent = room.players.find(p => p.id !== player.id);
-          set({ 
-            room, 
+          set({
+            room,
             currentPlayer: player || null,
-            opponent: opponent || null 
+            opponent: opponent || null
           });
           resolve(room);
         });
@@ -379,6 +372,9 @@ export const useGameStore = create<GameState>()(
       if (socket) {
         socket.emit('room:leave');
       }
+      localStorage.removeItem('football_auction_player_id');
+      localStorage.removeItem('football_auction_room_id');
+      localStorage.removeItem('football_auction_player_name');
       set({ room: null, currentPlayer: null, opponent: null, currentAuction: null, gameResult: null });
     },
 

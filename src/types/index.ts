@@ -216,20 +216,20 @@ export interface TeamAnalysis {
   playerName: string;
   squad: Player[];
   validation: SquadValidation;
-  
+
   // The 5 Pillars
   power: PowerScore;
   tactical: TacticalScore;
   chemistry: ChemistryScore;
   balance: BalanceScore;
   managerIQ: ManagerIQScore;
-  
+
   // Final Score (weighted)
   finalScore: number;
-  
+
   // Formation determined
   formation: Formation;
-  
+
   // Awards & Highlights
   mvp: Player | null;
   bestTacticalChoice: Player | null;
@@ -250,7 +250,7 @@ export interface TeamScore {
   playerId: string;
   playerName: string;
   totalScore: number;
-  
+
   // Legacy compatibility
   breakdown: {
     averageRating: number;
@@ -260,10 +260,10 @@ export interface TeamScore {
     synergy: number;
     synergyScore: number;
   };
-  
+
   // New Advanced System
   analysis: TeamAnalysis;
-  
+
   squad: Player[];
   formation: Formation;
 }
@@ -275,12 +275,12 @@ export interface GameResult {
   winnerScore: TeamScore;
   loserScore: TeamScore;
   scoreDifference: number;
-  
+
   // Enhanced Results
   mvp: Player;
   bestTacticalChoice: Player | null;
   bestValueSigning: Player | null;
-  
+
   // Match Summary
   matchSummary: {
     winnerValidSquad: boolean;
@@ -289,13 +289,22 @@ export interface GameResult {
     closestPillar: string; // Which score was closest
     dominantPillar: string; // Which score winner dominated most
   };
-  
+
   // Comparison for radar chart
   radarComparison: {
     categories: string[];
     winnerValues: number[];
     loserValues: number[];
   };
+}
+
+// Chat Types
+export interface ChatMessage {
+  id: string;
+  playerId: string;
+  playerName: string;
+  message: string;
+  timestamp: Date;
 }
 
 // Socket Events
@@ -305,7 +314,8 @@ export interface ServerToClientEvents {
   'room:updated': (room: GameRoom) => void;
   'room:player-left': (playerId: string) => void;
   'room:error': (message: string) => void;
-  
+  'room:chat': (message: ChatMessage) => void;
+
   'game:started': (room: GameRoom) => void;
   'game:auction-start': (auction: AuctionState) => void;
   'game:bid-placed': (bid: Bid, auction: AuctionState) => void;
@@ -313,7 +323,9 @@ export interface ServerToClientEvents {
   'game:player-sold': (sold: SoldPlayer, room: GameRoom) => void;
   'game:player-unsold': (player: Player) => void;
   'game:finished': (result: GameResult, room: GameRoom) => void;
-  
+  'game:squad-building': (room: GameRoom) => void;
+  'game:squad-submitted': (playerId: string, room: GameRoom) => void;
+
   'player:budget-updated': (playerId: string, newBudget: number) => void;
   'player:reconnected': (player: GamePlayer) => void;
 }
@@ -321,11 +333,14 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   'room:create': (playerName: string, callback: (room: GameRoom) => void) => void;
   'room:create-with-ai': (playerName: string, difficulty: AIDifficulty, callback: (room: GameRoom, player: GamePlayer) => void) => void;
-  'room:join': (roomId: string, playerName: string, callback: (success: boolean, room?: GameRoom, player?: GamePlayer, error?: string) => void) => void;
+  'room:create-test-squad': (playerName: string, callback: (room: GameRoom | null, player: GamePlayer | null) => void) => void;
+  'room:join': (roomId: string, playerName: string, storedPlayerId: string | null, callback: (success: boolean, room?: GameRoom, player?: GamePlayer, error?: string) => void) => void;
   'room:leave': () => void;
   'room:ready': (isReady: boolean) => void;
-  
+  'room:chat': (message: string) => void;
+
   'game:start': () => void;
   'game:bid': (amount: number) => void;
   'game:skip': () => void;
+  'game:submit-squad': (squad: Player[], formation: Formation, callback: (success: boolean, error?: string) => void) => void;
 }

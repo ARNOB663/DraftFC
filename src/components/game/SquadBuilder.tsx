@@ -6,10 +6,10 @@ import Image from 'next/image';
 import { useGameStore } from '@/stores/gameStore';
 import { cn, formatCurrency, getAllPlayerPositions, getPositionDisplayColor, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import type { Player, Position, Formation } from '@/types';
-import { 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
   AlertTriangle,
   Trophy,
   Users,
@@ -26,35 +26,35 @@ import { MiniPlayerCard } from './PlayerCard';
 
 // Formation definitions (matching ScoringEngine)
 const FORMATIONS: Formation[] = [
-  { 
-    name: '4-3-3', 
-    displayName: '4-3-3', 
-    structure: '4-3-3', 
-    positions: ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'CM', 'LW', 'ST', 'RW'] 
+  {
+    name: '4-3-3',
+    displayName: '4-3-3',
+    structure: '4-3-3',
+    positions: ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'CM', 'LW', 'ST', 'RW']
   },
-  { 
-    name: '4-4-2', 
-    displayName: '4-4-2', 
-    structure: '4-4-2', 
-    positions: ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'] 
+  {
+    name: '4-4-2',
+    displayName: '4-4-2',
+    structure: '4-4-2',
+    positions: ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST']
   },
-  { 
-    name: '4-2-3-1', 
-    displayName: '4-2-3-1', 
-    structure: '4-2-3-1', 
-    positions: ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'CDM', 'LW', 'CAM', 'RM', 'ST'] 
+  {
+    name: '4-2-3-1',
+    displayName: '4-2-3-1',
+    structure: '4-2-3-1',
+    positions: ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'CDM', 'LW', 'CAM', 'RM', 'ST']
   },
-  { 
-    name: '3-5-2', 
-    displayName: '3-5-2', 
-    structure: '3-5-2', 
-    positions: ['GK', 'CB', 'CB', 'CB', 'LM', 'CDM', 'CM', 'CM', 'RM', 'ST', 'ST'] 
+  {
+    name: '3-5-2',
+    displayName: '3-5-2',
+    structure: '3-5-2',
+    positions: ['GK', 'CB', 'CB', 'CB', 'LM', 'CDM', 'CM', 'CM', 'RM', 'ST', 'ST']
   },
-  { 
-    name: '5-3-2', 
-    displayName: '5-3-2', 
-    structure: '5-3-2', 
-    positions: ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'CM', 'CDM', 'CM', 'ST', 'ST'] 
+  {
+    name: '5-3-2',
+    displayName: '5-3-2',
+    structure: '5-3-2',
+    positions: ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'CM', 'CDM', 'CM', 'ST', 'ST']
   },
 ];
 
@@ -194,7 +194,7 @@ export function SquadBuilder() {
   // Auto-submit on timeout
   const handleAutoSubmit = useCallback(async () => {
     if (isSubmitting) return;
-    
+
     const filledSlots = squadSlots.filter(slot => slot.player !== null);
     if (filledSlots.length === 11) {
       const finalSquad = filledSlots.map(slot => slot.player!);
@@ -263,7 +263,7 @@ export function SquadBuilder() {
       validation.errors.push('Need at least 1 Goalkeeper');
     }
 
-    const defCount = filledSlots.filter(slot => 
+    const defCount = filledSlots.filter(slot =>
       ['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(slot.position)
     ).length;
     validation.hasMinDefenders = defCount >= 3;
@@ -271,7 +271,7 @@ export function SquadBuilder() {
       validation.errors.push(`Need at least 3 Defenders (currently ${defCount})`);
     }
 
-    const midCount = filledSlots.filter(slot => 
+    const midCount = filledSlots.filter(slot =>
       ['CDM', 'CM', 'CAM', 'LM', 'RM'].includes(slot.position)
     ).length;
     validation.hasMinMidfielders = midCount >= 2;
@@ -279,7 +279,7 @@ export function SquadBuilder() {
       validation.errors.push(`Need at least 2 Midfielders (currently ${midCount})`);
     }
 
-    const fwdCount = filledSlots.filter(slot => 
+    const fwdCount = filledSlots.filter(slot =>
       ['LW', 'RW', 'ST', 'CF', 'LF', 'RF'].includes(slot.position)
     ).length;
     validation.hasMinForwards = fwdCount >= 1;
@@ -294,7 +294,7 @@ export function SquadBuilder() {
       validation.errors.push('Duplicate players detected');
     }
 
-    validation.isValid = 
+    validation.isValid =
       validation.hasElevenPlayers &&
       validation.hasGoalkeeper &&
       validation.hasMinDefenders &&
@@ -405,7 +405,7 @@ export function SquadBuilder() {
     const invalidPlayers = currentPlayers
       .filter(cp => !formation.positions.some(pos => canPlayPosition(cp.player, pos)))
       .map(cp => cp.player);
-    
+
     setUnassignedPlayers(prev => [...prev, ...invalidPlayers]);
   };
 
@@ -458,7 +458,7 @@ export function SquadBuilder() {
 
     const players = filledSlots.map(slot => slot.player!);
     const avgRating = players.reduce((sum, p) => sum + p.rating, 0) / players.length;
-    
+
     // Simple chemistry calculation (club/nation links)
     let chemistry = 0;
     for (let i = 0; i < players.length; i++) {
@@ -476,7 +476,7 @@ export function SquadBuilder() {
       .filter(sp => sp.buyerId === currentPlayer?.id)
       .reduce((sum, sp) => sum + sp.price, 0) || 0;
 
-    const starPlayer = players.reduce((best, p) => 
+    const starPlayer = players.reduce((best, p) =>
       p.rating > best.rating ? p : best, players[0]
     );
 
@@ -505,7 +505,7 @@ export function SquadBuilder() {
     if (!validation.isValid || isSubmitting) return;
 
     setIsSubmitting(true);
-    
+
     const finalSquad = squadSlots
       .filter(slot => slot.player !== null)
       .map(slot => slot.player!);
@@ -736,7 +736,7 @@ export function SquadBuilder() {
                     key={`${player._id}-${idx}`}
                     onClick={() => setSelectedPlayer(player)}
                     draggable
-                    onDragStart={(e) => {
+                    onDragStart={(e: any) => {
                       e.dataTransfer.setData('text/plain', player._id);
                       e.dataTransfer.effectAllowed = 'move';
                     }}

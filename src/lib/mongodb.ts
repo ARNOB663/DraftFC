@@ -13,7 +13,7 @@ export async function connectToDatabase(): Promise<Db> {
   if (cachedDb) return cachedDb;
 
   if (!cachedClient) {
-    cachedClient = new MongoClient(uri);
+    cachedClient = new MongoClient(uri as string);
     await cachedClient.connect();
   }
 

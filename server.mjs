@@ -10,12 +10,20 @@ import { join } from 'path';
 try {
   const envPath = join(process.cwd(), '.env');
   if (existsSync(envPath)) {
-    readFileSync(envPath, 'utf8').split('\n').forEach((line) => {
+    // Use regex to handle both Windows (CRLF) and Unix (LF) line endings
+    readFileSync(envPath, 'utf8').split(/\r?\n/).forEach((line) => {
       const m = line.match(/^([^#=]+)=(.*)$/);
-      if (m) process.env[m[1].trim()] = m[2].trim();
+      if (m) {
+        const key = m[1].trim();
+        const value = m[2].trim();
+        process.env[key] = value;
+      }
     });
+    console.log(`📁 Loaded .env from ${envPath}`);
   }
-} catch (_) {}
+} catch (e) {
+  console.error('⚠️ Error loading .env:', e.message);
+}
 
 const require = createRequire(import.meta.url);
 const { AIManager } = require('./ai/AIManager.js');
@@ -170,21 +178,41 @@ async function fetchPlayersFromApi() {
 
 async function loadPlayers() {
   const uri = process.env.MONGODB_URI;
+  console.log(`\n🔍 Attempting to load players...`);
+  console.log(`   MONGODB_URI set: ${uri ? 'Yes' : 'No'}`);
+
   if (!uri) {
     console.error('⚠️ MONGODB_URI not set. Add players via Admin panel and set MONGODB_URI in .env');
     allPlayers = await fetchPlayersFromApi();
+    console.log(`   Fallback API loaded: ${allPlayers.length} players`);
     return;
   }
+
   try {
+    console.log(`   Connecting to MongoDB...`);
     mongoClient = new MongoClient(uri);
     await mongoClient.connect();
-    const db = mongoClient.db();
+
+    // Explicitly use the football_game database
+    const db = mongoClient.db('football_game');
+    console.log(`   Connected to database: football_game`);
+
     const docs = await db.collection('players').find({}).limit(200).toArray();
+    console.log(`   Found ${docs.length} documents in players collection`);
+
     allPlayers = docs.map((d, i) => normalizePlayer(d, i));
-    console.log(`✅ Loaded ${allPlayers.length} players from MongoDB`);
+    console.log(`✅ Loaded ${allPlayers.length} players from MongoDB\n`);
+
+    // Show position distribution
+    const positions = {};
+    allPlayers.forEach(p => { positions[p.position] = (positions[p.position] || 0) + 1; });
+    console.log(`📊 Position distribution:`, positions);
+
   } catch (error) {
     console.error('⚠️ Could not load players from MongoDB:', error.message);
+    console.log(`   Trying fallback API...`);
     allPlayers = await fetchPlayersFromApi();
+    console.log(`   Fallback API loaded: ${allPlayers.length} players`);
   }
 }
 
@@ -492,12 +520,27 @@ io.on('connection', (socket) => {
     const room = rooms.get(roomId);
     if (!room || room.status !== 'ready') return;
 
+    // Check if we have players loaded
+    if (allPlayers.length === 0) {
+      console.error(`❌ Cannot start game in room ${roomId}: No players loaded from database`);
+      socket.emit('room:error', 'Cannot start game: No players available. Please check your MongoDB connection and ensure players are loaded. Visit /admin to add players.');
+      return;
+    }
+
     // Initialize balanced auction queue
     room.auctionQueue = createAuctionQueue();
+
+    // Double-check the auction queue
+    if (room.auctionQueue.length === 0) {
+      console.error(`❌ Cannot start game in room ${roomId}: Auction queue is empty despite having ${allPlayers.length} players`);
+      socket.emit('room:error', 'Cannot start game: Failed to create auction queue. Please refresh and try again.');
+      return;
+    }
+
     room.status = 'auction';
     room.startedAt = new Date();
 
-    console.log(`🎮 Game started in room: ${roomId}`);
+    console.log(`🎮 Game started in room: ${roomId} with ${room.auctionQueue.length} players in auction queue`);
     io.to(roomId).emit('game:started', room);
 
     // Start first auction
