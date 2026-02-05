@@ -322,7 +322,7 @@ export function PlayerCard({
 
           {/* Player name with staggered animation - Enhanced visibility */}
           <motion.div
-            className="mt-4 z-10"
+            className="mt-3 z-10"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
@@ -330,15 +330,14 @@ export function PlayerCard({
             {/* First name with text shadow and stroke effect */}
             <h3
               className={cn(
-                'font-display font-black leading-tight',
-                size === 'sm' && 'text-lg',
-                size === 'md' && 'text-3xl',
-                size === 'lg' && 'text-5xl',
+                'font-display font-black leading-none',
+                size === 'sm' && 'text-base',
+                size === 'md' && 'text-xl',
+                size === 'lg' && 'text-3xl',
               )}
               style={{
-                color: '#1f2937',
-                textShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8)',
-                WebkitTextStroke: size === 'lg' ? '1px rgba(0,0,0,0.1)' : 'none',
+                color: '#ffffff',
+                textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.5)',
               }}
             >
               {player.name.split(' ').slice(0, -1).join(' ')}
@@ -346,18 +345,17 @@ export function PlayerCard({
             {/* Last name with accent color and glow */}
             <motion.h3
               className={cn(
-                'font-display font-black leading-tight',
-                size === 'sm' && 'text-xl',
-                size === 'md' && 'text-4xl',
-                size === 'lg' && 'text-6xl',
+                'font-display font-black leading-none',
+                size === 'sm' && 'text-lg',
+                size === 'md' && 'text-2xl',
+                size === 'lg' && 'text-4xl',
               )}
               style={{
-                color: config.accent,
-                textShadow: `0 2px 8px ${config.glow}, 0 4px 16px rgba(0,0,0,0.15)`,
-                WebkitTextStroke: size === 'lg' ? `0.5px ${config.accent}` : 'none',
+                color: '#ffffff',
+                textShadow: `0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2)`,
               }}
               animate={isHovered ? {
-                textShadow: `0 0 30px ${config.glow}, 0 4px 20px ${config.glow}`
+                textShadow: `0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)`
               } : {}}
             >
               {player.name.split(' ').slice(-1)[0]}
@@ -365,7 +363,7 @@ export function PlayerCard({
 
             {size !== 'sm' && (
               <motion.div
-                className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full"
+                className="mt-1.5 inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.7)',
                   backdropFilter: 'blur(4px)',
@@ -378,7 +376,7 @@ export function PlayerCard({
                 <span
                   className="uppercase tracking-widest font-semibold"
                   style={{
-                    fontSize: size === 'lg' ? '14px' : '12px',
+                    fontSize: size === 'lg' ? '11px' : '10px',
                     color: config.accent,
                     textShadow: `0 1px 2px ${config.glow}`,
                   }}
@@ -442,39 +440,38 @@ export function PlayerCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
-            <div className="flex items-end gap-3 mb-3">
+            <div className="flex items-end gap-2 mb-2">
               <motion.span
                 className={cn(
-                  'font-display font-black',
-                  size === 'sm' && 'text-4xl',
-                  size === 'md' && 'text-6xl',
-                  size === 'lg' && 'text-8xl',
+                  'font-display font-black leading-none',
+                  size === 'sm' && 'text-3xl',
+                  size === 'md' && 'text-5xl',
+                  size === 'lg' && 'text-6xl',
                 )}
                 style={{
-                  color: config.accent,
+                  color: '#ffffff',
                   textShadow: `
-                    0 2px 4px rgba(0,0,0,0.2),
-                    0 4px 12px ${config.glow},
-                    0 0 40px ${config.glow}
+                    0 2px 4px rgba(0,0,0,0.3),
+                    0 4px 12px rgba(0,0,0,0.2),
+                    0 0 20px rgba(255,255,255,0.3)
                   `,
-                  WebkitTextStroke: size === 'lg' ? `1px ${config.accent}` : 'none',
                 }}
                 animate={isHovered ? {
                   textShadow: `
-                    0 2px 4px rgba(0,0,0,0.3),
-                    0 8px 24px ${config.glow},
-                    0 0 60px ${config.glow}
+                    0 2px 4px rgba(0,0,0,0.4),
+                    0 8px 24px rgba(0,0,0,0.3),
+                    0 0 30px rgba(255,255,255,0.4)
                   `,
-                  scale: 1.08,
+                  scale: 1.05,
                 } : { scale: 1 }}
                 transition={{ duration: 0.3 }}
               >
                 {player.rating}
               </motion.span>
               <span
-                className="mb-2 uppercase tracking-widest font-bold"
+                className="mb-1 uppercase tracking-wider font-bold"
                 style={{
-                  fontSize: size === 'lg' ? '14px' : '12px',
+                  fontSize: size === 'lg' ? '11px' : '10px',
                   color: '#374151',
                   textShadow: '0 1px 2px rgba(255,255,255,0.8)',
                 }}
@@ -486,7 +483,7 @@ export function PlayerCard({
             {/* Stats bar with staggered reveal */}
             {size !== 'sm' && player.overallStats && (
               <motion.div
-                className="flex gap-2"
+                className="flex gap-1"
                 initial="hidden"
                 animate="visible"
                 variants={{
@@ -504,19 +501,19 @@ export function PlayerCard({
                 ].slice(0, size === 'md' ? 4 : 6).map((stat) => (
                   <motion.div
                     key={stat.label}
-                    className="flex-1 rounded-xl py-2 px-1 text-center text-white relative overflow-hidden"
+                    className="flex-1 rounded-lg py-1.5 px-0.5 text-center text-white relative overflow-hidden min-w-0"
                     style={{
                       backgroundColor: stat.color,
-                      boxShadow: `0 4px 12px ${stat.color}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
+                      boxShadow: `0 2px 8px ${stat.color}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
                     }}
                     variants={{
                       hidden: { opacity: 0, y: 20, scale: 0.8 },
                       visible: { opacity: 1, y: 0, scale: 1 }
                     }}
                     whileHover={{
-                      scale: 1.12,
+                      scale: 1.08,
                       zIndex: 10,
-                      boxShadow: `0 8px 24px ${stat.color}80, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                      boxShadow: `0 4px 16px ${stat.color}80, inset 0 1px 0 rgba(255,255,255,0.3)`,
                     }}
                   >
                     {/* Shine sweep effect */}
@@ -529,7 +526,7 @@ export function PlayerCard({
                     />
                     {/* Stat value with enhanced visibility */}
                     <div
-                      className={cn('font-black relative', size === 'md' ? 'text-lg' : 'text-xl')}
+                      className={cn('font-black relative leading-none', size === 'md' ? 'text-base' : 'text-lg')}
                       style={{
                         textShadow: '0 1px 2px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.2)',
                       }}
@@ -538,7 +535,7 @@ export function PlayerCard({
                     </div>
                     {/* Stat label */}
                     <div
-                      className="text-[10px] uppercase font-semibold tracking-wide relative"
+                      className="text-[9px] uppercase font-semibold tracking-wide relative"
                       style={{
                         textShadow: '0 1px 1px rgba(0,0,0,0.2)',
                         opacity: 0.95,
@@ -554,33 +551,38 @@ export function PlayerCard({
             {/* Price tag with enhanced visibility */}
             {size !== 'sm' && (
               <motion.div
-                className="mt-3 flex justify-between items-center px-3 py-2 rounded-xl"
+                className="mt-2 flex justify-between items-center px-3 py-2 rounded-lg border"
                 style={{
-                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  backgroundColor: 'rgba(0,0,0,0.4)',
                   backdropFilter: 'blur(8px)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5)',
+                  borderColor: `${config.accent}40`,
+                  boxShadow: `0 2px 12px ${config.glow}, inset 0 1px 0 rgba(255,255,255,0.1)`,
                 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
                 <span
-                  className="uppercase tracking-widest font-semibold"
+                  className="uppercase tracking-wider font-bold"
                   style={{
-                    fontSize: '11px',
-                    color: '#6b7280',
-                    textShadow: '0 1px 0 rgba(255,255,255,0.8)',
+                    fontSize: '9px',
+                    color: 'rgba(255,255,255,0.7)',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
                   }}
                 >
                   Base Price
                 </span>
                 <motion.span
-                  className="font-black text-lg"
+                  className="font-black"
                   style={{
-                    color: config.accent,
-                    textShadow: `0 1px 4px ${config.glow}`,
+                    fontSize: size === 'lg' ? '16px' : '14px',
+                    background: `linear-gradient(135deg, ${config.accent}, #FFD700)`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: `0 0 20px ${config.glow}`,
+                    filter: `drop-shadow(0 2px 4px ${config.glow})`,
                   }}
-                  whileHover={{ scale: 1.1 }}
+                  whileHover={{ scale: 1.05 }}
                 >
                   {formatCurrency(player.basePrice * 1000000)}
                 </motion.span>

@@ -80,17 +80,17 @@ export function BidPanel({
 
   return (
     <motion.div
-      className="glass-card p-6 w-full max-w-md"
+      className="glass-card p-4 w-full"
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >
       {/* Quick Bid Buttons */}
-      <div className="grid grid-cols-4 gap-2 mb-4">
+      <div className="grid grid-cols-2 gap-2 mb-4">
         {quickBids.map((bid) => (
           <motion.button
             key={bid.label}
             onClick={() => handleQuickBid(bid.amount)}
-            className="py-3 px-2 bg-dark-800 hover:bg-dark-700 rounded-xl text-sm font-bold transition-colors"
+            className="py-2.5 px-3 bg-dark-800 hover:bg-dark-700 rounded-xl text-sm font-bold transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -104,14 +104,14 @@ export function BidPanel({
         <button
           onClick={() => adjustCustomBid(-increment)}
           disabled={customBid - increment <= currentBid}
-          className="p-3 rounded-xl bg-dark-800 hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
         >
-          <Minus className="w-5 h-5" />
+          <Minus className="w-4 h-4" />
         </button>
 
-        <div className="flex-1 text-center">
+        <div className="flex-1 text-center min-w-0">
           <p className="text-xs text-dark-400 mb-1">Custom Bid</p>
-          <p className="text-2xl font-display font-bold text-neon-green">
+          <p className="text-xl font-display font-bold text-neon-green truncate">
             {formatCurrency(customBid)}
           </p>
         </div>
@@ -119,9 +119,9 @@ export function BidPanel({
         <button
           onClick={() => adjustCustomBid(increment)}
           disabled={customBid + increment > budget}
-          className="p-3 rounded-xl bg-dark-800 hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
         </button>
       </div>
 
@@ -129,7 +129,7 @@ export function BidPanel({
       <motion.button
         onClick={handleCustomBid}
         disabled={customBid <= currentBid || customBid > budget}
-        className="btn-primary w-full flex items-center justify-center gap-2 text-lg"
+        className="btn-primary w-full flex items-center justify-center gap-2 text-base py-3"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
@@ -138,7 +138,7 @@ export function BidPanel({
       </motion.button>
 
       {/* Budget reminder */}
-      <p className="text-center text-dark-400 text-sm mt-3">
+      <p className="text-center text-dark-400 text-xs mt-3">
         Your budget: <span className="text-neon-green font-mono">{formatCurrency(budget)}</span>
       </p>
     </motion.div>
