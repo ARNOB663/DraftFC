@@ -199,7 +199,7 @@ export default function HomePage() {
 
       {/* Main Content - AAA Dashboard Layout (Wide & Low Profile) */}
       <main className="relative z-20 min-h-screen w-full px-4 md:px-8 pt-28 pb-24 overflow-y-auto custom-scrollbar">
-        <div className="max-w-[1600px] w-full mx-auto">
+        <div className="max-w-[1500px] w-full mx-auto">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && mode === 'menu' && (
               <motion.div
@@ -208,11 +208,11 @@ export default function HomePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.02 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[450px]"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[400px]"
               >
                 {/* Left Panel - AI Challenge (Featured) - Low Profile */}
                 <motion.div
-                  className="col-span-1 lg:col-span-5 relative h-[300px] lg:h-full group overflow-hidden rounded-2xl border border-fc-purple/30 bg-fc-mid shadow-2xl shadow-black/40"
+                  className="col-span-1 lg:col-span-5 relative h-[280px] lg:h-full group overflow-hidden rounded-2xl border border-fc-purple/30 bg-fc-mid shadow-2xl shadow-black/40"
                   whileHover={{ scale: 1.01 }}
                   transition={{ duration: 0.3 }}
                 >
@@ -235,10 +235,10 @@ export default function HomePage() {
                     <div className="mb-2 px-2 py-0.5 bg-fc-purple text-white text-[9px] font-black uppercase tracking-widest rounded shadow-lg shadow-fc-purple/40">
                       Featured
                     </div>
-                    <h2 className="text-3xl lg:text-4xl font-black text-white italic uppercase leading-none tracking-tighter mb-2 drop-shadow-xl">
+                    <h2 className="text-2xl lg:text-3xl font-black text-white italic uppercase leading-none tracking-tighter mb-2 drop-shadow-xl">
                       AI <span className="text-transparent bg-clip-text bg-gradient-to-r from-fc-purple to-fc-cyan">Challenge</span>
                     </h2>
-                    <p className="text-white/80 text-xs md:text-sm mb-4 font-medium max-w-xs drop-shadow-md leading-relaxed hidden lg:block">
+                    <p className="text-white/80 text-xs mb-4 font-medium max-w-xs drop-shadow-md leading-relaxed hidden lg:block">
                       Master your strategy against elite AI opponents.
                     </p>
 
@@ -282,12 +282,12 @@ export default function HomePage() {
                           <Zap className="w-3.5 h-3.5 fill-current animate-pulse" />
                           <span className="text-[9px] font-bold uppercase tracking-wider">Live</span>
                         </div>
-                        <h3 className="text-2xl lg:text-3xl font-black text-white uppercase italic tracking-tight drop-shadow-lg">
+                        <h3 className="text-xl lg:text-2xl font-black text-white uppercase italic tracking-tight drop-shadow-lg">
                           Real-Time Match
                         </h3>
                       </div>
                       <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 transform rotate-12">
-                        <Trophy className="w-20 h-20 text-fc-green drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+                        <Trophy className="w-16 h-16 text-fc-green drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
                       </div>
                     </div>
                   </motion.button>
@@ -305,8 +305,8 @@ export default function HomePage() {
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-fc-yellow/10 to-transparent" />
                       <div className="relative h-full flex flex-col justify-end p-5 text-left z-10">
-                        <Shield strokeWidth={2.5} className="w-8 h-8 text-fc-yellow mb-2 group-hover:scale-110 transition-transform drop-shadow-glow" />
-                        <h3 className="text-lg font-black text-white uppercase leading-none mb-1">Squad Builder</h3>
+                        <Shield strokeWidth={2.5} className="w-6 h-6 text-fc-yellow mb-2 group-hover:scale-110 transition-transform drop-shadow-glow" />
+                        <h3 className="text-base font-black text-white uppercase leading-none mb-1">Squad Builder</h3>
                         <p className="text-fc-yellow text-[9px] font-bold uppercase tracking-wider">Strategy</p>
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shine" />
@@ -329,8 +329,8 @@ export default function HomePage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-fc-mid via-fc-mid/50 to-transparent" />
                       </div>
                       <div className="relative h-full flex flex-col justify-end p-5 text-left z-10">
-                        <Users className="w-8 h-8 text-fc-cyan mb-2 drop-shadow-glow group-hover:rotate-12 transition-transform" />
-                        <h3 className="text-lg font-black text-white uppercase leading-none mb-1 drop-shadow-md">Join Game</h3>
+                        <Users className="w-6 h-6 text-fc-cyan mb-2 drop-shadow-glow group-hover:rotate-12 transition-transform" />
+                        <h3 className="text-base font-black text-white uppercase leading-none mb-1 drop-shadow-md">Join Game</h3>
                         <p className="text-fc-cyan text-[9px] font-bold uppercase tracking-wider">Lobbies</p>
                       </div>
                     </motion.button>
