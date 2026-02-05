@@ -149,56 +149,56 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-vignette pointer-events-none" />
       </div>
 
-      {/* Top Bar - Wide & Sleek */}
-      <header className="fixed top-0 left-0 right-0 z-40 h-16 px-6 md:px-12 bg-gradient-to-b from-fc-dark/95 to-transparent backdrop-blur-sm">
+      {/* Top Bar - Compact & Clean */}
+      <header className="fixed top-0 left-0 right-0 z-40 h-14 px-4 md:px-8 bg-gradient-to-b from-fc-dark/95 to-transparent backdrop-blur-sm">
         <div className="h-full flex items-center justify-between max-w-[1500px] mx-auto w-full">
           {/* Left: User info */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-9 h-9 rounded-full overflow-hidden bg-fc-blue-800/50 border-2 border-fc-gold/50 flex-shrink-0 shadow-lg shadow-fc-gold/20">
-              <div className="absolute inset-0 flex items-center justify-center text-fc-gold font-bold text-base">⚽</div>
+          <div className="flex items-center gap-2">
+            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-fc-blue-800/50 border-2 border-fc-gold/50 flex-shrink-0 shadow-lg shadow-fc-gold/20">
+              <div className="absolute inset-0 flex items-center justify-center text-fc-gold font-bold text-sm">⚽</div>
             </div>
             <div className="flex flex-col">
-              <span className="text-white font-black text-sm tracking-wide uppercase font-display leading-tight">
+              <span className="text-white font-black text-xs tracking-wide uppercase font-display leading-tight">
                 {playerName || 'Player'}
               </span>
-              <div className="flex items-center gap-2">
-                <span className="bg-fc-blue-700 text-fc-cyan text-[9px] font-bold px-1.5 py-0.5 rounded border border-fc-cyan/30">LVL 13</span>
-                <div className="hidden sm:flex items-center gap-2">
-                  <div className="w-16 h-1.5 bg-fc-blue-900/80 rounded-full overflow-hidden border border-fc-blue-700/50">
+              <div className="flex items-center gap-1.5">
+                <span className="bg-fc-blue-700 text-fc-cyan text-[8px] font-bold px-1 py-0.5 rounded border border-fc-cyan/30">LVL 13</span>
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <div className="w-12 h-1 bg-fc-blue-900/80 rounded-full overflow-hidden border border-fc-blue-700/50">
                     <div className="h-full bg-gradient-to-r from-fc-cyan to-fc-blue-500 rounded-full" style={{ width: '84%' }} />
                   </div>
-                  <span className="text-[9px] text-fc-blue-300 font-medium">337 XP</span>
+                  <span className="text-[8px] text-fc-blue-300 font-medium">337 XP</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right: Currencies */}
-          <div className="flex items-center gap-3 lg:gap-4">
-            <div className="hidden sm:flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-fc-mid/80 backdrop-blur-md px-3 py-1 rounded-full border border-fc-gold/30 shadow-lg shadow-black/20">
-                <Coins className="w-3.5 h-3.5 text-fc-gold fill-fc-gold" />
-                <span className="text-fc-gold font-black text-xs tracking-wider">2.2M</span>
+          <div className="flex items-center gap-2 lg:gap-3">
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-fc-mid/80 backdrop-blur-md px-2 py-1 rounded-full border border-fc-gold/30 shadow-lg shadow-black/20">
+                <Coins className="w-3 h-3 text-fc-gold fill-fc-gold" />
+                <span className="text-fc-gold font-black text-[10px] tracking-wider">2.2M</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-fc-mid/80 backdrop-blur-md px-3 py-1 rounded-full border border-fc-purple/30 shadow-lg shadow-black/20">
-                <Gem className="w-3.5 h-3.5 text-fc-purple fill-fc-purple" />
-                <span className="text-fc-purple font-black text-xs tracking-wider">1,045</span>
+              <div className="flex items-center gap-1 bg-fc-mid/80 backdrop-blur-md px-2 py-1 rounded-full border border-fc-purple/30 shadow-lg shadow-black/20">
+                <Gem className="w-3 h-3 text-fc-purple fill-fc-purple" />
+                <span className="text-fc-purple font-black text-[10px] tracking-wider">1,045</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2 rounded-full bg-fc-mid/80 hover:bg-fc-blue-800 border border-white/10 text-fc-blue-300 hover:text-white transition-all hover:scale-105">
-                <Mail className="w-4 h-4" />
+            <div className="flex items-center gap-1.5">
+              <button className="p-1.5 rounded-full bg-fc-mid/80 hover:bg-fc-blue-800 border border-white/10 text-fc-blue-300 hover:text-white transition-all hover:scale-105">
+                <Mail className="w-3.5 h-3.5" />
               </button>
-              <button className="p-2 rounded-full bg-fc-mid/80 hover:bg-fc-blue-800 border border-white/10 text-fc-blue-300 hover:text-white transition-all hover:scale-105">
-                <Settings className="w-4 h-4" />
+              <button className="p-1.5 rounded-full bg-fc-mid/80 hover:bg-fc-blue-800 border border-white/10 text-fc-blue-300 hover:text-white transition-all hover:scale-105">
+                <Settings className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content - AAA Dashboard Layout (Wide & Low Profile) */}
-      <main className="relative z-20 min-h-screen w-full px-4 md:px-8 pt-28 pb-24 overflow-y-auto custom-scrollbar">
+      {/* Main Content - Tightened Layout */}
+      <main className="relative z-20 min-h-screen w-full px-4 md:px-8 pt-16 pb-20 overflow-y-auto custom-scrollbar">
         <div className="max-w-[1500px] w-full mx-auto">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && mode === 'menu' && (
@@ -208,11 +208,11 @@ export default function HomePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.02 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[400px]"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:h-[290px]"
               >
-                {/* Left Panel - AI Challenge (Featured) - Low Profile */}
+                {/* Left Panel - AI Challenge (Featured) - Ultra Compact */}
                 <motion.div
-                  className="col-span-1 lg:col-span-5 relative h-[280px] lg:h-full group overflow-hidden rounded-2xl border border-fc-purple/30 bg-fc-mid shadow-2xl shadow-black/40"
+                  className="col-span-1 lg:col-span-5 relative h-[200px] lg:h-full group overflow-hidden rounded-2xl border border-fc-purple/30 bg-fc-mid shadow-2xl shadow-black/40"
                   whileHover={{ scale: 1.01 }}
                   transition={{ duration: 0.3 }}
                 >
@@ -222,7 +222,7 @@ export default function HomePage() {
                       src="/dummy_image/image1.png"
                       alt="AI Challenge - Haaland"
                       fill
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                      className="object-cover object-top"
                       priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-fc-dark via-fc-mid/20 to-transparent" />
@@ -231,32 +231,32 @@ export default function HomePage() {
                   </div>
 
                   {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 w-full p-6 z-10 flex flex-col items-start bg-gradient-to-t from-fc-dark/95 via-fc-dark/60 to-transparent">
-                    <div className="mb-2 px-2 py-0.5 bg-fc-purple text-white text-[9px] font-black uppercase tracking-widest rounded shadow-lg shadow-fc-purple/40">
+                  <div className="absolute bottom-0 left-0 w-full p-4 z-10 flex flex-col items-start bg-gradient-to-t from-fc-dark/95 via-fc-dark/60 to-transparent">
+                    <div className="mb-1.5 px-2 py-0.5 bg-fc-purple text-white text-[8px] font-black uppercase tracking-widest rounded shadow-lg shadow-fc-purple/40">
                       Featured
                     </div>
-                    <h2 className="text-2xl lg:text-3xl font-black text-white italic uppercase leading-none tracking-tighter mb-2 drop-shadow-xl">
+                    <h2 className="text-xl lg:text-2xl font-black text-white italic uppercase leading-none tracking-tighter mb-1.5 drop-shadow-xl">
                       AI <span className="text-transparent bg-clip-text bg-gradient-to-r from-fc-purple to-fc-cyan">Challenge</span>
                     </h2>
-                    <p className="text-white/80 text-xs mb-4 font-medium max-w-xs drop-shadow-md leading-relaxed hidden lg:block">
+                    <p className="text-white/80 text-[10px] mb-3 font-medium max-w-xs drop-shadow-md leading-tight hidden lg:block">
                       Master your strategy against elite AI opponents.
                     </p>
 
                     <button
                       onClick={() => setMode('ai')}
-                      className="group/btn relative px-5 py-2.5 bg-white rounded-lg overflow-hidden shadow-xl transition-all hover:scale-105 active:scale-95"
+                      className="group/btn relative px-4 py-2 bg-white rounded-lg overflow-hidden shadow-xl transition-all hover:scale-105 active:scale-95"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-fc-purple to-fc-blue-600 opacity-90" />
                       <div className="absolute inset-0 bg-white/30 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-                      <span className="relative flex items-center gap-2 text-white font-black text-sm uppercase tracking-wider">
-                        Play vs AI <ChevronRight className="w-4 h-4" />
+                      <span className="relative flex items-center gap-1.5 text-white font-black text-xs uppercase tracking-wider">
+                        Play vs AI <ChevronRight className="w-3.5 h-3.5" />
                       </span>
                     </button>
 
                     {/* Connection Status Indicator */}
-                    <div className="mt-3 flex items-center gap-1.5">
+                    <div className="mt-2.5 flex items-center gap-1.5">
                       <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-fc-green animate-pulse' : 'bg-red-500'}`} />
-                      <span className={`text-[9px] font-bold uppercase tracking-wider ${isConnected ? 'text-fc-green' : 'text-red-500'}`}>
+                      <span className={`text-[8px] font-bold uppercase tracking-wider ${isConnected ? 'text-fc-green' : 'text-red-500'}`}>
                         {isConnected ? 'Connected' : 'Offline'}
                       </span>
                     </div>
@@ -276,18 +276,18 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-fc-green/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute -right-16 -top-16 w-56 h-56 bg-fc-green/10 rounded-full blur-3xl group-hover:bg-fc-green/20 transition-colors" />
 
-                    <div className="relative h-full flex flex-row justify-between items-center p-5">
+                    <div className="relative h-full flex flex-row justify-between items-center p-4">
                       <div className="text-left z-10">
                         <div className="flex items-center gap-1.5 mb-1 text-fc-green">
-                          <Zap className="w-3.5 h-3.5 fill-current animate-pulse" />
-                          <span className="text-[9px] font-bold uppercase tracking-wider">Live</span>
+                          <Zap className="w-3 h-3 fill-current animate-pulse" />
+                          <span className="text-[8px] font-bold uppercase tracking-wider">Live</span>
                         </div>
-                        <h3 className="text-xl lg:text-2xl font-black text-white uppercase italic tracking-tight drop-shadow-lg">
+                        <h3 className="text-lg lg:text-xl font-black text-white uppercase italic tracking-tight drop-shadow-lg">
                           Real-Time Match
                         </h3>
                       </div>
-                      <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 transform rotate-12">
-                        <Trophy className="w-16 h-16 text-fc-green drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300 transform rotate-12">
+                        <Trophy className="w-12 h-12 text-fc-green drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
                       </div>
                     </div>
                   </motion.button>
@@ -304,10 +304,10 @@ export default function HomePage() {
                       transition={{ duration: 0.2 }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-fc-yellow/10 to-transparent" />
-                      <div className="relative h-full flex flex-col justify-end p-5 text-left z-10">
-                        <Shield strokeWidth={2.5} className="w-6 h-6 text-fc-yellow mb-2 group-hover:scale-110 transition-transform drop-shadow-glow" />
-                        <h3 className="text-base font-black text-white uppercase leading-none mb-1">Squad Builder</h3>
-                        <p className="text-fc-yellow text-[9px] font-bold uppercase tracking-wider">Strategy</p>
+                      <div className="relative h-full flex flex-col justify-end p-4 text-left z-10">
+                        <Shield strokeWidth={2.5} className="w-5 h-5 text-fc-yellow mb-1.5 group-hover:scale-110 transition-transform drop-shadow-glow" />
+                        <h3 className="text-sm font-black text-white uppercase leading-none mb-1">Squad Builder</h3>
+                        <p className="text-fc-yellow text-[8px] font-bold uppercase tracking-wider">Strategy</p>
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shine" />
                     </motion.button>
@@ -324,14 +324,14 @@ export default function HomePage() {
                           src="/dummy_image/image2.png"
                           alt="Join Game"
                           fill
-                          className="object-cover object-center opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 mix-blend-luminosity group-hover:mix-blend-normal"
+                          className="object-cover object-center opacity-40 group-hover:opacity-80 group-hover:scale-110 transition-all duration-500 mix-blend-luminosity group-hover:mix-blend-normal"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-fc-mid via-fc-mid/50 to-transparent" />
                       </div>
-                      <div className="relative h-full flex flex-col justify-end p-5 text-left z-10">
-                        <Users className="w-6 h-6 text-fc-cyan mb-2 drop-shadow-glow group-hover:rotate-12 transition-transform" />
-                        <h3 className="text-base font-black text-white uppercase leading-none mb-1 drop-shadow-md">Join Game</h3>
-                        <p className="text-fc-cyan text-[9px] font-bold uppercase tracking-wider">Lobbies</p>
+                      <div className="relative h-full flex flex-col justify-end p-4 text-left z-10">
+                        <Users className="w-5 h-5 text-fc-cyan mb-1.5 drop-shadow-glow group-hover:rotate-12 transition-transform" />
+                        <h3 className="text-sm font-black text-white uppercase leading-none mb-1 drop-shadow-md">Join Game</h3>
+                        <p className="text-fc-cyan text-[8px] font-bold uppercase tracking-wider">Lobbies</p>
                       </div>
                     </motion.button>
                   </div>
@@ -342,19 +342,19 @@ export default function HomePage() {
                     whileHover={{ scale: 1.01 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="h-full flex items-center justify-between px-6 py-3">
+                    <div className="h-full flex items-center justify-between px-5 py-2">
                       <div className="flex flex-col gap-0.5">
-                        <span className="px-2 py-0.5 bg-fc-blue-600 text-white text-[8px] font-bold uppercase tracking-widest rounded w-fit">Season 1</span>
-                        <span className="text-white text-lg font-black uppercase italic">Road to Glory</span>
+                        <span className="px-1.5 py-0.5 bg-fc-blue-600 text-white text-[7px] font-bold uppercase tracking-widest rounded w-fit">Season 1</span>
+                        <span className="text-white text-base font-black uppercase italic">Road to Glory</span>
                       </div>
-                      <div className="flex gap-6">
+                      <div className="flex gap-4">
                         <div className="text-center group-hover:scale-110 transition-transform">
-                          <span className="block text-xl font-black text-white">12</span>
-                          <span className="text-[9px] text-fc-blue-300 uppercase font-bold tracking-wider">Games</span>
+                          <span className="block text-lg font-black text-white leading-none">12</span>
+                          <span className="text-[7px] text-fc-blue-300 uppercase font-bold tracking-wider">Games</span>
                         </div>
                         <div className="text-center group-hover:scale-110 transition-transform">
-                          <span className="block text-xl font-black text-fc-green">8</span>
-                          <span className="text-[9px] text-fc-blue-300 uppercase font-bold tracking-wider">Wins</span>
+                          <span className="block text-lg font-black text-fc-green leading-none">8</span>
+                          <span className="text-[7px] text-fc-blue-300 uppercase font-bold tracking-wider">Wins</span>
                         </div>
                       </div>
                     </div>
@@ -383,109 +383,111 @@ export default function HomePage() {
             {mode !== 'menu' && (
               <motion.div
                 key="modal"
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="max-w-xl mx-auto w-full bg-fc-mid/95 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-30"
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="max-w-sm mx-auto w-full bg-fc-mid/95 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-2xl relative z-30"
               >
                 {/* Back Button */}
                 <button
                   onClick={() => setMode('menu')}
-                  className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                  className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
                 >
-                  <ArrowLeftRight className="w-5 h-5" />
+                  <ArrowLeftRight className="w-4 h-4" />
                 </button>
 
-                {/* Forms - Keeping compact style */}
+                {/* Create Match */}
                 {mode === 'create' && (
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <h3 className="text-2xl font-black text-white uppercase italic">Create Match</h3>
-                      <p className="text-fc-blue-300 text-sm">Start your own game room</p>
+                  <div className="space-y-4">
+                    <div className="text-center mb-1">
+                      <h3 className="text-xl font-black text-white uppercase italic">Create Match</h3>
+                      <p className="text-fc-blue-300 text-xs">Start your own game room</p>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Your Name</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-fc-blue-200 uppercase tracking-wider">Your Name</label>
                       <input
                         type="text"
                         value={playerName}
                         onChange={(e) => setPlayerName(e.target.value)}
-                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors"
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors"
                         placeholder="ENTER NAME..."
                       />
                     </div>
 
-                    {error && <p className="text-red-500 font-bold text-center bg-red-500/10 py-2 rounded-lg text-sm">{error}</p>}
+                    {error && <p className="text-red-500 font-bold text-center bg-red-500/10 py-1.5 rounded-lg text-xs">{error}</p>}
 
                     <button
                       onClick={handleCreateRoom}
                       disabled={isLoading}
-                      className="w-full py-3.5 bg-gradient-to-r from-fc-cyan to-fc-blue-600 rounded-lg text-white font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+                      className="w-full py-3 bg-gradient-to-r from-fc-cyan to-fc-blue-600 rounded-lg text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50 shadow-lg shadow-fc-cyan/20"
                     >
-                      {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <><Plus className="w-5 h-5" /> Create Room</>}
+                      {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <><Plus className="w-4 h-4" /> Create Room</>}
                     </button>
+                    <p className="text-center text-[10px] text-white/30">Lobby ready in seconds</p>
                   </div>
                 )}
 
-                {/* Join & AI Forms omitted for brevity but would be same style */}
+                {/* Join Game */}
                 {mode === 'join' && (
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <h3 className="text-2xl font-black text-white uppercase italic">Join Game</h3>
-                      <p className="text-fc-blue-300 text-sm">Enter room code to connect</p>
+                  <div className="space-y-4">
+                    <div className="text-center mb-1">
+                      <h3 className="text-xl font-black text-white uppercase italic">Join Game</h3>
+                      <p className="text-fc-blue-300 text-xs">Enter room code to connect</p>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Your Name</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-fc-blue-200 uppercase tracking-wider">Your Name</label>
                       <input
                         type="text"
                         value={playerName}
                         onChange={(e) => setPlayerName(e.target.value)}
-                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors"
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Room Code</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-fc-blue-200 uppercase tracking-wider">Room Code</label>
                       <input
                         type="text"
                         value={roomCode}
                         onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white text-center text-xl font-mono tracking-[0.5em] placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors uppercase"
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-3 py-2 text-white text-center text-lg font-mono tracking-[0.5em] placeholder-white/30 focus:outline-none focus:border-fc-cyan transition-colors uppercase"
                         maxLength={8}
                       />
                     </div>
                     <button
                       onClick={handleJoinRoom}
                       disabled={isLoading}
-                      className="w-full py-3.5 bg-gradient-to-r from-fc-green to-emerald-600 rounded-lg text-white font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+                      className="w-full py-3 bg-gradient-to-r from-fc-green to-emerald-600 rounded-lg text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50 shadow-lg shadow-fc-green/20"
                     >
-                      {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <><LogIn className="w-5 h-5" /> Join Room</>}
+                      {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <><LogIn className="w-4 h-4" /> Join Room</>}
                     </button>
                   </div>
                 )}
 
+                {/* VS AI */}
                 {mode === 'ai' && (
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <h3 className="text-2xl font-black text-white uppercase italic">VS AI</h3>
-                      <p className="text-fc-blue-300 text-sm">Single Player Challenge</p>
+                  <div className="space-y-4">
+                    <div className="text-center mb-1">
+                      <h3 className="text-xl font-black text-white uppercase italic">VS AI</h3>
+                      <p className="text-fc-blue-300 text-xs">Single Player Challenge</p>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Your Name</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-fc-blue-200 uppercase tracking-wider">Your Name</label>
                       <input
                         type="text"
                         value={playerName}
                         onChange={(e) => setPlayerName(e.target.value)}
-                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-fc-purple transition-colors"
+                        className="w-full bg-fc-dark/50 border border-fc-blue-600/50 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-fc-purple transition-colors"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-fc-blue-200 uppercase tracking-wide">Difficulty</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-fc-blue-200 uppercase tracking-wider">Difficulty</label>
                       <div className="grid grid-cols-3 gap-2">
                         {(['easy', 'medium', 'hard'] as const).map((diff) => (
                           <button
                             key={diff}
                             onClick={() => setAiDifficulty(diff)}
-                            className={`py-2.5 rounded-lg border-2 font-bold uppercase text-[10px] transition-all ${aiDifficulty === diff
+                            className={`py-2 rounded-lg border-2 font-bold uppercase text-[9px] transition-all ${aiDifficulty === diff
                               ? diff === 'easy' ? 'border-fc-green bg-fc-green/20 text-fc-green'
                                 : diff === 'medium' ? 'border-fc-yellow bg-fc-yellow/20 text-fc-yellow'
                                   : 'border-red-500 bg-red-500/20 text-red-500'
@@ -499,9 +501,9 @@ export default function HomePage() {
                     <button
                       onClick={handlePlayAI}
                       disabled={isLoading}
-                      className="w-full py-3.5 bg-gradient-to-r from-fc-purple to-indigo-600 rounded-lg text-white font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+                      className="w-full py-3 bg-gradient-to-r from-fc-purple to-indigo-600 rounded-lg text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50 shadow-lg shadow-fc-purple/20"
                     >
-                      {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <><Bot className="w-5 h-5" /> Start Match</>}
+                      {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <><Bot className="w-4 h-4" /> Start Match</>}
                     </button>
                   </div>
                 )}
